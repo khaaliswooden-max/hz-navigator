@@ -90,11 +90,66 @@
 
 /* Mapbox overrides */
 .mapboxgl-popup-content {
-  @apply rounded-lg shadow-lg p-4;
+  @apply rounded-xl shadow-xl p-0 overflow-hidden;
+  max-width: 340px !important;
+}
+
+.mapboxgl-popup-close-button {
+  @apply text-gray-400 hover:text-gray-600 text-xl font-light;
+  padding: 8px 12px;
+  right: 0;
+  top: 0;
+}
+
+.mapboxgl-popup-close-button:hover {
+  background: transparent;
 }
 
 .mapboxgl-ctrl-attrib {
   @apply text-xs;
+}
+
+.mapboxgl-ctrl-group {
+  @apply shadow-md;
+}
+
+.mapboxgl-ctrl-group button {
+  @apply hover:bg-gray-50;
+}
+
+/* HUBZone popup specific styles */
+.hubzone-map-popup .mapboxgl-popup-content {
+  padding: 16px;
+}
+
+.hubzone-popup {
+  font-family: 'Source Sans Pro', system-ui, sans-serif;
+}
+
+/* HUBZone marker styles */
+.hubzone-marker {
+  cursor: pointer;
+  transition: transform 0.15s ease-out;
+}
+
+.hubzone-marker:hover {
+  transform: scale(1.1);
+}
+
+.hubzone-marker svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* Map loading spinner */
+.map-loading-spinner {
+  border: 3px solid #E5E7EB;
+  border-top-color: #0E4F8B;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Custom utilities */

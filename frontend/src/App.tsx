@@ -21,6 +21,9 @@ import { EmployeeList } from './pages/Employees';
 import { ComplianceDashboard, ComplianceAlerts, ComplianceReports } from './pages/Compliance';
 import { NotificationPreferences } from './components/Compliance';
 
+// Map Pages
+import { TractDetail } from './pages/Map';
+
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -160,6 +163,7 @@ function App() {
           <Route path="documents" element={<Documents />} />
           <Route path="check" element={<HubzoneCheck />} />
           <Route path="map" element={<MapExplorer />} />
+          <Route path="hubzone/tract/:tractId" element={<TractDetail />} />
           <Route path="certifications" element={<Certifications />} />
           <Route path="verifications" element={<Verifications />} />
           <Route path="reports" element={<ComplianceReports />} />
