@@ -2,6 +2,9 @@
 export * from './hubzone.js';
 export * from './compliance.js';
 export * from './alert.js';
+export * from './hubzoneMapLoader.js';
+export * from './map.js';
+export * from './job.js';
 
 /**
  * Standard API response wrapper

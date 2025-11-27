@@ -11,4 +11,9 @@ export {
   complianceHistoryService,
 } from './complianceHistoryService.js';
 export { SchedulerService, schedulerService } from './schedulerService.js';
+export {
+  HUBZoneMapLoaderService,
+  hubzoneMapLoaderService,
+} from './hubzoneMapLoader.js';
+export { MapService, mapService } from './mapService.js';
 
