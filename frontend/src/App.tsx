@@ -17,23 +17,16 @@ import { BusinessList, BusinessProfile, BusinessCreate, Ownership } from './page
 // Employee Pages
 import { EmployeeList } from './pages/Employees';
 
+// Compliance Pages
+import { ComplianceDashboard, ComplianceAlerts, ComplianceReports } from './pages/Compliance';
+import { NotificationPreferences } from './components/Compliance';
+
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
-
-function Compliance() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Compliance</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Compliance tracking coming soon...</p>
-      </div>
-    </div>
-  );
-}
 
 function Documents() {
   return (
@@ -57,16 +50,6 @@ function Verifications() {
   );
 }
 
-function Reports() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Reports</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Reports and analytics coming soon...</p>
-      </div>
-    </div>
-  );
-}
 
 function Users() {
   return (
@@ -116,8 +99,16 @@ function Settings() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-display font-bold text-gray-900">Settings</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Application settings coming soon...</p>
+      
+      {/* Notification Preferences */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <NotificationPreferences />
+      </div>
+
+      {/* Other Settings placeholder */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Account Settings</h2>
+        <p className="text-sm text-gray-500">Additional account settings coming soon...</p>
       </div>
     </div>
   );
@@ -164,13 +155,15 @@ function App() {
           <Route path="businesses/:id" element={<BusinessProfile />} />
           <Route path="businesses/:id/ownership" element={<Ownership />} />
           <Route path="employees" element={<EmployeeList />} />
-          <Route path="compliance" element={<Compliance />} />
+          <Route path="compliance" element={<ComplianceDashboard />} />
+          <Route path="compliance/alerts" element={<ComplianceAlerts />} />
           <Route path="documents" element={<Documents />} />
           <Route path="check" element={<HubzoneCheck />} />
           <Route path="map" element={<MapExplorer />} />
           <Route path="certifications" element={<Certifications />} />
           <Route path="verifications" element={<Verifications />} />
-          <Route path="reports" element={<Reports />} />
+          <Route path="reports" element={<ComplianceReports />} />
+          <Route path="compliance/reports" element={<ComplianceReports />} />
           <Route path="users" element={<Users />} />
           <Route path="audit-log" element={<AuditLog />} />
           <Route path="admin" element={<AdminConsole />} />

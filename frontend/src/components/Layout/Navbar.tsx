@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import NotificationBell from './NotificationBell';
+import { AlertBadge } from '../Compliance';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -101,6 +102,9 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
               Check Address
             </Link>
           )}
+
+          {/* Compliance Alerts */}
+          <AlertBadge />
 
           {/* Notifications */}
           <NotificationBell />
