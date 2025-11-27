@@ -1,0 +1,16 @@
+{
+  "databaseUrl": {
+    "ENV": "DATABASE_URL"
+  },
+  "migrationsTable": "pgmigrations",
+  "dir": "../database/migrations",
+  "direction": "up",
+  "count": 1,
+  "timestamp": false,
+  "ignorePattern": ".*\\.map",
+  "singleTransaction": true,
+  "createSchema": true,
+  "createMigrationsSchema": true,
+  "verbose": true
+}
+

@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Source Sans Pro', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Merriweather', Georgia, serif;
+    @apply font-bold tracking-tight;
+  }
+}
+
+/* Custom component styles */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 
+           font-semibold rounded-lg transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-offset-2;
+  }
+
+  .btn-primary {
+    @apply btn bg-hubzone-600 text-white 
+           hover:bg-hubzone-700 focus:ring-hubzone-500;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-hubzone-600 border-2 border-hubzone-600
+           hover:bg-hubzone-50 focus:ring-hubzone-500;
+  }
+
+  .btn-ghost {
+    @apply btn text-gray-600 hover:bg-gray-100 focus:ring-gray-300;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-card p-6 
+           transition-shadow duration-200 hover:shadow-card-hover;
+  }
+
+  .input {
+    @apply block w-full px-4 py-3 rounded-lg border border-gray-300
+           focus:ring-2 focus:ring-hubzone-500 focus:border-hubzone-500
+           placeholder:text-gray-400 transition-colors duration-200;
+  }
+
+  .label {
+    @apply block text-sm font-semibold text-gray-700 mb-1;
+  }
+
+  .link {
+    @apply text-hubzone-600 hover:text-hubzone-700 
+           underline-offset-2 hover:underline transition-colors;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full 
+           text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge bg-verified-100 text-verified-800;
+  }
+
+  .badge-warning {
+    @apply badge bg-amber-100 text-amber-800;
+  }
+
+  .badge-error {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  .badge-info {
+    @apply badge bg-hubzone-100 text-hubzone-800;
+  }
+}
+
+/* Mapbox overrides */
+.mapboxgl-popup-content {
+  @apply rounded-lg shadow-lg p-4;
+}
+
+.mapboxgl-ctrl-attrib {
+  @apply text-xs;
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-in {
+    animation: fadeIn 0.3s ease-in-out, slideUp 0.4s ease-out;
+  }
+}
+
