@@ -116,3 +116,20 @@ export interface PaginatedResponse<T> {
   pagination: Pagination;
 }
 
+/**
+ * Notification entity
+ */
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  link?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+
