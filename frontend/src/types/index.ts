@@ -1,4 +1,7 @@
 // Re-export all types
+export * from './business';
+export * from './employee';
+export * from './ownership';
 
 /**
  * HUBZone entity

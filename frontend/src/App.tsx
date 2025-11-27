@@ -11,35 +11,18 @@ import MapExplorer from './pages/MapExplorer';
 import Certifications from './pages/Certifications';
 import NotFound from './pages/NotFound';
 
+// Business Pages
+import { BusinessList, BusinessProfile, BusinessCreate, Ownership } from './pages/Business';
+
+// Employee Pages
+import { EmployeeList } from './pages/Employees';
+
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VerifyEmail from './pages/VerifyEmail';
-
-// Placeholder pages - will be implemented later
-function Businesses() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Businesses</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Business management coming soon...</p>
-      </div>
-    </div>
-  );
-}
-
-function Employees() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Employees</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Employee management coming soon...</p>
-      </div>
-    </div>
-  );
-}
 
 function Compliance() {
   return (
@@ -176,9 +159,11 @@ function App() {
           
           {/* Main pages */}
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="businesses" element={<Businesses />} />
-          <Route path="businesses/:id" element={<Businesses />} />
-          <Route path="employees" element={<Employees />} />
+          <Route path="businesses" element={<BusinessList />} />
+          <Route path="businesses/new" element={<BusinessCreate />} />
+          <Route path="businesses/:id" element={<BusinessProfile />} />
+          <Route path="businesses/:id/ownership" element={<Ownership />} />
+          <Route path="employees" element={<EmployeeList />} />
           <Route path="compliance" element={<Compliance />} />
           <Route path="documents" element={<Documents />} />
           <Route path="check" element={<HubzoneCheck />} />
