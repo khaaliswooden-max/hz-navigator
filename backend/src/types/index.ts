@@ -1,5 +1,7 @@
 // Re-export all types
 export * from './hubzone.js';
+export * from './compliance.js';
+export * from './alert.js';
 
 /**
  * Standard API response wrapper
