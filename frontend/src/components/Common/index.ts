@@ -89,6 +89,20 @@ export {
   SearchInput,
 } from './DebouncedInput';
 
+// Virtual List Component
+export {
+  VirtualList,
+  VirtualRow,
+  SimpleVirtualList,
+} from './VirtualList';
+
+// Lazy Image Components
+export {
+  LazyImage,
+  ProgressiveImage,
+  LazyBackground,
+} from './LazyImage';
+
 // Re-export types that components use
 export type { default as LoadingSpinnerType } from './LoadingSpinner';
 export type { default as ErrorBoundaryType } from './ErrorBoundary';
@@ -97,4 +111,6 @@ export type { default as EmptyStateType } from './EmptyState';
 export type { default as SkeletonType } from './Skeleton';
 export type { default as ButtonType } from './Button';
 export type { default as ProgressBarType } from './ProgressBar';
+export type { VirtualListProps } from './VirtualList';
+export type { LazyImageProps } from './LazyImage';
 

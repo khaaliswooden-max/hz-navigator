@@ -1,0 +1,23 @@
+{
+  "name": "hz-navigator-performance",
+  "version": "1.0.0",
+  "description": "Performance testing scripts for HZ Navigator",
+  "type": "module",
+  "scripts": {
+    "test:load": "k6 run scenarios/load-test.js",
+    "test:stress": "k6 run scenarios/stress-test.js",
+    "test:soak": "k6 run scenarios/soak-test.js --duration 1h",
+    "test:all": "npm run test:load && npm run test:stress",
+    "test:ci": "k6 run scenarios/load-test.js --out json=results.json",
+    "test:local": "k6 run scenarios/load-test.js --env BASE_URL=http://localhost:3001"
+  },
+  "keywords": [
+    "performance",
+    "load-testing",
+    "k6"
+  ],
+  "devDependencies": {
+    "@types/k6": "^0.49.0"
+  }
+}
+

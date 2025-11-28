@@ -1,0 +1,342 @@
+# Alerting Rules Configuration
+# Compatible with Prometheus/Alertmanager, Datadog, and CloudWatch
+
+# ===== Application Alerts =====
+
+alerts:
+  # Error Rate Alert
+  - name: HighErrorRate
+    description: "Error rate exceeds 5% threshold"
+    condition: "error_rate > 0.05"
+    duration: "5m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: api
+    annotations:
+      summary: "High error rate detected"
+      description: "Error rate is {{ $value | humanizePercentage }}"
+      runbook_url: "https://wiki.internal/runbooks/high-error-rate"
+    notifications:
+      - pagerduty
+      - slack
+
+  # Response Time Alert
+  - name: HighResponseTime
+    description: "P95 response time exceeds 2 seconds"
+    condition: "http_request_duration_seconds_p95 > 2"
+    duration: "5m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: api
+    annotations:
+      summary: "High API response time"
+      description: "P95 response time is {{ $value }}s"
+    notifications:
+      - pagerduty
+      - slack
+
+  # Response Time Warning
+  - name: ElevatedResponseTime
+    description: "P95 response time exceeds 500ms target"
+    condition: "http_request_duration_seconds_p95 > 0.5"
+    duration: "10m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: api
+    annotations:
+      summary: "Elevated API response time"
+      description: "P95 response time is {{ $value }}s (target: 200ms)"
+    notifications:
+      - slack
+
+  # Database Connection Pool
+  - name: DatabaseConnectionPoolExhausted
+    description: "Database connection pool is nearly exhausted"
+    condition: "pg_stat_activity_count / pg_settings_max_connections > 0.9"
+    duration: "5m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: database
+    annotations:
+      summary: "Database connection pool exhausted"
+      description: "{{ $value | humanizePercentage }} of connections in use"
+    notifications:
+      - pagerduty
+
+  # Database Query Time
+  - name: SlowDatabaseQueries
+    description: "Average database query time exceeds 50ms target"
+    condition: "avg_query_duration_ms > 100"
+    duration: "10m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: database
+    annotations:
+      summary: "Slow database queries detected"
+      description: "Average query time is {{ $value }}ms"
+    notifications:
+      - slack
+
+# ===== Infrastructure Alerts =====
+
+  # CPU Usage
+  - name: HighCPUUsage
+    description: "CPU usage exceeds 80%"
+    condition: "cpu_usage_percent > 80"
+    duration: "10m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: infrastructure
+    annotations:
+      summary: "High CPU usage"
+      description: "CPU usage is {{ $value }}%"
+    notifications:
+      - slack
+
+  - name: CriticalCPUUsage
+    description: "CPU usage exceeds 95%"
+    condition: "cpu_usage_percent > 95"
+    duration: "5m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: infrastructure
+    notifications:
+      - pagerduty
+
+  # Memory Usage
+  - name: HighMemoryUsage
+    description: "Memory usage exceeds 90%"
+    condition: "memory_usage_percent > 90"
+    duration: "5m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: infrastructure
+    annotations:
+      summary: "High memory usage"
+      description: "Memory usage is {{ $value }}%"
+    notifications:
+      - pagerduty
+      - slack
+
+  # Disk Usage
+  - name: HighDiskUsage
+    description: "Disk usage exceeds 80%"
+    condition: "disk_usage_percent > 80"
+    duration: "30m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: infrastructure
+    annotations:
+      summary: "High disk usage"
+      description: "Disk usage is {{ $value }}%"
+    notifications:
+      - slack
+
+  - name: CriticalDiskUsage
+    description: "Disk usage exceeds 90%"
+    condition: "disk_usage_percent > 90"
+    duration: "10m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: infrastructure
+    notifications:
+      - pagerduty
+
+# ===== Job Queue Alerts =====
+
+  - name: FailedJobsInQueue
+    description: "More than 10 failed jobs in queue"
+    condition: "failed_jobs_count > 10"
+    duration: "15m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: jobs
+    annotations:
+      summary: "Failed jobs accumulating"
+      description: "{{ $value }} failed jobs in queue"
+    notifications:
+      - slack
+
+  - name: JobQueueBacklog
+    description: "Job queue backlog exceeds 1000 jobs"
+    condition: "pending_jobs_count > 1000"
+    duration: "30m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: jobs
+    annotations:
+      summary: "Large job queue backlog"
+      description: "{{ $value }} pending jobs"
+    notifications:
+      - slack
+
+# ===== Uptime Alerts =====
+
+  - name: ServiceDown
+    description: "Service is not responding to health checks"
+    condition: "up == 0"
+    duration: "2m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: api
+    annotations:
+      summary: "Service is down"
+      description: "Health check failing for 2 minutes"
+    notifications:
+      - pagerduty
+      - slack
+
+  - name: HighUptimeViolation
+    description: "Uptime below 99.9% SLA"
+    condition: "uptime_percent < 99.9"
+    duration: "1h"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: api
+    annotations:
+      summary: "SLA violation: Uptime below 99.9%"
+      description: "Current uptime is {{ $value }}%"
+    notifications:
+      - pagerduty
+
+# ===== Cache Alerts =====
+
+  - name: LowCacheHitRate
+    description: "Cache hit rate below 50%"
+    condition: "cache_hit_rate < 0.5"
+    duration: "30m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: cache
+    annotations:
+      summary: "Low cache hit rate"
+      description: "Cache hit rate is {{ $value | humanizePercentage }}"
+    notifications:
+      - slack
+
+  - name: CacheConnectionLost
+    description: "Redis cache connection lost"
+    condition: "redis_connected == 0"
+    duration: "2m"
+    severity: critical
+    labels:
+      service: hz-navigator
+      component: cache
+    annotations:
+      summary: "Cache connection lost"
+    notifications:
+      - pagerduty
+
+# ===== Security Alerts =====
+
+  - name: HighRateLimitHits
+    description: "Unusually high rate limit violations"
+    condition: "rate_limit_hits_per_minute > 100"
+    duration: "10m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: security
+    annotations:
+      summary: "High rate limiting activity"
+      description: "{{ $value }} rate limit hits per minute"
+    notifications:
+      - slack
+      - security-team
+
+  - name: AuthenticationFailureSpike
+    description: "Spike in authentication failures"
+    condition: "auth_failures_per_minute > 50"
+    duration: "5m"
+    severity: warning
+    labels:
+      service: hz-navigator
+      component: security
+    annotations:
+      summary: "Authentication failure spike"
+      description: "{{ $value }} auth failures per minute"
+    notifications:
+      - slack
+      - security-team
+
+# ===== Notification Channels =====
+
+notification_channels:
+  pagerduty:
+    type: pagerduty
+    service_key: "${PAGERDUTY_SERVICE_KEY}"
+    severity_map:
+      critical: critical
+      warning: warning
+
+  slack:
+    type: slack
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "#hz-navigator-alerts"
+    mention_on_critical: "@oncall"
+
+  security-team:
+    type: slack
+    webhook_url: "${SLACK_SECURITY_WEBHOOK_URL}"
+    channel: "#security-alerts"
+
+# ===== Alert Routing =====
+
+routing:
+  default_channel: slack
+  
+  routes:
+    - match:
+        severity: critical
+      channels:
+        - pagerduty
+        - slack
+      repeat_interval: 15m
+    
+    - match:
+        severity: warning
+      channels:
+        - slack
+      repeat_interval: 1h
+    
+    - match:
+        component: security
+      channels:
+        - slack
+        - security-team
+      repeat_interval: 30m
+
+# ===== Inhibition Rules =====
+
+inhibit_rules:
+  # Don't alert on high response time if service is down
+  - source_match:
+      alert_name: ServiceDown
+    target_match:
+      component: api
+    equal:
+      - service
+
+  # Don't alert on cache issues if Redis is down
+  - source_match:
+      alert_name: CacheConnectionLost
+    target_match:
+      component: cache
+    equal:
+      - service
+

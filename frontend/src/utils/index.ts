@@ -10,6 +10,20 @@ export {
   lazyLoadWithRetry,
 } from './lazyLoad';
 
+// Re-export sanitization utilities
+export {
+  escapeHtml,
+  sanitizeString,
+  sanitizeObject,
+  sanitizeEmail,
+  sanitizePhone,
+  sanitizeFileName,
+  isAllowedFileType,
+  isValidFileSize,
+  sanitizeUrl,
+  createSafeHtml,
+} from './sanitize';
+
 /**
  * Merge class names with clsx
  */

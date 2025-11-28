@@ -1,0 +1,63 @@
+{
+  "name": "hz-navigator",
+  "version": "1.0.0",
+  "description": "HZ Navigator - HUBZone Certification Platform",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "e2e"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "cd backend && npm run start",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "lint:backend": "cd backend && npm run lint",
+    "lint:frontend": "cd frontend && npm run lint",
+    "typecheck": "npm run typecheck:backend && npm run typecheck:frontend",
+    "typecheck:backend": "cd backend && npm run typecheck",
+    "typecheck:frontend": "cd frontend && npm run typecheck",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm run test",
+    "test:frontend": "cd frontend && npm run test",
+    "test:unit": "npm run test:unit:backend && npm run test:unit:frontend",
+    "test:unit:backend": "cd backend && npm run test:unit",
+    "test:unit:frontend": "cd frontend && npm run test:unit",
+    "test:integration": "npm run test:integration:backend && npm run test:integration:frontend",
+    "test:integration:backend": "cd backend && npm run test:integration",
+    "test:integration:frontend": "cd frontend && npm run test:integration",
+    "test:e2e": "cd e2e && npm run test",
+    "test:e2e:ui": "cd e2e && npm run test:ui",
+    "test:e2e:headed": "cd e2e && npm run test:headed",
+    "test:coverage": "npm run test:coverage:backend && npm run test:coverage:frontend",
+    "test:coverage:backend": "cd backend && npm run test:coverage",
+    "test:coverage:frontend": "cd frontend && npm run test:coverage",
+    "test:ci": "npm run test:ci:backend && npm run test:ci:frontend",
+    "test:ci:backend": "cd backend && npm run test:ci",
+    "test:ci:frontend": "cd frontend && npm run test:ci",
+    "test:all": "npm run test && npm run test:e2e",
+    "perf:load": "cd performance/k6 && k6 run scenarios/load-test.js",
+    "perf:stress": "cd performance/k6 && k6 run scenarios/stress-test.js",
+    "perf:soak": "cd performance/k6 && k6 run scenarios/soak-test.js",
+    "perf:local": "cd performance/k6 && k6 run scenarios/load-test.js --env BASE_URL=http://localhost:3001",
+    "db:test:setup": "cd backend && npm run db:test:setup",
+    "db:test:reset": "cd backend && npm run db:test:reset",
+    "db:test:seed": "cd backend && npm run db:test:seed",
+    "migrate:up": "cd backend && npm run migrate:up",
+    "migrate:down": "cd backend && npm run migrate:down",
+    "clean": "rimraf backend/dist frontend/dist e2e/test-results e2e/playwright-report"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

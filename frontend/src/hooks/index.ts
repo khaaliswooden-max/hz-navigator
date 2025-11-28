@@ -21,3 +21,30 @@ export {
   useNetworkStatus,
 } from './usePerformance';
 
+// Virtual List hooks
+export {
+  useVirtualList,
+  useVirtualTable,
+  type VirtualListOptions,
+  type VirtualListResult,
+  type VirtualTableOptions,
+} from './useVirtualList';
+
+// Lazy Image hooks
+export {
+  useLazyImage,
+  useLazyImages,
+  useProgressiveImage,
+  type LazyImageOptions,
+  type LazyImageResult,
+  type ProgressiveImageOptions,
+} from './useLazyImage';
+
+// Debounce/Throttle hooks (enhanced)
+export {
+  useLeadingDebounce,
+  useThrottledCallback,
+  useRAFThrottle,
+  useAsyncDebounce,
+} from './useDebounce';
+
