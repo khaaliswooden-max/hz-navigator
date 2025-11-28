@@ -325,7 +325,7 @@ jobs:
           echo "db_url=postgresql://$(echo $SECRET_VALUE | jq -r '.username'):$(echo $SECRET_VALUE | jq -r '.password')@$(echo $SECRET_VALUE | jq -r '.host'):$(echo $SECRET_VALUE | jq -r '.port')/$(echo $SECRET_VALUE | jq -r '.dbname')?sslmode=require" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 
