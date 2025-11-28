@@ -9,8 +9,58 @@ import type { AlertFilterOptions } from '../types/alert.js';
 const router = Router();
 
 /**
- * GET /api/v1/businesses/:businessId/alerts
- * Get all alerts for a specific business
+ * @swagger
+ * /api/v1/businesses/{businessId}/alerts:
+ *   get:
+ *     summary: Get all alerts for a business
+ *     description: Returns paginated alerts for a specific business with filtering options.
+ *     tags: [Alerts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/BusinessIdParam'
+ *       - name: acknowledged
+ *         in: query
+ *         description: Filter by acknowledged status
+ *         schema:
+ *           type: boolean
+ *       - name: status
+ *         in: query
+ *         description: Filter by status (comma-separated)
+ *         schema:
+ *           type: string
+ *           example: active,acknowledged
+ *       - name: severity
+ *         in: query
+ *         description: Filter by severity (comma-separated)
+ *         schema:
+ *           type: string
+ *           example: high,critical
+ *       - name: type
+ *         in: query
+ *         description: Filter by alert type (comma-separated)
+ *         schema:
+ *           type: string
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *     responses:
+ *       200:
+ *         description: List of alerts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ComplianceAlert'
+ *                 pagination:
+ *                   $ref: '#/components/schemas/Pagination'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
   '/businesses/:businessId/alerts',
@@ -63,8 +113,37 @@ router.get(
 );
 
 /**
- * POST /api/v1/businesses/:businessId/alerts/generate
- * Generate new alerts for a business based on current compliance status
+ * @swagger
+ * /api/v1/businesses/{businessId}/alerts/generate:
+ *   post:
+ *     summary: Generate compliance alerts for a business
+ *     description: Analyzes current compliance status and generates relevant alerts.
+ *     tags: [Alerts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - $ref: '#/components/parameters/BusinessIdParam'
+ *     responses:
+ *       201:
+ *         description: Alerts generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ComplianceAlert'
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     generated:
+ *                       type: integer
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post(
   '/businesses/:businessId/alerts/generate',
@@ -90,8 +169,28 @@ router.post(
 );
 
 /**
- * GET /api/v1/alerts/dashboard
- * Get dashboard summary of all alerts
+ * @swagger
+ * /api/v1/alerts/dashboard:
+ *   get:
+ *     summary: Get alerts dashboard summary
+ *     description: Returns aggregated alert statistics for the dashboard view.
+ *     tags: [Alerts]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dashboard summary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/AlertDashboardSummary'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get(
   '/alerts/dashboard',
@@ -114,8 +213,37 @@ router.get(
 );
 
 /**
- * GET /api/v1/alerts/:alertId
- * Get a specific alert by ID
+ * @swagger
+ * /api/v1/alerts/{alertId}:
+ *   get:
+ *     summary: Get alert by ID
+ *     description: Returns detailed information about a specific alert.
+ *     tags: [Alerts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: alertId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Alert details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/ComplianceAlert'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.get(
   '/alerts/:alertId',
@@ -151,8 +279,37 @@ router.get(
 );
 
 /**
- * PUT /api/v1/alerts/:alertId/acknowledge
- * Acknowledge an alert
+ * @swagger
+ * /api/v1/alerts/{alertId}/acknowledge:
+ *   put:
+ *     summary: Acknowledge an alert
+ *     description: Marks an alert as acknowledged by the current user.
+ *     tags: [Alerts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: alertId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Alert acknowledged
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/ComplianceAlert'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.put(
   '/alerts/:alertId/acknowledge',
@@ -200,8 +357,39 @@ router.put(
 );
 
 /**
- * DELETE /api/v1/alerts/:alertId
- * Dismiss an alert
+ * @swagger
+ * /api/v1/alerts/{alertId}:
+ *   delete:
+ *     summary: Dismiss an alert
+ *     description: Marks an alert as dismissed by the current user.
+ *     tags: [Alerts]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: alertId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Alert dismissed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/ComplianceAlert'
+ *                 message:
+ *                   type: string
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       404:
+ *         $ref: '#/components/responses/NotFoundError'
  */
 router.delete(
   '/alerts/:alertId',

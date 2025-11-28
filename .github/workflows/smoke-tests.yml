@@ -1,0 +1,207 @@
+# =============================================================================
+# HZ-Navigator Production Smoke Tests
+# =============================================================================
+# Runs smoke tests against production after deployment
+# Can be triggered manually or automatically after deployment
+# =============================================================================
+
+name: Smoke Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      notify_on_failure:
+        description: 'Send Slack notification on failure'
+        required: false
+        type: boolean
+        default: true
+  
+  # Run after successful deployment
+  workflow_run:
+    workflows: ["Backend CI/CD", "Frontend CI/CD"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  smoke-tests:
+    name: Run Smoke Tests
+    runs-on: ubuntu-latest
+    # Only run if workflow_run was successful, or if manually triggered
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm install -g ts-node typescript @types/node
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            # Default to staging for workflow_run
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for deployment to stabilize
+        run: sleep 60
+
+      - name: Run smoke tests
+        id: smoke-tests
+        run: |
+          npx ts-node scripts/smoke-test.ts --env ${{ steps.env.outputs.environment }} --verbose
+        continue-on-error: true
+
+      - name: Check test results
+        run: |
+          if [ "${{ steps.smoke-tests.outcome }}" == "failure" ]; then
+            echo "## ❌ Smoke Tests Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Environment: ${{ steps.env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Review the test output above for details." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "## ✅ Smoke Tests Passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Environment: ${{ steps.env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify Slack on failure
+        if: failure() && (inputs.notify_on_failure == true || github.event_name == 'workflow_run')
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "🚨 Smoke tests failed for ${{ steps.env.outputs.environment }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚨 *Smoke Tests Failed*\n\nEnvironment: `${{ steps.env.outputs.environment }}`\nWorkflow: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Additional endpoint tests
+  endpoint-tests:
+    name: Endpoint Health Checks
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - name: Determine URLs
+        id: urls
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            ENV="${{ inputs.environment }}"
+          else
+            ENV="staging"
+          fi
+          
+          case $ENV in
+            production)
+              echo "api_url=https://api.hz-navigator.com" >> $GITHUB_OUTPUT
+              echo "frontend_url=https://app.hz-navigator.com" >> $GITHUB_OUTPUT
+              ;;
+            staging)
+              echo "api_url=https://api.staging.hz-navigator.com" >> $GITHUB_OUTPUT
+              echo "frontend_url=https://app.staging.hz-navigator.com" >> $GITHUB_OUTPUT
+              ;;
+            development)
+              echo "api_url=https://api.dev.hz-navigator.com" >> $GITHUB_OUTPUT
+              echo "frontend_url=https://app.dev.hz-navigator.com" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Test API Health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ steps.urls.outputs.api_url }}/api/v1/health")
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ API health check failed with status $STATUS"
+            exit 1
+          fi
+          echo "✅ API health check passed"
+
+      - name: Test Frontend
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ steps.urls.outputs.frontend_url }}")
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Frontend check failed with status $STATUS"
+            exit 1
+          fi
+          echo "✅ Frontend check passed"
+
+      - name: Test API Response Time
+        run: |
+          TIME=$(curl -s -o /dev/null -w "%{time_total}" "${{ steps.urls.outputs.api_url }}/api/v1/health")
+          TIME_MS=$(echo "$TIME * 1000" | bc)
+          echo "API response time: ${TIME_MS}ms"
+          
+          # Fail if > 1 second
+          if (( $(echo "$TIME > 1" | bc -l) )); then
+            echo "❌ API response time too slow: ${TIME_MS}ms"
+            exit 1
+          fi
+          echo "✅ API response time acceptable"
+
+      - name: Test SSL Certificate
+        run: |
+          # Check certificate expiry (warn if < 30 days)
+          EXPIRY=$(echo | openssl s_client -connect api.hz-navigator.com:443 -servername api.hz-navigator.com 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2)
+          EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
+          NOW_EPOCH=$(date +%s)
+          DAYS_LEFT=$(( ($EXPIRY_EPOCH - $NOW_EPOCH) / 86400 ))
+          
+          echo "SSL certificate expires in $DAYS_LEFT days"
+          
+          if [ $DAYS_LEFT -lt 14 ]; then
+            echo "❌ SSL certificate expires in less than 14 days!"
+            exit 1
+          elif [ $DAYS_LEFT -lt 30 ]; then
+            echo "⚠️ SSL certificate expires in less than 30 days"
+          else
+            echo "✅ SSL certificate valid"
+          fi
+
+      - name: Generate summary
+        run: |
+          echo "## Endpoint Health Checks" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Endpoint | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| API Health | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Response Time | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| SSL Certificate | ✅ |" >> $GITHUB_STEP_SUMMARY
+

@@ -13,6 +13,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec, getOpenApiJson } from './config/swagger.js';
 
 // Security middleware
 import {
@@ -49,6 +51,7 @@ import healthRoutes from './routes/health.js';
 import hubzoneRoutes from './routes/hubzones.js';
 import mapRoutes from './routes/map.js';
 import ocrRoutes from './routes/ocr.js';
+import emailRoutes from './routes/email.js';
 
 // Performance monitoring
 import { performanceMonitor } from './middleware/performanceMonitor.js';
@@ -60,6 +63,7 @@ import { documentProcessingJobManager } from './jobs/documentProcessingJob.js';
 import { schedulerService } from './services/schedulerService.js';
 import { validateEnvironment } from './config/secrets.js';
 import { monitoringService } from './services/monitoringService.js';
+import { emailQueueService } from './services/emailQueueService.js';
 
 import type { Application, Request, Response, NextFunction } from 'express';
 
@@ -118,6 +122,25 @@ app.use(createAuditMiddleware({
   skipPaths: ['/api/health', '/api/health/ready', '/api/health/live', '/favicon.ico'],
 }));
 
+// ===== API Documentation =====
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'HZ Navigator API Documentation',
+  swaggerOptions: {
+    persistAuthorization: true,
+    docExpansion: 'none',
+    filter: true,
+    tagsSorter: 'alpha',
+    operationsSorter: 'alpha',
+  },
+}));
+
+// OpenAPI JSON endpoint
+app.get('/api-docs.json', (_req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(getOpenApiJson());
+});
+
 // ===== Health Check Routes (No Rate Limiting) =====
 app.use('/api/health', healthRoutes);
 
@@ -145,6 +168,7 @@ app.use('/api/analytics', apiRateLimiter, analyticsRoutes);
 app.use('/api/contracts', apiRateLimiter, contractRoutes);
 app.use('/api/documents', apiRateLimiter, documentRoutes);
 app.use('/api/ocr', apiRateLimiter, ocrRoutes);
+app.use('/api/email', apiRateLimiter, emailRoutes);
 
 // ===== Error Handling =====
 app.use(notFoundHandler);
@@ -170,6 +194,8 @@ async function startServer(): Promise<void> {
       console.info('');
       console.info(`📍 Server:      http://localhost:${PORT}`);
       console.info(`📊 Health:      http://localhost:${PORT}/api/health`);
+      console.info(`📚 API Docs:    http://localhost:${PORT}/api-docs`);
+      console.info(`📋 OpenAPI:     http://localhost:${PORT}/api-docs.json`);
       console.info(`🌍 Environment: ${process.env['NODE_ENV'] ?? 'development'}`);
       console.info('');
       console.info('🛡️  Security Features:');
@@ -187,6 +213,14 @@ async function startServer(): Promise<void> {
       console.info('');
       console.info(`📈 Metrics:     http://localhost:${PORT}/api/metrics/health`);
       console.info('');
+
+      // Initialize email queue
+      try {
+        await emailQueueService.initialize();
+        console.info('📧 Email queue service initialized');
+      } catch (error) {
+        console.warn('⚠️  Email queue initialization failed, emails will be sent directly');
+      }
 
       // Start scheduled jobs in production
       if (isProduction) {
@@ -218,6 +252,9 @@ process.on('SIGTERM', async () => {
   schedulerService.stop();
   mapUpdateJobManager.stop();
   documentProcessingJobManager.stop();
+  
+  // Stop email queue
+  await emailQueueService.shutdown();
   
   // Close database connections
   const { db } = await import('./services/database.js');

@@ -1,0 +1,304 @@
+# =============================================================================
+# HZ-Navigator Database Migrations Workflow
+# =============================================================================
+# Manages database migrations with rollback capability
+# =============================================================================
+
+name: Database Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      action:
+        description: 'Migration action'
+        required: true
+        type: choice
+        options:
+          - status
+          - up
+          - down
+          - redo
+      count:
+        description: 'Number of migrations (for down/redo)'
+        required: false
+        type: number
+        default: 1
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '20'
+
+jobs:
+  # ===========================================================================
+  # Migration Status
+  # ===========================================================================
+  status:
+    name: Check Migration Status
+    if: inputs.action == 'status'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id hz-navigator-${{ inputs.environment }}-db-password \
+            --query SecretString --output text)
+          echo "::add-mask::$(echo $SECRET_VALUE | jq -r '.password')"
+          DB_USER=$(echo $SECRET_VALUE | jq -r '.username')
+          DB_PASS=$(echo $SECRET_VALUE | jq -r '.password')
+          DB_HOST=$(echo $SECRET_VALUE | jq -r '.host')
+          DB_PORT=$(echo $SECRET_VALUE | jq -r '.port')
+          DB_NAME=$(echo $SECRET_VALUE | jq -r '.dbname')
+          echo "db_url=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Check migration status
+        working-directory: backend
+        run: |
+          npx node-pg-migrate status --migrations-dir ../database/migrations
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+      - name: List pending migrations
+        working-directory: backend
+        run: |
+          echo "## Migration Status - ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Available Migrations" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -la ../database/migrations/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # Run Migrations (Up)
+  # ===========================================================================
+  migrate-up:
+    name: Run Migrations
+    if: inputs.action == 'up'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id hz-navigator-${{ inputs.environment }}-db-password \
+            --query SecretString --output text)
+          echo "::add-mask::$(echo $SECRET_VALUE | jq -r '.password')"
+          DB_USER=$(echo $SECRET_VALUE | jq -r '.username')
+          DB_PASS=$(echo $SECRET_VALUE | jq -r '.password')
+          DB_HOST=$(echo $SECRET_VALUE | jq -r '.host')
+          DB_PORT=$(echo $SECRET_VALUE | jq -r '.port')
+          DB_NAME=$(echo $SECRET_VALUE | jq -r '.dbname')
+          echo "db_url=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Create migration backup
+        run: |
+          # Record current migration state
+          echo "Migration started at $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > migration-log.txt
+          echo "Environment: ${{ inputs.environment }}" >> migration-log.txt
+          echo "Action: up" >> migration-log.txt
+          echo "Commit: ${{ github.sha }}" >> migration-log.txt
+
+      - name: Run migrations
+        working-directory: backend
+        run: |
+          npx node-pg-migrate up --migrations-dir ../database/migrations
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+      - name: Verify migrations
+        working-directory: backend
+        run: |
+          echo "## Migration Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Environment: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "Status: Success" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Current Status" >> $GITHUB_STEP_SUMMARY
+          npx node-pg-migrate status --migrations-dir ../database/migrations >> $GITHUB_STEP_SUMMARY 2>&1 || true
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+  # ===========================================================================
+  # Rollback Migrations (Down)
+  # ===========================================================================
+  migrate-down:
+    name: Rollback Migrations
+    if: inputs.action == 'down'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id hz-navigator-${{ inputs.environment }}-db-password \
+            --query SecretString --output text)
+          echo "::add-mask::$(echo $SECRET_VALUE | jq -r '.password')"
+          DB_USER=$(echo $SECRET_VALUE | jq -r '.username')
+          DB_PASS=$(echo $SECRET_VALUE | jq -r '.password')
+          DB_HOST=$(echo $SECRET_VALUE | jq -r '.host')
+          DB_PORT=$(echo $SECRET_VALUE | jq -r '.port')
+          DB_NAME=$(echo $SECRET_VALUE | jq -r '.dbname')
+          echo "db_url=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Rollback migrations
+        working-directory: backend
+        run: |
+          for i in $(seq 1 ${{ inputs.count }}); do
+            echo "Rolling back migration $i of ${{ inputs.count }}..."
+            npx node-pg-migrate down --migrations-dir ../database/migrations
+          done
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+      - name: Verify rollback
+        working-directory: backend
+        run: |
+          echo "## Migration Rollback Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Environment: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "Migrations rolled back: ${{ inputs.count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Current Status" >> $GITHUB_STEP_SUMMARY
+          npx node-pg-migrate status --migrations-dir ../database/migrations >> $GITHUB_STEP_SUMMARY 2>&1 || true
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+  # ===========================================================================
+  # Redo Migration
+  # ===========================================================================
+  migrate-redo:
+    name: Redo Migration
+    if: inputs.action == 'redo'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id hz-navigator-${{ inputs.environment }}-db-password \
+            --query SecretString --output text)
+          echo "::add-mask::$(echo $SECRET_VALUE | jq -r '.password')"
+          DB_USER=$(echo $SECRET_VALUE | jq -r '.username')
+          DB_PASS=$(echo $SECRET_VALUE | jq -r '.password')
+          DB_HOST=$(echo $SECRET_VALUE | jq -r '.host')
+          DB_PORT=$(echo $SECRET_VALUE | jq -r '.port')
+          DB_NAME=$(echo $SECRET_VALUE | jq -r '.dbname')
+          echo "db_url=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Redo migrations
+        working-directory: backend
+        run: |
+          echo "Rolling back ${{ inputs.count }} migration(s)..."
+          for i in $(seq 1 ${{ inputs.count }}); do
+            npx node-pg-migrate down --migrations-dir ../database/migrations || true
+          done
+          
+          echo "Re-applying migrations..."
+          npx node-pg-migrate up --migrations-dir ../database/migrations
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+      - name: Verify redo
+        working-directory: backend
+        run: |
+          echo "## Migration Redo Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Environment: ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Current Status" >> $GITHUB_STEP_SUMMARY
+          npx node-pg-migrate status --migrations-dir ../database/migrations >> $GITHUB_STEP_SUMMARY 2>&1 || true
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+

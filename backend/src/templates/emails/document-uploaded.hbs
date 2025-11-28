@@ -1,0 +1,45 @@
+<h1>Document Uploaded Successfully</h1>
+
+<p>Hi {{recipientName}},</p>
+
+<p>A new document has been uploaded to your HZ Navigator account.</p>
+
+<div class="card">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+    <tr class="stat-row">
+      <td class="stat-label">Document Name</td>
+      <td class="stat-value">{{documentName}}</td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Document Type</td>
+      <td class="stat-value">{{documentType}}</td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Business</td>
+      <td class="stat-value">{{businessName}}</td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Uploaded</td>
+      <td class="stat-value">{{formatDateTime uploadedAt}}</td>
+    </tr>
+  </table>
+</div>
+
+<div class="alert-box alert-success">
+  <strong>✓ Document Processing</strong>
+  <p style="margin: 5px 0 0; font-size: 14px;">
+    Your document has been received and will be processed automatically. OCR text extraction will be performed if applicable.
+  </p>
+</div>
+
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{documentUrl}}" class="btn">View Document</a>
+</p>
+
+<hr class="divider">
+
+<p style="font-size: 14px; color: #6b7280;">
+  If you didn't upload this document, please contact support immediately at 
+  <a href="mailto:{{supportEmail}}" style="color: #0073c7;">{{supportEmail}}</a>
+</p>
+

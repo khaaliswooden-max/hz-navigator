@@ -1,0 +1,32 @@
+# =============================================================================
+# HZ-Navigator Code Owners
+# =============================================================================
+# These owners will be automatically requested for review when a PR modifies
+# files in their areas of ownership.
+# =============================================================================
+
+# Default owners for everything
+*                           @platform-team
+
+# Infrastructure
+/infrastructure/            @platform-team @devops-team
+/.github/workflows/         @platform-team @devops-team
+
+# Backend
+/backend/                   @backend-team
+/backend/src/services/      @backend-team @senior-engineers
+/database/migrations/       @backend-team @dba-team
+
+# Frontend
+/frontend/                  @frontend-team
+/frontend/src/components/   @frontend-team @ux-team
+
+# Documentation
+/docs/                      @docs-team
+*.md                        @docs-team
+
+# Security-sensitive files
+/backend/src/middleware/auth.ts         @security-team @senior-engineers
+/backend/src/services/encryptionService.ts @security-team
+/infrastructure/modules/iam/            @security-team @devops-team
+

@@ -1,0 +1,409 @@
+# =============================================================================
+# HZ-Navigator Test Pipeline
+# =============================================================================
+# Runs on pull requests to ensure code quality
+# =============================================================================
+
+name: Test Suite
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ===========================================================================
+  # Detect Changes
+  # ===========================================================================
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      database: ${{ steps.filter.outputs.database }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect file changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            database:
+              - 'database/**'
+            e2e:
+              - 'e2e/**'
+
+  # ===========================================================================
+  # Backend Tests
+  # ===========================================================================
+  backend-tests:
+    name: Backend Tests
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.database == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: hz_navigator_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        id: lint
+        run: npm run lint -- --format json --output-file eslint-results.json || true
+        continue-on-error: true
+
+      - name: Annotate ESLint results
+        uses: ataylorme/eslint-annotate-action@v2
+        if: always()
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          report-json: backend/eslint-results.json
+        continue-on-error: true
+
+      - name: Run TypeScript check
+        run: npm run typecheck || npx tsc --noEmit || true
+
+      - name: Run unit tests
+        run: npm test -- --coverage --testPathIgnorePatterns=integration --ci --reporters=default --reporters=jest-junit
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+          JWT_SECRET: test-jwt-secret
+          JEST_JUNIT_OUTPUT_DIR: ./reports
+
+      - name: Run integration tests
+        run: npm test -- --testPathPattern=integration --ci
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+          JWT_SECRET: test-jwt-secret
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backend-test-results
+          path: |
+            backend/coverage/
+            backend/reports/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: backend/coverage/lcov.info
+          flags: backend
+          fail_ci_if_error: false
+
+      - name: Post coverage summary
+        if: always()
+        run: |
+          echo "## Backend Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f coverage/coverage-summary.json ]; then
+            LINES=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+            BRANCHES=$(cat coverage/coverage-summary.json | jq '.total.branches.pct')
+            FUNCTIONS=$(cat coverage/coverage-summary.json | jq '.total.functions.pct')
+            echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|----------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Lines | ${LINES}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+            echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ===========================================================================
+  # Frontend Tests
+  # ===========================================================================
+  frontend-tests:
+    name: Frontend Tests
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        id: lint
+        run: npm run lint -- --format json --output-file eslint-results.json || true
+        continue-on-error: true
+
+      - name: Annotate ESLint results
+        uses: ataylorme/eslint-annotate-action@v2
+        if: always()
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          report-json: frontend/eslint-results.json
+        continue-on-error: true
+
+      - name: Run TypeScript check
+        run: npm run typecheck || npx tsc --noEmit || true
+
+      - name: Run unit tests
+        run: npm test -- --coverage --ci --passWithNoTests
+        env:
+          CI: true
+
+      - name: Build check
+        run: npm run build
+        env:
+          VITE_API_URL: https://api.test.hz-navigator.com
+          VITE_ENVIRONMENT: test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: frontend/coverage/lcov.info
+          flags: frontend
+          fail_ci_if_error: false
+
+      - name: Check bundle size
+        run: |
+          TOTAL_SIZE=$(du -sb dist | cut -f1)
+          MAX_SIZE=5242880  # 5MB
+          
+          echo "## Frontend Build" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Total bundle size: $(du -sh dist | cut -f1)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $TOTAL_SIZE -gt $MAX_SIZE ]; then
+            echo "⚠️ Warning: Bundle size exceeds 5MB" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Bundle size is within limits" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ===========================================================================
+  # E2E Tests
+  # ===========================================================================
+  e2e-tests:
+    name: E2E Tests
+    needs: [changes, backend-tests, frontend-tests]
+    if: |
+      always() &&
+      (needs.changes.outputs.e2e == 'true' || needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true') &&
+      (needs.backend-tests.result == 'success' || needs.backend-tests.result == 'skipped') &&
+      (needs.frontend-tests.result == 'success' || needs.frontend-tests.result == 'skipped')
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: hz_navigator_test
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+        env:
+          VITE_API_URL: http://localhost:3000
+
+      - name: Start backend server
+        working-directory: backend
+        run: npm start &
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+          PORT: 3000
+          JWT_SECRET: test-jwt-secret
+
+      - name: Wait for backend
+        run: |
+          timeout 60 bash -c 'until curl -s http://localhost:3000/api/v1/health; do sleep 2; done'
+
+      - name: Serve frontend
+        working-directory: frontend
+        run: npx serve dist -l 5173 &
+
+      - name: Wait for frontend
+        run: |
+          timeout 30 bash -c 'until curl -s http://localhost:5173; do sleep 2; done'
+
+      - name: Run E2E tests
+        working-directory: e2e
+        run: npx playwright test --reporter=html,github
+        env:
+          BASE_URL: http://localhost:5173
+          API_URL: http://localhost:3000
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
+
+  # ===========================================================================
+  # Security Scan
+  # ===========================================================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Check for critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL'
+        continue-on-error: true
+
+  # ===========================================================================
+  # Summary
+  # ===========================================================================
+  summary:
+    name: Test Summary
+    needs: [backend-tests, frontend-tests, e2e-tests, security-scan]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check results
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend | ${{ needs.backend-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend | ${{ needs.frontend-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if any tests failed
+        if: |
+          needs.backend-tests.result == 'failure' ||
+          needs.frontend-tests.result == 'failure' ||
+          needs.e2e-tests.result == 'failure'
+        run: exit 1
+

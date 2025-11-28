@@ -1,0 +1,95 @@
+{{#ifEquals applicationStatus "approved"}}
+<div class="alert-box alert-success">
+  <strong>🎉 Congratulations! Your Application Has Been Approved</strong>
+</div>
+{{else ifEquals applicationStatus "denied"}}
+<div class="alert-box alert-danger">
+  <strong>Application Update: Action Required</strong>
+</div>
+{{else ifEquals applicationStatus "pending"}}
+<div class="alert-box alert-info">
+  <strong>📋 Application Status Update</strong>
+</div>
+{{else}}
+<div class="alert-box alert-warning">
+  <strong>📋 Application Status Update</strong>
+</div>
+{{/ifEquals}}
+
+<h1>Application Status: {{applicationStatus}}</h1>
+
+<p>Hi {{recipientName}},</p>
+
+<p>We have an update regarding your HUBZone certification application for <strong>{{businessName}}</strong>.</p>
+
+<div class="card">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+    <tr class="stat-row">
+      <td class="stat-label">Application ID</td>
+      <td class="stat-value" style="font-family: monospace;">{{applicationId}}</td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Business</td>
+      <td class="stat-value">{{businessName}}</td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Status</td>
+      <td class="stat-value">
+        {{#ifEquals applicationStatus "approved"}}
+        <span style="color: #10b981;">✓ Approved</span>
+        {{else ifEquals applicationStatus "denied"}}
+        <span style="color: #ef4444;">✗ Denied</span>
+        {{else ifEquals applicationStatus "pending"}}
+        <span style="color: #f59e0b;">⏳ Pending Review</span>
+        {{else ifEquals applicationStatus "in_review"}}
+        <span style="color: #0073c7;">🔍 In Review</span>
+        {{else}}
+        <span>{{applicationStatus}}</span>
+        {{/ifEquals}}
+      </td>
+    </tr>
+  </table>
+</div>
+
+<h2>Status Details</h2>
+<p>{{statusMessage}}</p>
+
+{{#if nextSteps.length}}
+<h2>Next Steps</h2>
+<ol style="padding-left: 20px; color: #4b5563;">
+  {{#each nextSteps}}
+  <li style="margin-bottom: 8px;">{{this}}</li>
+  {{/each}}
+</ol>
+{{/if}}
+
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{dashboardUrl}}" class="btn">View Application Details</a>
+</p>
+
+<hr class="divider">
+
+{{#ifEquals applicationStatus "approved"}}
+<div class="alert-box alert-success">
+  <strong>What's Next?</strong>
+  <p style="margin: 5px 0 0; font-size: 14px;">
+    Your HUBZone certification is now active! You can now participate in HUBZone set-aside contracts and receive price evaluation preferences.
+  </p>
+</div>
+{{/ifEquals}}
+
+{{#ifEquals applicationStatus "denied"}}
+<div class="alert-box alert-info">
+  <strong>Need Help?</strong>
+  <p style="margin: 5px 0 0; font-size: 14px;">
+    Our support team can help you understand the denial reasons and guide you through the appeal process if applicable. Contact us at 
+    <a href="mailto:{{supportEmail}}" style="color: #0073c7;">{{supportEmail}}</a>
+  </p>
+</div>
+{{/ifEquals}}
+
+<p style="font-size: 14px; color: #6b7280;">
+  Questions about your application? Contact us at 
+  <a href="mailto:{{supportEmail}}" style="color: #0073c7;">{{supportEmail}}</a>
+</p>
+

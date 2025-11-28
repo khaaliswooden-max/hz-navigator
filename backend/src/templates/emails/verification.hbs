@@ -1,0 +1,30 @@
+<h1>Verify Your Email Address</h1>
+
+<p>Hi {{recipientName}},</p>
+
+<p>Thanks for signing up for HZ Navigator! Please verify your email address to complete your registration and access all features.</p>
+
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{verificationUrl}}" class="btn btn-success">Verify Email Address</a>
+</p>
+
+<div class="alert-box alert-info">
+  <strong>⏰ Link expires in {{expiresIn}}</strong>
+  <p style="margin: 5px 0 0; font-size: 14px;">This verification link will expire soon for security reasons.</p>
+</div>
+
+<hr class="divider">
+
+<p style="font-size: 14px; color: #6b7280;">
+  If the button doesn't work, copy and paste this link into your browser:
+</p>
+<p style="font-size: 12px; color: #9ca3af; word-break: break-all;">
+  {{verificationUrl}}
+</p>
+
+<hr class="divider">
+
+<p style="font-size: 14px; color: #6b7280;">
+  If you didn't create an account with HZ Navigator, you can safely ignore this email.
+</p>
+

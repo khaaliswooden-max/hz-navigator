@@ -1,0 +1,192 @@
+{
+  "version": "1.0",
+  "description": "HZ-Navigator Uptime Monitoring Configuration",
+  "checks": [
+    {
+      "name": "API Health Check - Production",
+      "type": "http",
+      "url": "https://api.hz-navigator.com/api/v1/health",
+      "method": "GET",
+      "interval": 60,
+      "timeout": 30,
+      "expectedStatus": 200,
+      "expectedBody": "ok",
+      "alerts": {
+        "channels": ["slack", "pagerduty", "email"],
+        "threshold": 2,
+        "escalation": {
+          "afterMinutes": 5,
+          "notify": ["oncall"]
+        }
+      },
+      "regions": ["us-east-1", "us-west-2", "eu-west-1"],
+      "tags": ["production", "api", "critical"]
+    },
+    {
+      "name": "Frontend - Production",
+      "type": "http",
+      "url": "https://app.hz-navigator.com",
+      "method": "GET",
+      "interval": 60,
+      "timeout": 30,
+      "expectedStatus": 200,
+      "alerts": {
+        "channels": ["slack", "email"],
+        "threshold": 2
+      },
+      "regions": ["us-east-1", "us-west-2"],
+      "tags": ["production", "frontend", "critical"]
+    },
+    {
+      "name": "API Health Check - Staging",
+      "type": "http",
+      "url": "https://api.staging.hz-navigator.com/api/v1/health",
+      "method": "GET",
+      "interval": 300,
+      "timeout": 30,
+      "expectedStatus": 200,
+      "alerts": {
+        "channels": ["slack"],
+        "threshold": 3
+      },
+      "regions": ["us-east-1"],
+      "tags": ["staging", "api"]
+    },
+    {
+      "name": "Login Endpoint - Production",
+      "type": "http",
+      "url": "https://api.hz-navigator.com/api/v1/auth/login",
+      "method": "POST",
+      "interval": 300,
+      "timeout": 30,
+      "body": "{\"email\":\"health@check.com\",\"password\":\"health\"}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "expectedStatus": 401,
+      "alerts": {
+        "channels": ["slack", "pagerduty"],
+        "threshold": 2
+      },
+      "tags": ["production", "auth", "critical"]
+    },
+    {
+      "name": "HUBZone Check Endpoint - Production",
+      "type": "http",
+      "url": "https://api.hz-navigator.com/api/v1/hubzones/check",
+      "method": "POST",
+      "interval": 300,
+      "timeout": 60,
+      "body": "{\"address\":\"1600 Pennsylvania Avenue NW\",\"city\":\"Washington\",\"state\":\"DC\",\"zip\":\"20500\"}",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "expectedStatus": [200, 401],
+      "alerts": {
+        "channels": ["slack"],
+        "threshold": 3
+      },
+      "tags": ["production", "hubzone"]
+    },
+    {
+      "name": "SSL Certificate Expiry - API",
+      "type": "ssl",
+      "hostname": "api.hz-navigator.com",
+      "port": 443,
+      "interval": 86400,
+      "warningDays": 30,
+      "criticalDays": 14,
+      "alerts": {
+        "channels": ["slack", "email"],
+        "threshold": 1
+      },
+      "tags": ["production", "ssl"]
+    },
+    {
+      "name": "SSL Certificate Expiry - Frontend",
+      "type": "ssl",
+      "hostname": "app.hz-navigator.com",
+      "port": 443,
+      "interval": 86400,
+      "warningDays": 30,
+      "criticalDays": 14,
+      "alerts": {
+        "channels": ["slack", "email"],
+        "threshold": 1
+      },
+      "tags": ["production", "ssl"]
+    },
+    {
+      "name": "DNS Resolution - API",
+      "type": "dns",
+      "hostname": "api.hz-navigator.com",
+      "interval": 300,
+      "timeout": 10,
+      "expectedRecordType": "A",
+      "alerts": {
+        "channels": ["slack", "pagerduty"],
+        "threshold": 2
+      },
+      "tags": ["production", "dns", "critical"]
+    },
+    {
+      "name": "DNS Resolution - Frontend",
+      "type": "dns",
+      "hostname": "app.hz-navigator.com",
+      "interval": 300,
+      "timeout": 10,
+      "expectedRecordType": "A",
+      "alerts": {
+        "channels": ["slack"],
+        "threshold": 2
+      },
+      "tags": ["production", "dns"]
+    }
+  ],
+  "alertChannels": {
+    "slack": {
+      "type": "slack",
+      "webhookUrl": "${SLACK_WEBHOOK_URL}",
+      "channel": "#hz-navigator-alerts"
+    },
+    "pagerduty": {
+      "type": "pagerduty",
+      "integrationKey": "${PAGERDUTY_INTEGRATION_KEY}",
+      "severity": "critical"
+    },
+    "email": {
+      "type": "email",
+      "recipients": [
+        "oncall@hz-navigator.com",
+        "engineering@hz-navigator.com"
+      ]
+    }
+  },
+  "statusPage": {
+    "enabled": true,
+    "url": "https://status.hz-navigator.com",
+    "components": [
+      {
+        "name": "API",
+        "description": "Core API services",
+        "checks": ["API Health Check - Production"]
+      },
+      {
+        "name": "Web Application",
+        "description": "Frontend web application",
+        "checks": ["Frontend - Production"]
+      },
+      {
+        "name": "Authentication",
+        "description": "Login and authentication services",
+        "checks": ["Login Endpoint - Production"]
+      },
+      {
+        "name": "HUBZone Verification",
+        "description": "Address verification and HUBZone lookup",
+        "checks": ["HUBZone Check Endpoint - Production"]
+      }
+    ]
+  }
+}
+

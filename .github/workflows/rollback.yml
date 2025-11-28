@@ -1,0 +1,372 @@
+# =============================================================================
+# HZ-Navigator Rollback Workflow
+# =============================================================================
+# Manual rollback for backend (ECS) and frontend (S3/CloudFront)
+# =============================================================================
+
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      component:
+        description: 'Component to rollback'
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
+          - both
+      backend_revision:
+        description: 'ECS task revision (leave empty for previous)'
+        required: false
+        type: string
+      frontend_backup:
+        description: 'S3 backup folder (leave empty for latest)'
+        required: false
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  # ===========================================================================
+  # Validate and Confirm
+  # ===========================================================================
+  validate:
+    name: Validate Rollback
+    runs-on: ubuntu-latest
+    outputs:
+      confirmed: ${{ steps.confirm.outputs.confirmed }}
+
+    steps:
+      - name: Log rollback request
+        run: |
+          echo "## Rollback Request" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | ${{ inputs.environment }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | ${{ inputs.component }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Revision | ${{ inputs.backend_revision || 'Previous' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Backup | ${{ inputs.frontend_backup || 'Latest' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reason | ${{ inputs.reason }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Initiated By | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Time | $(date -u +"%Y-%m-%dT%H:%M:%SZ") |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Confirm rollback
+        id: confirm
+        run: |
+          echo "confirmed=true" >> $GITHUB_OUTPUT
+
+  # ===========================================================================
+  # Rollback Backend (ECS)
+  # ===========================================================================
+  rollback-backend:
+    name: Rollback Backend
+    needs: validate
+    if: inputs.component == 'backend' || inputs.component == 'both'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get current and target task definitions
+        id: task-defs
+        run: |
+          CLUSTER="hz-navigator-${{ inputs.environment }}-cluster"
+          SERVICE="hz-navigator-${{ inputs.environment }}-backend-service"
+          
+          # Get current task definition
+          CURRENT_ARN=$(aws ecs describe-services \
+            --cluster $CLUSTER \
+            --services $SERVICE \
+            --query 'services[0].taskDefinition' --output text)
+          echo "current_arn=$CURRENT_ARN" >> $GITHUB_OUTPUT
+          
+          # Get current revision number
+          CURRENT_REV=$(echo $CURRENT_ARN | grep -o '[0-9]*$')
+          echo "current_revision=$CURRENT_REV" >> $GITHUB_OUTPUT
+          
+          if [ -n "${{ inputs.backend_revision }}" ]; then
+            # Use specified revision
+            TARGET_REV="${{ inputs.backend_revision }}"
+          else
+            # Use previous revision
+            TARGET_REV=$((CURRENT_REV - 1))
+          fi
+          
+          # Get target task definition ARN
+          FAMILY=$(aws ecs describe-task-definition \
+            --task-definition $CURRENT_ARN \
+            --query 'taskDefinition.family' --output text)
+          
+          TARGET_ARN="${FAMILY}:${TARGET_REV}"
+          echo "target_arn=$TARGET_ARN" >> $GITHUB_OUTPUT
+          echo "target_revision=$TARGET_REV" >> $GITHUB_OUTPUT
+
+      - name: Verify target task definition exists
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ steps.task-defs.outputs.target_arn }} \
+            --query 'taskDefinition.taskDefinitionArn' --output text
+
+      - name: Perform rollback
+        run: |
+          CLUSTER="hz-navigator-${{ inputs.environment }}-cluster"
+          SERVICE="hz-navigator-${{ inputs.environment }}-backend-service"
+          
+          echo "Rolling back from revision ${{ steps.task-defs.outputs.current_revision }} to ${{ steps.task-defs.outputs.target_revision }}"
+          
+          aws ecs update-service \
+            --cluster $CLUSTER \
+            --service $SERVICE \
+            --task-definition ${{ steps.task-defs.outputs.target_arn }} \
+            --force-new-deployment
+
+      - name: Wait for rollback to stabilize
+        run: |
+          CLUSTER="hz-navigator-${{ inputs.environment }}-cluster"
+          SERVICE="hz-navigator-${{ inputs.environment }}-backend-service"
+          
+          echo "Waiting for service to stabilize..."
+          aws ecs wait services-stable \
+            --cluster $CLUSTER \
+            --services $SERVICE
+
+      - name: Verify rollback health
+        run: |
+          # Wait for deployment
+          sleep 30
+          
+          # Get ALB endpoint based on environment
+          if [ "${{ inputs.environment }}" == "production" ]; then
+            ENDPOINT="https://api.hz-navigator.com/api/v1/health"
+          else
+            ALB_DNS=$(aws elbv2 describe-load-balancers \
+              --names hz-navigator-${{ inputs.environment }}-alb \
+              --query 'LoadBalancers[0].DNSName' --output text)
+            ENDPOINT="https://${ALB_DNS}/api/v1/health"
+          fi
+          
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$ENDPOINT" || echo "000")
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Health check failed with status: $HTTP_STATUS"
+            exit 1
+          fi
+          
+          echo "Rollback health check passed!"
+
+      - name: Log rollback result
+        if: always()
+        run: |
+          echo "## Backend Rollback Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Previous revision: ${{ steps.task-defs.outputs.current_revision }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Rolled back to: ${{ steps.task-defs.outputs.target_revision }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # Rollback Frontend (S3)
+  # ===========================================================================
+  rollback-frontend:
+    name: Rollback Frontend
+    needs: validate
+    if: inputs.component == 'frontend' || inputs.component == 'both'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get S3 bucket and backup info
+        id: s3-info
+        run: |
+          BUCKET="hz-navigator-frontend-${{ inputs.environment }}"
+          BACKUP_BUCKET="${BUCKET}-backups"
+          
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+          echo "backup_bucket=$BACKUP_BUCKET" >> $GITHUB_OUTPUT
+          
+          if [ -n "${{ inputs.frontend_backup }}" ]; then
+            BACKUP_FOLDER="${{ inputs.frontend_backup }}"
+          else
+            # Get the latest backup
+            BACKUP_FOLDER=$(aws s3 ls s3://${BACKUP_BUCKET}/ | sort -r | head -1 | awk '{print $2}' | tr -d '/')
+          fi
+          
+          echo "backup_folder=$BACKUP_FOLDER" >> $GITHUB_OUTPUT
+
+      - name: Verify backup exists
+        run: |
+          aws s3 ls s3://${{ steps.s3-info.outputs.backup_bucket }}/${{ steps.s3-info.outputs.backup_folder }}/ --recursive | head -5
+          
+          if [ $? -ne 0 ]; then
+            echo "Backup not found!"
+            exit 1
+          fi
+
+      - name: Create current deployment backup
+        run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          aws s3 sync \
+            s3://${{ steps.s3-info.outputs.bucket }}/ \
+            s3://${{ steps.s3-info.outputs.backup_bucket }}/pre-rollback-${TIMESTAMP}/ \
+            --quiet
+
+      - name: Restore from backup
+        run: |
+          aws s3 sync \
+            s3://${{ steps.s3-info.outputs.backup_bucket }}/${{ steps.s3-info.outputs.backup_folder }}/ \
+            s3://${{ steps.s3-info.outputs.bucket }}/ \
+            --delete
+
+      - name: Get CloudFront distribution ID
+        id: cloudfront
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?contains(Origins.Items[].DomainName, '${{ steps.s3-info.outputs.bucket }}')].Id | [0]" \
+            --output text)
+          echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Invalidate CloudFront cache
+        run: |
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.cloudfront.outputs.distribution_id }} \
+            --paths "/*" \
+            --query 'Invalidation.Id' --output text)
+          
+          echo "Waiting for CloudFront invalidation..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id ${{ steps.cloudfront.outputs.distribution_id }} \
+            --id $INVALIDATION_ID
+
+      - name: Verify rollback
+        run: |
+          sleep 30
+          
+          # Get CloudFront domain
+          CF_DOMAIN=$(aws cloudfront get-distribution \
+            --id ${{ steps.cloudfront.outputs.distribution_id }} \
+            --query 'Distribution.DomainName' --output text)
+          
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${CF_DOMAIN}/" || echo "000")
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "Rollback verification failed with status: $HTTP_STATUS"
+            exit 1
+          fi
+          
+          echo "Frontend rollback verified!"
+
+      - name: Log rollback result
+        if: always()
+        run: |
+          echo "## Frontend Rollback Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- S3 Bucket: ${{ steps.s3-info.outputs.bucket }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Restored from: ${{ steps.s3-info.outputs.backup_folder }}" >> $GITHUB_STEP_SUMMARY
+          echo "- CloudFront: ${{ steps.cloudfront.outputs.distribution_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # Rollback Database (Optional)
+  # ===========================================================================
+  rollback-database:
+    name: Rollback Database Migration
+    needs: validate
+    if: false  # Manual trigger only - uncomment when needed
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id hz-navigator-${{ inputs.environment }}-db-password \
+            --query SecretString --output text)
+          echo "::add-mask::$(echo $SECRET_VALUE | jq -r '.password')"
+          echo "db_url=postgresql://$(echo $SECRET_VALUE | jq -r '.username'):$(echo $SECRET_VALUE | jq -r '.password')@$(echo $SECRET_VALUE | jq -r '.host'):$(echo $SECRET_VALUE | jq -r '.port')/$(echo $SECRET_VALUE | jq -r '.dbname')?sslmode=require" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Rollback last migration
+        working-directory: backend
+        run: |
+          npx node-pg-migrate down --migrations-dir ../database/migrations
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_url }}
+
+  # ===========================================================================
+  # Summary
+  # ===========================================================================
+  summary:
+    name: Rollback Summary
+    needs: [rollback-backend, rollback-frontend]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Rollback Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ inputs.component }}" == "backend" ] || [ "${{ inputs.component }}" == "both" ]; then
+            echo "| Backend | ${{ needs.rollback-backend.result }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ inputs.component }}" == "frontend" ] || [ "${{ inputs.component }}" == "both" ]; then
+            echo "| Frontend | ${{ needs.rollback-frontend.result }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason:** ${{ inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Initiated by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+

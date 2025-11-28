@@ -1,0 +1,89 @@
+# =============================================================================
+# Reusable Workflow: Deploy to ECS
+# =============================================================================
+# Called by other workflows to deploy to ECS Fargate
+# =============================================================================
+
+name: Reusable - Deploy to ECS
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: string
+      image_uri:
+        description: 'Docker image URI'
+        required: true
+        type: string
+      cluster_name:
+        description: 'ECS cluster name'
+        required: true
+        type: string
+      service_name:
+        description: 'ECS service name'
+        required: true
+        type: string
+      task_definition_family:
+        description: 'Task definition family'
+        required: true
+        type: string
+      container_name:
+        description: 'Container name in task definition'
+        required: false
+        type: string
+        default: 'backend'
+      wait_for_stability:
+        description: 'Wait for service stability'
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      task_definition_arn:
+        description: 'New task definition ARN'
+        value: ${{ jobs.deploy.outputs.task_definition_arn }}
+    secrets:
+      AWS_DEPLOY_ROLE_ARN:
+        required: true
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest
+    outputs:
+      task_definition_arn: ${{ steps.deploy.outputs.task-definition-arn }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ inputs.task_definition_family }} \
+            --query taskDefinition > task-definition.json
+
+      - name: Update task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ inputs.container_name }}
+          image: ${{ inputs.image_uri }}
+
+      - name: Deploy to ECS
+        id: deploy
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ inputs.service_name }}
+          cluster: ${{ inputs.cluster_name }}
+          wait-for-service-stability: ${{ inputs.wait_for_stability }}
+

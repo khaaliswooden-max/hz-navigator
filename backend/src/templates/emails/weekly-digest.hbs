@@ -1,0 +1,79 @@
+<h1>Your Weekly HZ Navigator Digest</h1>
+
+<p>Hi {{recipientName}},</p>
+
+<p>Here's your weekly summary for <strong>{{formatDate periodStart}}</strong> to <strong>{{formatDate periodEnd}}</strong>.</p>
+
+<div class="card">
+  <h2 style="margin-top: 0;">📊 Weekly Overview</h2>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+    <tr class="stat-row">
+      <td class="stat-label">Total Businesses</td>
+      <td class="stat-value">{{summary.totalBusinesses}}</td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Average Compliance Score</td>
+      <td class="stat-value" style="color: {{#if (gte summary.complianceScore 80)}}#10b981{{else if (gte summary.complianceScore 60)}}#f59e0b{{else}}#ef4444{{/if}};">
+        {{summary.complianceScore}}%
+      </td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Active Alerts</td>
+      <td class="stat-value" style="{{#if (gt summary.alertsCount 0)}}color: #f59e0b;{{/if}}">
+        {{summary.alertsCount}}
+      </td>
+    </tr>
+    <tr class="stat-row">
+      <td class="stat-label">Documents Processed</td>
+      <td class="stat-value">{{summary.documentsProcessed}}</td>
+    </tr>
+  </table>
+</div>
+
+{{#if alerts.length}}
+<h2>⚠️ Active Alerts</h2>
+<p>The following items require your attention:</p>
+
+{{#each alerts}}
+<div class="alert-box {{#ifEquals severity "critical"}}alert-danger{{else if (ifEquals severity "high")}}alert-warning{{else}}alert-info{{/ifEquals}}" style="margin-bottom: 10px;">
+  <strong>{{type}}</strong>
+  {{#if businessName}}<span style="color: #6b7280;"> — {{businessName}}</span>{{/if}}
+  <p style="margin: 5px 0 0; font-size: 14px;">{{message}}</p>
+</div>
+{{/each}}
+{{/if}}
+
+{{#if upcomingDeadlines.length}}
+<h2>📅 Upcoming Deadlines</h2>
+<div class="card">
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+    {{#each upcomingDeadlines}}
+    <tr class="stat-row">
+      <td>
+        <strong style="color: #111827;">{{title}}</strong>
+        {{#if businessName}}<br><span style="font-size: 13px; color: #6b7280;">{{businessName}}</span>{{/if}}
+      </td>
+      <td style="text-align: right; color: #f59e0b; font-weight: 600;">{{formatDate date}}</td>
+    </tr>
+    {{/each}}
+  </table>
+</div>
+{{/if}}
+
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{dashboardUrl}}" class="btn">View Full Dashboard</a>
+</p>
+
+<hr class="divider">
+
+<h2>💡 Quick Tips</h2>
+<ul style="padding-left: 20px; color: #4b5563;">
+  <li>Regularly verify employee addresses to maintain compliance</li>
+  <li>Upload supporting documents before deadlines</li>
+  <li>Set up alert notifications to stay informed</li>
+</ul>
+
+<p style="font-size: 14px; color: #6b7280;">
+  Have questions? Reply to this email or contact <a href="mailto:{{supportEmail}}" style="color: #0073c7;">{{supportEmail}}</a>
+</p>
+
