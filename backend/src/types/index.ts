@@ -8,6 +8,7 @@ export * from './job.js';
 export * from './agency.js';
 export * from './analytics.js';
 export * from './contract.js';
+export * from './document.js';
 
 /**
  * Standard API response wrapper

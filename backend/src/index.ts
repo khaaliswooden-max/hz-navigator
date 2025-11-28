@@ -12,10 +12,13 @@ import alertRoutes from './routes/alerts.js';
 import analyticsRoutes from './routes/analytics.js';
 import contractRoutes from './routes/contracts.js';
 import complianceRoutes from './routes/compliance.js';
+import documentRoutes from './routes/documents.js';
 import healthRoutes from './routes/health.js';
 import hubzoneRoutes from './routes/hubzones.js';
 import mapRoutes from './routes/map.js';
+import ocrRoutes from './routes/ocr.js';
 import { mapUpdateJobManager } from './jobs/mapUpdateJob.js';
+import { documentProcessingJobManager } from './jobs/documentProcessingJob.js';
 import { schedulerService } from './services/schedulerService.js';
 
 import type { Application } from 'express';
@@ -52,6 +55,8 @@ app.use('/api/v1', adminRoutes);
 app.use('/api/agency', agencyRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/contracts', contractRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/ocr', ocrRoutes);
 
 // Error handling
 app.use(notFoundHandler);
@@ -71,6 +76,10 @@ app.listen(PORT, () => {
     // Start quarterly HUBZone map update job
     mapUpdateJobManager.start();
     console.info('🗺️  HUBZone map update job started (quarterly)');
+
+    // Start document OCR processing job
+    documentProcessingJobManager.start();
+    console.info('📄 Document OCR processing job started');
   }
 });
 

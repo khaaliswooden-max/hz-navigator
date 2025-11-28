@@ -28,4 +28,12 @@ export {
   NotificationService,
   notificationService,
 } from './notificationService.js';
+export {
+  DocumentService,
+  documentService,
+} from './documentService.js';
+export {
+  OCRService,
+  ocrService,
+} from './ocrService.js';
 

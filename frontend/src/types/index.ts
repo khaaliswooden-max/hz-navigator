@@ -8,6 +8,8 @@ export * from './agency';
 export * from './analytics';
 export * from './contract';
 export * from './notification';
+export * from './document';
+export * from './ocr';
 
 /**
  * HUBZone entity
