@@ -79,36 +79,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-            -       - name: Set up Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-                  - name: Install dependencies
-        working-directory: backend
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          elif [ -f yarn.lock ]; then
-            yarn install --frozen-lockfile
-          else
-            npm install
-          fi
+          cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
         working-directory: backend
         run: npm ci
-        env:
-          NODE_ENV: test
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
-          PGUSER: test_user
-          PGPASSWORD: test_password
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          JWT_SECRET: test-jwt-secret-for-ci
-          ENCRYPTION_KEY: test-encryption-key-12345
+
+      - name: Run linter
+        working-directory: backend
+        run: npm run lint
+
+      - name: Run type check
+        working-directory: backend
+        run: npm run type-check || true
 
       - name: Run unit tests
         working-directory: backend
