@@ -7,7 +7,10 @@ import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import adminRoutes from './routes/admin.js';
+import agencyRoutes from './routes/agency.js';
 import alertRoutes from './routes/alerts.js';
+import analyticsRoutes from './routes/analytics.js';
+import contractRoutes from './routes/contracts.js';
 import complianceRoutes from './routes/compliance.js';
 import healthRoutes from './routes/health.js';
 import hubzoneRoutes from './routes/hubzones.js';
@@ -46,6 +49,9 @@ app.use('/api/v1', alertRoutes);
 app.use('/api/v1', complianceRoutes);
 app.use('/api/v1', mapRoutes);
 app.use('/api/v1', adminRoutes);
+app.use('/api/agency', agencyRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/contracts', contractRoutes);
 
 // Error handling
 app.use(notFoundHandler);

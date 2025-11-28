@@ -24,6 +24,9 @@ import { NotificationPreferences } from './components/Compliance';
 // Map Pages
 import { TractDetail } from './pages/Map';
 
+// Agency Pages
+import { ContractorVerification, Goals, Contracts, Reports, Analytics } from './pages/Agency';
+
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -42,16 +45,6 @@ function Documents() {
   );
 }
 
-function Verifications() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Verifications</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Verification queue coming soon...</p>
-      </div>
-    </div>
-  );
-}
 
 
 function Users() {
@@ -165,7 +158,12 @@ function App() {
           <Route path="map" element={<MapExplorer />} />
           <Route path="hubzone/tract/:tractId" element={<TractDetail />} />
           <Route path="certifications" element={<Certifications />} />
-          <Route path="verifications" element={<Verifications />} />
+          <Route path="verifications" element={<ContractorVerification />} />
+          <Route path="agency/verify" element={<ContractorVerification />} />
+          <Route path="agency/goals" element={<Goals />} />
+          <Route path="agency/contracts" element={<Contracts />} />
+          <Route path="agency/reports" element={<Reports />} />
+          <Route path="agency/analytics" element={<Analytics />} />
           <Route path="reports" element={<ComplianceReports />} />
           <Route path="compliance/reports" element={<ComplianceReports />} />
           <Route path="users" element={<Users />} />

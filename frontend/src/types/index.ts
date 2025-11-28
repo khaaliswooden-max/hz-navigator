@@ -4,6 +4,9 @@ export * from './employee';
 export * from './ownership';
 export * from './professional';
 export * from './job';
+export * from './agency';
+export * from './analytics';
+export * from './contract';
 
 /**
  * HUBZone entity

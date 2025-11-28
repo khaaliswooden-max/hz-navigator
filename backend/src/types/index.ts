@@ -5,6 +5,9 @@ export * from './alert.js';
 export * from './hubzoneMapLoader.js';
 export * from './map.js';
 export * from './job.js';
+export * from './agency.js';
+export * from './analytics.js';
+export * from './contract.js';
 
 /**
  * Standard API response wrapper
