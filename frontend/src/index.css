@@ -8,6 +8,18 @@
     @apply scroll-smooth;
   }
 
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
     font-family: 'Source Sans Pro', system-ui, sans-serif;
@@ -21,6 +33,40 @@
   h6 {
     font-family: 'Merriweather', Georgia, serif;
     @apply font-bold tracking-tight;
+  }
+
+  /* Ensure minimum touch target size (44x44px) */
+  button,
+  [role="button"],
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Exception for inline elements */
+  a:not(.btn):not([class*="btn-"]):not([role="button"]) {
+    min-height: auto;
+    min-width: auto;
+  }
+
+  /* Focus visible styles - only show for keyboard navigation */
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-hubzone-500;
+  }
+
+  /* High contrast mode support */
+  @media (forced-colors: active) {
+    .btn-primary,
+    .btn-secondary {
+      border: 2px solid currentColor;
+    }
   }
 }
 
@@ -152,6 +198,338 @@
   to { transform: rotate(360deg); }
 }
 
+/* Progress bar styles */
+.progress-striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+}
+
+.progress-animated {
+  animation: progress-stripes 1s linear infinite;
+}
+
+@keyframes progress-stripes {
+  from {
+    background-position: 1rem 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.animate-progress-indeterminate {
+  animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+/* Skeleton wave animation */
+.skeleton-wave {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-wave::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: skeleton-wave 1.5s infinite;
+}
+
+@keyframes skeleton-wave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Loading overlay */
+.loading-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+/* Error shake animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Success pulse */
+@keyframes success-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-success-pulse {
+  animation: success-pulse 0.3s ease-in-out;
+}
+
+/* Slide animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.animate-slide-out-right {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+/* Toast notifications container */
+.toast-container {
+  @apply fixed bottom-4 right-4 z-50 flex flex-col gap-2;
+}
+
+/* Input error state */
+.input-error {
+  @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+}
+
+/* Input success state */
+.input-success {
+  @apply border-verified-300 focus:border-verified-500 focus:ring-verified-500;
+}
+
+/* Button loading state */
+.btn-loading {
+  @apply relative pointer-events-none;
+}
+
+.btn-loading::after {
+  content: '';
+  @apply absolute inset-0 bg-white/20 rounded-lg;
+}
+
+/* ===========================================
+   ACCESSIBILITY STYLES
+   =========================================== */
+
+/* Skip links for keyboard navigation */
+.skip-links {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.skip-link {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  background-color: #002e6d;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.skip-link:focus {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  outline: 2px solid #0073c7;
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Make SR content visible when focused */
+.sr-only-focusable:focus,
+.sr-only-focusable:active {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus indicator for interactive elements */
+.focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-hubzone-500 focus-visible:ring-offset-2;
+}
+
+/* Touch target helper - ensures 44x44px minimum */
+.touch-target {
+  position: relative;
+}
+
+.touch-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Visible focus for buttons and links */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible {
+  @apply ring-2 ring-hubzone-500 ring-offset-2;
+  outline: none;
+}
+
+/* Remove focus ring for mouse users */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+  @apply ring-0 ring-offset-0;
+}
+
+/* Ensure sufficient color contrast */
+.text-accessible {
+  color: #1f2937; /* gray-800, meets WCAG AA on white */
+}
+
+.text-accessible-muted {
+  color: #4b5563; /* gray-600, meets WCAG AA on white */
+}
+
+/* ===========================================
+   MOBILE RESPONSIVENESS
+   =========================================== */
+
+/* Mobile-first responsive utilities */
+@media (max-width: 639px) {
+  /* Stack items on mobile */
+  .mobile-stack {
+    flex-direction: column;
+  }
+
+  /* Full width on mobile */
+  .mobile-full {
+    width: 100%;
+  }
+
+  /* Hide on mobile */
+  .mobile-hide {
+    display: none;
+  }
+
+  /* Smaller text on mobile */
+  .mobile-text-sm {
+    font-size: 0.875rem;
+  }
+
+  /* Smaller padding on mobile */
+  .mobile-p-sm {
+    padding: 0.75rem;
+  }
+
+  /* Horizontal scroll for tables */
+  .mobile-scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure tap targets are large enough on mobile */
+  button,
+  a,
+  input,
+  select {
+    min-height: 44px;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .tablet-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .desktop-sidebar-visible {
+    transform: translateX(0);
+  }
+}
+
 /* Custom utilities */
 @layer utilities {
   .text-balance {
@@ -160,6 +538,68 @@
 
   .animate-in {
     animation: fadeIn 0.3s ease-in-out, slideUp 0.4s ease-out;
+  }
+  
+  /* Staggered animation delays for lists */
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+  .stagger-6 { animation-delay: 300ms; }
+  .stagger-7 { animation-delay: 350ms; }
+  .stagger-8 { animation-delay: 400ms; }
+
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* Safe area insets for notched devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Scroll snap utilities */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  .snap-center {
+    scroll-snap-align: center;
   }
 }
 

@@ -24,4 +24,8 @@ export {
   JobService,
   jobService,
 } from './jobService.js';
+export {
+  NotificationService,
+  notificationService,
+} from './notificationService.js';
 

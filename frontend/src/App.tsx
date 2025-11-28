@@ -3,6 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { MainLayout } from './components/Layout';
+import { ErrorBoundary, ToastContainer } from './components/Common';
+import { ToastProvider } from './context/ToastContext';
+import { NotificationCenter } from './components/Notifications';
 
 // Pages
 import Dashboard from './pages/Dashboard/index';
@@ -110,21 +113,13 @@ function Settings() {
   );
 }
 
-function Notifications() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Notifications</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">All notifications coming soon...</p>
-      </div>
-    </div>
-  );
-}
 
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
+    <ErrorBoundary>
+      <ToastProvider position="top-right">
+        <AuthProvider>
+          <Routes>
         {/* Public Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -171,13 +166,16 @@ function App() {
           <Route path="admin" element={<AdminConsole />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
-          <Route path="notifications" element={<Notifications />} />
+          <Route path="notifications" element={<NotificationCenter />} />
           
           {/* Catch all */}
           <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </AuthProvider>
+          </Route>
+          </Routes>
+        </AuthProvider>
+          <ToastContainer />
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

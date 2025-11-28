@@ -7,6 +7,7 @@ export * from './job';
 export * from './agency';
 export * from './analytics';
 export * from './contract';
+export * from './notification';
 
 /**
  * HUBZone entity
@@ -124,20 +125,5 @@ export interface PaginatedResponse<T> {
   pagination: Pagination;
 }
 
-/**
- * Notification entity
- */
-export interface Notification {
-  id: string;
-  userId: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  read: boolean;
-  createdAt: string;
-  link?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export type NotificationType = 'info' | 'success' | 'warning' | 'error';
+// Notification types are re-exported from './notification'
 

@@ -1,5 +1,15 @@
 import { clsx, type ClassValue } from 'clsx';
 
+// Re-export lazy loading utilities
+export {
+  lazyLoad,
+  LazyWrapper,
+  preloadComponent,
+  createPreloadableComponent,
+  retryLazyLoad,
+  lazyLoadWithRetry,
+} from './lazyLoad';
+
 /**
  * Merge class names with clsx
  */
