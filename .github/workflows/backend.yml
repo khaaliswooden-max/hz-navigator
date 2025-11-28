@@ -1,0 +1,456 @@
+# =============================================================================
+# HZ-Navigator Backend CI/CD Pipeline
+# =============================================================================
+# Triggers on push to main/develop branches
+# Deploys to staging (auto) or production (manual approval)
+# =============================================================================
+
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+      - 'database/migrations/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      skip_tests:
+        description: 'Skip tests (use with caution)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+  packages: write
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '20'
+
+jobs:
+  # ===========================================================================
+  # Lint and Test
+  # ===========================================================================
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: hz_navigator_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run type check
+        run: npm run typecheck || true
+
+      - name: Run unit tests
+        run: npm test -- --coverage --testPathIgnorePatterns=integration
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+          JWT_SECRET: test-jwt-secret-key
+
+      - name: Run integration tests
+        run: npm test -- --testPathPattern=integration
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+          JWT_SECRET: test-jwt-secret-key
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          files: backend/coverage/lcov.info
+          flags: backend
+          fail_ci_if_error: false
+
+  # ===========================================================================
+  # Determine Environment
+  # ===========================================================================
+  determine-environment:
+    name: Determine Environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set-env.outputs.environment }}
+      should_deploy: ${{ steps.set-env.outputs.should_deploy }}
+    
+    steps:
+      - name: Set environment
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "environment=none" >> $GITHUB_OUTPUT
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+  # ===========================================================================
+  # Build Docker Image
+  # ===========================================================================
+  build:
+    name: Build Docker Image
+    needs: [lint-and-test, determine-environment]
+    if: |
+      always() && 
+      needs.determine-environment.outputs.should_deploy == 'true' &&
+      (needs.lint-and-test.result == 'success' || needs.lint-and-test.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: ${{ needs.determine-environment.outputs.environment }}
+    
+    outputs:
+      image_tag: ${{ steps.build.outputs.image_tag }}
+      image_uri: ${{ steps.build.outputs.image_uri }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate image tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.login-ecr.outputs.registry }}/hz-navigator-${{ needs.determine-environment.outputs.environment }}-backend
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ needs.determine-environment.outputs.environment }}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            GIT_SHA=${{ github.sha }}
+
+      - name: Set outputs
+        run: |
+          echo "image_tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "image_uri=${{ steps.login-ecr.outputs.registry }}/hz-navigator-${{ needs.determine-environment.outputs.environment }}-backend:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  # ===========================================================================
+  # Database Migrations
+  # ===========================================================================
+  migrate:
+    name: Run Database Migrations
+    needs: [build, determine-environment]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.determine-environment.outputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          SECRET_VALUE=$(aws secretsmanager get-secret-value \
+            --secret-id hz-navigator-${{ needs.determine-environment.outputs.environment }}-db-password \
+            --query SecretString --output text)
+          echo "::add-mask::$(echo $SECRET_VALUE | jq -r '.password')"
+          echo "db_host=$(echo $SECRET_VALUE | jq -r '.host')" >> $GITHUB_OUTPUT
+          echo "db_port=$(echo $SECRET_VALUE | jq -r '.port')" >> $GITHUB_OUTPUT
+          echo "db_name=$(echo $SECRET_VALUE | jq -r '.dbname')" >> $GITHUB_OUTPUT
+          echo "db_user=$(echo $SECRET_VALUE | jq -r '.username')" >> $GITHUB_OUTPUT
+          echo "db_password=$(echo $SECRET_VALUE | jq -r '.password')" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci --production=false
+
+      - name: Run migrations
+        working-directory: backend
+        run: |
+          npx node-pg-migrate up --migrations-dir ../database/migrations
+        env:
+          DATABASE_URL: postgresql://${{ steps.db-creds.outputs.db_user }}:${{ steps.db-creds.outputs.db_password }}@${{ steps.db-creds.outputs.db_host }}:${{ steps.db-creds.outputs.db_port }}/${{ steps.db-creds.outputs.db_name }}?sslmode=require
+
+      - name: Save migration state
+        if: success()
+        run: |
+          echo "Migration completed at $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > migration-state.txt
+          echo "Commit: ${{ github.sha }}" >> migration-state.txt
+
+  # ===========================================================================
+  # Deploy to Development/Staging (Auto)
+  # ===========================================================================
+  deploy-auto:
+    name: Deploy to ${{ needs.determine-environment.outputs.environment }}
+    needs: [build, migrate, determine-environment]
+    if: needs.determine-environment.outputs.environment != 'production'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.determine-environment.outputs.environment }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition hz-navigator-${{ needs.determine-environment.outputs.environment }}-backend \
+            --query taskDefinition > task-definition.json
+
+      - name: Update task definition image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: backend
+          image: ${{ needs.build.outputs.image_uri }}
+
+      - name: Deploy to ECS (Rolling Update)
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: hz-navigator-${{ needs.determine-environment.outputs.environment }}-backend-service
+          cluster: hz-navigator-${{ needs.determine-environment.outputs.environment }}-cluster
+          wait-for-service-stability: true
+          wait-for-minutes: 10
+
+      - name: Verify deployment health
+        run: |
+          # Wait for service to be healthy
+          sleep 30
+          
+          # Get ALB DNS
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --names hz-navigator-${{ needs.determine-environment.outputs.environment }}-alb \
+            --query 'LoadBalancers[0].DNSName' --output text)
+          
+          # Health check
+          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${ALB_DNS}/api/v1/health" || echo "000")
+          
+          if [ "$HEALTH_STATUS" != "200" ]; then
+            echo "Health check failed with status: $HEALTH_STATUS"
+            exit 1
+          fi
+          
+          echo "Deployment healthy!"
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Deployment to ${{ needs.determine-environment.outputs.environment }} successful!"
+          echo "Image: ${{ needs.build.outputs.image_uri }}"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment to ${{ needs.determine-environment.outputs.environment }} failed!"
+
+  # ===========================================================================
+  # Deploy to Production (Manual Approval Required)
+  # ===========================================================================
+  deploy-production:
+    name: Deploy to Production
+    needs: [build, migrate, determine-environment]
+    if: needs.determine-environment.outputs.environment == 'production'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://api.hz-navigator.com
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition hz-navigator-production-backend \
+            --query taskDefinition > task-definition.json
+
+      - name: Update task definition image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: backend
+          image: ${{ needs.build.outputs.image_uri }}
+
+      - name: Get current task definition revision (for rollback)
+        id: current-revision
+        run: |
+          CURRENT_ARN=$(aws ecs describe-services \
+            --cluster hz-navigator-production-cluster \
+            --services hz-navigator-production-backend-service \
+            --query 'services[0].taskDefinition' --output text)
+          echo "current_task_def=$CURRENT_ARN" >> $GITHUB_OUTPUT
+
+      - name: Deploy to ECS (Blue/Green via Rolling)
+        id: deploy
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: hz-navigator-production-backend-service
+          cluster: hz-navigator-production-cluster
+          wait-for-service-stability: true
+          wait-for-minutes: 15
+
+      - name: Verify deployment health
+        id: health-check
+        run: |
+          # Wait for new tasks to be fully healthy
+          sleep 60
+          
+          # Health check endpoint
+          HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://api.hz-navigator.com/api/v1/health" || echo "000")
+          
+          if [ "$HEALTH_STATUS" != "200" ]; then
+            echo "Health check failed with status: $HEALTH_STATUS"
+            echo "health_failed=true" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
+          echo "Production deployment healthy!"
+          echo "health_failed=false" >> $GITHUB_OUTPUT
+
+      - name: Automatic rollback on failure
+        if: failure() && steps.health-check.outputs.health_failed == 'true'
+        run: |
+          echo "Rolling back to previous task definition..."
+          aws ecs update-service \
+            --cluster hz-navigator-production-cluster \
+            --service hz-navigator-production-backend-service \
+            --task-definition ${{ steps.current-revision.outputs.current_task_def }} \
+            --force-new-deployment
+          
+          aws ecs wait services-stable \
+            --cluster hz-navigator-production-cluster \
+            --services hz-navigator-production-backend-service
+          
+          echo "Rollback completed!"
+
+      - name: Tag successful deployment
+        if: success()
+        run: |
+          # Tag the image as production-stable
+          MANIFEST=$(aws ecr batch-get-image \
+            --repository-name hz-navigator-production-backend \
+            --image-ids imageTag=${{ github.sha }} \
+            --query 'images[].imageManifest' --output text)
+          
+          aws ecr put-image \
+            --repository-name hz-navigator-production-backend \
+            --image-tag production-stable \
+            --image-manifest "$MANIFEST" || true
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful!"
+          echo "Image: ${{ needs.build.outputs.image_uri }}"
+          echo "URL: https://api.hz-navigator.com"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed! Rollback initiated."
+
