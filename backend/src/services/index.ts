@@ -16,4 +16,12 @@ export {
   hubzoneMapLoaderService,
 } from './hubzoneMapLoader.js';
 export { MapService, mapService } from './mapService.js';
+export {
+  ProfessionalService,
+  professionalService,
+} from './professionalService.js';
+export {
+  JobService,
+  jobService,
+} from './jobService.js';
 

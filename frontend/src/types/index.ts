@@ -2,6 +2,8 @@
 export * from './business';
 export * from './employee';
 export * from './ownership';
+export * from './professional';
+export * from './job';
 
 /**
  * HUBZone entity
