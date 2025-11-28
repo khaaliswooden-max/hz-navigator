@@ -1,0 +1,32 @@
+# =============================================================================
+# AWS CodeDeploy AppSpec for Blue/Green Deployment
+# =============================================================================
+# Used for production deployments with zero-downtime blue/green strategy
+# =============================================================================
+
+version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "<TASK_DEFINITION>"
+        LoadBalancerInfo:
+          ContainerName: "backend"
+          ContainerPort: 3000
+        PlatformVersion: "LATEST"
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            Subnets:
+              - "<SUBNET_1>"
+              - "<SUBNET_2>"
+            SecurityGroups:
+              - "<SECURITY_GROUP>"
+            AssignPublicIp: "DISABLED"
+
+Hooks:
+  - BeforeInstall: "LambdaFunctionToValidateBeforeInstall"
+  - AfterInstall: "LambdaFunctionToValidateAfterInstall"
+  - AfterAllowTestTraffic: "LambdaFunctionToValidateAfterTestTrafficStarts"
+  - BeforeAllowTraffic: "LambdaFunctionToValidateBeforeAllowingProductionTraffic"
+  - AfterAllowTraffic: "LambdaFunctionToValidateAfterAllowingProductionTraffic"
+

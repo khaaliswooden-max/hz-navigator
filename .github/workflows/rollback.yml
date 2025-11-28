@@ -1,0 +1,391 @@
+# =============================================================================
+# HZ Navigator - Rollback Pipeline
+# =============================================================================
+# Emergency rollback workflow for backend and frontend
+# Supports rolling back to previous versions
+# =============================================================================
+
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Component to rollback'
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
+          - both
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      backend_revision:
+        description: 'Backend task definition revision (leave empty for previous)'
+        required: false
+        type: string
+      frontend_backup:
+        description: 'Frontend backup number (leave empty for latest backup)'
+        required: false
+        type: string
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  # ===========================================================================
+  # Rollback Backend
+  # ===========================================================================
+  rollback-backend:
+    name: Rollback Backend
+    runs-on: ubuntu-latest
+    if: inputs.component == 'backend' || inputs.component == 'both'
+    environment:
+      name: ${{ inputs.environment }}
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set environment variables
+        id: env-vars
+        run: |
+          case "${{ inputs.environment }}" in
+            staging)
+              echo "cluster=hz-navigator-staging-cluster" >> $GITHUB_OUTPUT
+              echo "service=hz-navigator-staging-backend-service" >> $GITHUB_OUTPUT
+              echo "task_family=hz-navigator-staging-backend" >> $GITHUB_OUTPUT
+              ;;
+            production)
+              echo "cluster=hz-navigator-production-cluster" >> $GITHUB_OUTPUT
+              echo "service=hz-navigator-production-backend-service" >> $GITHUB_OUTPUT
+              echo "task_family=hz-navigator-production-backend" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Get current task definition
+        id: current
+        run: |
+          CURRENT=$(aws ecs describe-services \
+            --cluster ${{ steps.env-vars.outputs.cluster }} \
+            --services ${{ steps.env-vars.outputs.service }} \
+            --query 'services[0].taskDefinition' \
+            --output text)
+          
+          echo "current_task_def=$CURRENT" >> $GITHUB_OUTPUT
+          echo "Current task definition: $CURRENT"
+
+      - name: List available revisions
+        id: revisions
+        run: |
+          echo "📋 Available task definition revisions:"
+          aws ecs list-task-definitions \
+            --family-prefix ${{ steps.env-vars.outputs.task_family }} \
+            --sort DESC \
+            --max-items 10 \
+            --query 'taskDefinitionArns' \
+            --output table
+
+      - name: Determine rollback revision
+        id: target
+        run: |
+          if [ -n "${{ inputs.backend_revision }}" ]; then
+            TARGET="${{ steps.env-vars.outputs.task_family }}:${{ inputs.backend_revision }}"
+          else
+            # Get the second most recent revision (previous deployment)
+            TARGET=$(aws ecs list-task-definitions \
+              --family-prefix ${{ steps.env-vars.outputs.task_family }} \
+              --sort DESC \
+              --max-items 2 \
+              --query 'taskDefinitionArns[1]' \
+              --output text)
+          fi
+          
+          echo "target_task_def=$TARGET" >> $GITHUB_OUTPUT
+          echo "🎯 Rolling back to: $TARGET"
+
+      - name: Validate target revision exists
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ steps.target.outputs.target_task_def }} \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text
+
+      - name: Execute rollback
+        run: |
+          echo "🔄 Rolling back ECS service..."
+          
+          aws ecs update-service \
+            --cluster ${{ steps.env-vars.outputs.cluster }} \
+            --service ${{ steps.env-vars.outputs.service }} \
+            --task-definition ${{ steps.target.outputs.target_task_def }} \
+            --force-new-deployment
+
+      - name: Wait for service stability
+        run: |
+          echo "⏳ Waiting for service to stabilize..."
+          
+          aws ecs wait services-stable \
+            --cluster ${{ steps.env-vars.outputs.cluster }} \
+            --services ${{ steps.env-vars.outputs.service }}
+          
+          echo "✅ Service is stable"
+
+      - name: Verify rollback health
+        run: |
+          sleep 30
+          
+          case "${{ inputs.environment }}" in
+            staging)
+              HEALTH_URL="https://api-staging.hz-navigator.com/api/v1/health"
+              ;;
+            production)
+              HEALTH_URL="https://api.hz-navigator.com/api/v1/health"
+              ;;
+          esac
+          
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $HEALTH_URL || echo "000")
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ Health check failed with status: $HTTP_STATUS"
+            exit 1
+          fi
+          
+          echo "✅ Health check passed"
+
+      - name: Create rollback record
+        run: |
+          echo "📝 Rollback Record"
+          echo "  From: ${{ steps.current.outputs.current_task_def }}"
+          echo "  To: ${{ steps.target.outputs.target_task_def }}"
+          echo "  Reason: ${{ inputs.reason }}"
+          echo "  Actor: ${{ github.actor }}"
+          echo "  Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+  # ===========================================================================
+  # Rollback Frontend
+  # ===========================================================================
+  rollback-frontend:
+    name: Rollback Frontend
+    runs-on: ubuntu-latest
+    if: inputs.component == 'frontend' || inputs.component == 'both'
+    environment:
+      name: ${{ inputs.environment }}
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set environment variables
+        id: env-vars
+        run: |
+          case "${{ inputs.environment }}" in
+            staging)
+              echo "s3_bucket=${{ secrets.STAGING_S3_BUCKET }}" >> $GITHUB_OUTPUT
+              echo "backup_bucket=${{ secrets.STAGING_S3_BUCKET }}-backups" >> $GITHUB_OUTPUT
+              echo "cloudfront_id=${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_OUTPUT
+              ;;
+            production)
+              echo "s3_bucket=${{ secrets.PRODUCTION_S3_BUCKET }}" >> $GITHUB_OUTPUT
+              echo "backup_bucket=${{ secrets.PRODUCTION_S3_BUCKET }}-backups" >> $GITHUB_OUTPUT
+              echo "cloudfront_id=${{ secrets.PRODUCTION_CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: List available backups
+        id: backups
+        run: |
+          echo "📋 Available frontend backups:"
+          aws s3 ls s3://${{ steps.env-vars.outputs.backup_bucket }}/ | tail -10
+
+      - name: Determine backup to restore
+        id: target
+        run: |
+          if [ -n "${{ inputs.frontend_backup }}" ]; then
+            BACKUP_PREFIX="backup-${{ inputs.frontend_backup }}"
+          else
+            # Get the latest backup
+            BACKUP_PREFIX=$(aws s3 ls s3://${{ steps.env-vars.outputs.backup_bucket }}/ \
+              | tail -1 \
+              | awk '{print $2}' \
+              | tr -d '/')
+          fi
+          
+          echo "backup_prefix=$BACKUP_PREFIX" >> $GITHUB_OUTPUT
+          echo "🎯 Restoring from: $BACKUP_PREFIX"
+
+      - name: Validate backup exists
+        run: |
+          OBJECTS=$(aws s3 ls s3://${{ steps.env-vars.outputs.backup_bucket }}/${{ steps.target.outputs.backup_prefix }}/ | wc -l)
+          
+          if [ "$OBJECTS" -lt "1" ]; then
+            echo "❌ Backup not found or empty"
+            exit 1
+          fi
+          
+          echo "✅ Backup found with $OBJECTS objects"
+
+      - name: Create current state backup
+        run: |
+          echo "💾 Backing up current state before rollback..."
+          
+          aws s3 sync s3://${{ steps.env-vars.outputs.s3_bucket }}/ \
+            s3://${{ steps.env-vars.outputs.backup_bucket }}/pre-rollback-${{ github.run_number }}/ \
+            --quiet
+
+      - name: Execute rollback
+        run: |
+          echo "🔄 Rolling back frontend..."
+          
+          aws s3 sync s3://${{ steps.env-vars.outputs.backup_bucket }}/${{ steps.target.outputs.backup_prefix }}/ \
+            s3://${{ steps.env-vars.outputs.s3_bucket }}/ \
+            --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          echo "🔄 Invalidating CloudFront cache..."
+          
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.env-vars.outputs.cloudfront_id }} \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          
+          aws cloudfront wait invalidation-completed \
+            --distribution-id ${{ steps.env-vars.outputs.cloudfront_id }} \
+            --id $INVALIDATION_ID
+          
+          echo "✅ Cache invalidation complete"
+
+      - name: Verify rollback
+        run: |
+          sleep 15
+          
+          case "${{ inputs.environment }}" in
+            staging)
+              URL="https://staging.hz-navigator.com"
+              ;;
+            production)
+              URL="https://hz-navigator.com"
+              ;;
+          esac
+          
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+          
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "❌ Verification failed with status: $HTTP_STATUS"
+            exit 1
+          fi
+          
+          echo "✅ Rollback verified"
+
+      - name: Create rollback record
+        run: |
+          echo "📝 Rollback Record"
+          echo "  Restored from: ${{ steps.target.outputs.backup_prefix }}"
+          echo "  Reason: ${{ inputs.reason }}"
+          echo "  Actor: ${{ github.actor }}"
+          echo "  Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+  # ===========================================================================
+  # Notifications
+  # ===========================================================================
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [rollback-backend, rollback-frontend]
+    if: always()
+    
+    steps:
+      - name: Determine status
+        id: status
+        run: |
+          if [ "${{ needs.rollback-backend.result }}" == "failure" ] || [ "${{ needs.rollback-frontend.result }}" == "failure" ]; then
+            echo "status=failed" >> $GITHUB_OUTPUT
+            echo "emoji=🚨" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.rollback-backend.result }}" == "success" ] || [ "${{ needs.rollback-frontend.result }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+          else
+            echo "status=unknown" >> $GITHUB_OUTPUT
+            echo "emoji=❓" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "${{ steps.status.outputs.emoji }} Rollback ${{ steps.status.outputs.status }}",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "${{ steps.status.outputs.emoji }} Rollback ${{ steps.status.outputs.status == 'success' && 'Completed' || 'Failed' }}"
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Component:*\n${{ inputs.component }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Environment:*\n${{ inputs.environment }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Reason:*\n${{ inputs.reason }}"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "Triggered by: ${{ github.actor }} | <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Create incident record
+        if: inputs.environment == 'production'
+        run: |
+          echo "🚨 PRODUCTION ROLLBACK INCIDENT"
+          echo "================================"
+          echo "Component: ${{ inputs.component }}"
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Reason: ${{ inputs.reason }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          echo "Workflow Run: ${{ github.run_id }}"
+          echo "================================"
+

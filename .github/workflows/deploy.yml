@@ -1,0 +1,291 @@
+# =============================================================================
+# HZ Navigator - Manual Deployment Pipeline
+# =============================================================================
+# Manual deployment workflow for specific environments
+# Supports deploying specific versions/tags
+# =============================================================================
+
+name: Manual Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Component to deploy'
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
+          - both
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      version:
+        description: 'Version/Tag to deploy (leave empty for latest)'
+        required: false
+        type: string
+      skip_tests:
+        description: 'Skip tests before deployment'
+        required: false
+        default: false
+        type: boolean
+      dry_run:
+        description: 'Dry run (no actual deployment)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '20'
+
+jobs:
+  # ===========================================================================
+  # Prepare Deployment
+  # ===========================================================================
+  prepare:
+    name: Prepare Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      short_sha: ${{ steps.version.outputs.short_sha }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version || github.sha }}
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Validate environment
+        run: |
+          echo "Deploying ${{ inputs.component }} to ${{ inputs.environment }}"
+          echo "Version: ${{ steps.version.outputs.version }}"
+          echo "Dry run: ${{ inputs.dry_run }}"
+          
+          # Production requires approval (enforced by environment protection rules)
+          if [ "${{ inputs.environment }}" == "production" ]; then
+            echo "⚠️  Production deployment requires manual approval"
+          fi
+
+  # ===========================================================================
+  # Deploy Backend
+  # ===========================================================================
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    if: inputs.component == 'backend' || inputs.component == 'both'
+    environment:
+      name: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.version }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set environment-specific variables
+        id: env-config
+        run: |
+          case "${{ inputs.environment }}" in
+            development)
+              echo "cluster=hz-navigator-development-cluster" >> $GITHUB_OUTPUT
+              echo "service=hz-navigator-development-backend-service" >> $GITHUB_OUTPUT
+              echo "task_def=hz-navigator-development-backend" >> $GITHUB_OUTPUT
+              ;;
+            staging)
+              echo "cluster=hz-navigator-staging-cluster" >> $GITHUB_OUTPUT
+              echo "service=hz-navigator-staging-backend-service" >> $GITHUB_OUTPUT
+              echo "task_def=hz-navigator-staging-backend" >> $GITHUB_OUTPUT
+              ;;
+            production)
+              echo "cluster=hz-navigator-production-cluster" >> $GITHUB_OUTPUT
+              echo "service=hz-navigator-production-backend-service" >> $GITHUB_OUTPUT
+              echo "task_def=hz-navigator-production-backend" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Dry run check
+        if: inputs.dry_run
+        run: |
+          echo "🔍 DRY RUN: Would deploy backend to ${{ inputs.environment }}"
+          echo "  Cluster: ${{ steps.env-config.outputs.cluster }}"
+          echo "  Service: ${{ steps.env-config.outputs.service }}"
+          echo "  Version: ${{ needs.prepare.outputs.version }}"
+
+      - name: Login to Amazon ECR
+        if: ${{ !inputs.dry_run }}
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Download task definition
+        if: ${{ !inputs.dry_run }}
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ steps.env-config.outputs.task_def }} \
+            --query taskDefinition > task-definition.json
+
+      - name: Update task definition
+        if: ${{ !inputs.dry_run }}
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: backend
+          image: ${{ steps.login-ecr.outputs.registry }}/hz-navigator-${{ inputs.environment }}-backend:${{ needs.prepare.outputs.short_sha }}
+
+      - name: Deploy to ECS
+        if: ${{ !inputs.dry_run }}
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ steps.env-config.outputs.service }}
+          cluster: ${{ steps.env-config.outputs.cluster }}
+          wait-for-service-stability: true
+
+  # ===========================================================================
+  # Deploy Frontend
+  # ===========================================================================
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [prepare]
+    if: inputs.component == 'frontend' || inputs.component == 'both'
+    environment:
+      name: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.version }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set environment-specific variables
+        id: env-config
+        run: |
+          case "${{ inputs.environment }}" in
+            development)
+              echo "s3_bucket=${{ secrets.DEV_S3_BUCKET }}" >> $GITHUB_OUTPUT
+              echo "cloudfront_id=${{ secrets.DEV_CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_OUTPUT
+              echo "api_url=https://api-dev.hz-navigator.com" >> $GITHUB_OUTPUT
+              ;;
+            staging)
+              echo "s3_bucket=${{ secrets.STAGING_S3_BUCKET }}" >> $GITHUB_OUTPUT
+              echo "cloudfront_id=${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_OUTPUT
+              echo "api_url=https://api-staging.hz-navigator.com" >> $GITHUB_OUTPUT
+              ;;
+            production)
+              echo "s3_bucket=${{ secrets.PRODUCTION_S3_BUCKET }}" >> $GITHUB_OUTPUT
+              echo "cloudfront_id=${{ secrets.PRODUCTION_CLOUDFRONT_DISTRIBUTION_ID }}" >> $GITHUB_OUTPUT
+              echo "api_url=https://api.hz-navigator.com" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Dry run check
+        if: inputs.dry_run
+        run: |
+          echo "🔍 DRY RUN: Would deploy frontend to ${{ inputs.environment }}"
+          echo "  S3 Bucket: ${{ steps.env-config.outputs.s3_bucket }}"
+          echo "  CloudFront: ${{ steps.env-config.outputs.cloudfront_id }}"
+          echo "  Version: ${{ needs.prepare.outputs.version }}"
+
+      - name: Install dependencies
+        if: ${{ !inputs.dry_run }}
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        if: ${{ !inputs.dry_run }}
+        working-directory: frontend
+        env:
+          VITE_API_URL: ${{ steps.env-config.outputs.api_url }}
+          VITE_ENVIRONMENT: ${{ inputs.environment }}
+          VITE_VERSION: ${{ needs.prepare.outputs.version }}
+        run: npm run build
+
+      - name: Sync to S3
+        if: ${{ !inputs.dry_run }}
+        run: |
+          aws s3 sync frontend/dist/ s3://${{ steps.env-config.outputs.s3_bucket }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable"
+          
+          aws s3 cp frontend/dist/index.html s3://${{ steps.env-config.outputs.s3_bucket }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html" \
+            --metadata-directive REPLACE
+
+      - name: Invalidate CloudFront
+        if: ${{ !inputs.dry_run }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.env-config.outputs.cloudfront_id }} \
+            --paths "/*"
+
+  # ===========================================================================
+  # Post Deployment
+  # ===========================================================================
+  notify:
+    name: Notify
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy-backend, deploy-frontend]
+    if: always()
+    
+    steps:
+      - name: Send notification
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "${{ inputs.dry_run && '🔍 Dry Run Complete' || (needs.deploy-backend.result == 'success' || needs.deploy-frontend.result == 'success') && '✅ Deployment Successful' || '❌ Deployment Failed' }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Manual Deployment ${{ inputs.dry_run && '(Dry Run)' || '' }}*\n\n*Component:* ${{ inputs.component }}\n*Environment:* ${{ inputs.environment }}\n*Version:* ${{ needs.prepare.outputs.version }}\n*Triggered by:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+

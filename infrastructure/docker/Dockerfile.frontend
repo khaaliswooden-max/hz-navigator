@@ -1,0 +1,60 @@
+# =============================================================================
+# HZ Navigator - Frontend Dockerfile
+# =============================================================================
+# Multi-stage build for production frontend assets
+# Used for building the frontend for S3 deployment
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: Dependencies
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci && npm cache clean --force
+
+# -----------------------------------------------------------------------------
+# Stage 2: Builder
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy dependencies
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
+COPY frontend/ ./
+
+# Build arguments for environment configuration
+ARG VITE_API_URL
+ARG VITE_MAP_TILES_URL
+ARG VITE_ENVIRONMENT=production
+
+# Set environment variables for build
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_MAP_TILES_URL=${VITE_MAP_TILES_URL}
+ENV VITE_ENVIRONMENT=${VITE_ENVIRONMENT}
+
+# Build the application
+RUN npm run build
+
+# -----------------------------------------------------------------------------
+# Stage 3: Output (for extracting build artifacts)
+# -----------------------------------------------------------------------------
+FROM alpine:latest AS output
+
+WORKDIR /app
+
+# Copy built assets
+COPY --from=builder /app/dist ./dist
+
+# The dist folder contains the production build
+# Use: docker cp <container>:/app/dist ./frontend-build
+CMD ["ls", "-la", "/app/dist"]
+

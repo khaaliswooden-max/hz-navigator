@@ -1,0 +1,90 @@
+# =============================================================================
+# HZ Navigator - Terraform Variables Example
+# =============================================================================
+# Copy this file to terraform.tfvars and customize the values for your
+# environment. Do not commit terraform.tfvars to version control.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# General Configuration
+# -----------------------------------------------------------------------------
+
+aws_region   = "us-east-1"
+environment  = "production"
+project_name = "hz-navigator"
+
+# -----------------------------------------------------------------------------
+# VPC Configuration
+# -----------------------------------------------------------------------------
+
+vpc_cidr              = "10.0.0.0/16"
+public_subnet_cidrs   = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs  = ["10.0.11.0/24", "10.0.12.0/24"]
+database_subnet_cidrs = ["10.0.21.0/24", "10.0.22.0/24"]
+
+# -----------------------------------------------------------------------------
+# RDS Configuration
+# -----------------------------------------------------------------------------
+
+# Start with db.t3.medium, upgrade to db.r5.large later
+db_instance_class          = "db.t3.medium"
+db_name                    = "hz_navigator"
+db_username                = "hz_admin"
+db_allocated_storage       = 100
+db_max_allocated_storage   = 500
+db_backup_retention_period = 7
+db_multi_az                = true
+create_read_replica        = true
+
+# -----------------------------------------------------------------------------
+# ECS Configuration
+# -----------------------------------------------------------------------------
+
+ecs_task_cpu      = 2048    # 2 vCPU
+ecs_task_memory   = 4096    # 4 GB
+ecs_desired_count = 2
+ecs_min_capacity  = 2
+ecs_max_capacity  = 10
+container_port    = 3000
+
+# Leave empty to use ECR image (recommended)
+backend_image = ""
+
+# -----------------------------------------------------------------------------
+# ElastiCache Configuration
+# -----------------------------------------------------------------------------
+
+redis_node_type       = "cache.r5.large"
+redis_num_cache_nodes = 2
+
+# -----------------------------------------------------------------------------
+# Domain Configuration
+# -----------------------------------------------------------------------------
+# Set these if you have a custom domain. Leave empty to use AWS-generated URLs.
+
+domain_name     = ""                # e.g., "hz-navigator.example.com"
+api_subdomain   = "api"
+route53_zone_id = ""                # Route53 hosted zone ID
+
+# -----------------------------------------------------------------------------
+# SSL/TLS Configuration
+# -----------------------------------------------------------------------------
+# Leave empty to create new certificates. Provide ARN to use existing.
+
+certificate_arn            = ""     # ACM certificate ARN for ALB
+cloudfront_certificate_arn = ""     # ACM certificate ARN for CloudFront (must be in us-east-1)
+
+# -----------------------------------------------------------------------------
+# Notification Configuration
+# -----------------------------------------------------------------------------
+
+alarm_email = ""                    # Email for CloudWatch alarm notifications
+
+# -----------------------------------------------------------------------------
+# Feature Flags
+# -----------------------------------------------------------------------------
+
+enable_deletion_protection = true   # Set to false for non-production
+enable_vpc_flow_logs       = true
+enable_waf                 = true
+

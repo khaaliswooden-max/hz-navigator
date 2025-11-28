@@ -1,258 +1,227 @@
 /**
- * Sentry Configuration
+ * HZ Navigator - Sentry Configuration
  * 
- * Error tracking and performance monitoring configuration for Sentry.
- * Used in both frontend and backend applications.
+ * Error tracking and performance monitoring configuration for backend
  */
 
-// ===== Frontend Sentry Configuration =====
-
-export const frontendSentryConfig = {
-  dsn: process.env['VITE_SENTRY_DSN'] || '',
-  environment: process.env['NODE_ENV'] || 'development',
-  release: process.env['VITE_APP_VERSION'] || '1.0.0',
-  
-  // Performance monitoring
-  tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.2 : 1.0,
-  
-  // Session replay for error reproduction
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  
-  // Integrations
-  integrations: [
-    // Browser tracing for performance
-    'BrowserTracing',
-    // Replay integration for session recording
-    'Replay',
-  ],
-  
-  // Tracing configuration
-  tracePropagationTargets: [
-    'localhost',
-    /^https:\/\/api\.hz-navigator\.com/,
-    /^https:\/\/.*\.hz-navigator\.com/,
-  ],
-  
-  // Filter options
-  beforeSend: (event: Record<string, unknown>) => {
-    // Don't send errors in development
-    if (process.env['NODE_ENV'] === 'development') {
-      console.error('[Sentry] Would send event:', event);
-      return null;
-    }
-    return event;
-  },
-  
-  // Ignore common non-actionable errors
-  ignoreErrors: [
-    // Browser extensions
-    'top.GLOBALS',
-    'chrome-extension://',
-    'moz-extension://',
-    
-    // Network errors
-    'Failed to fetch',
-    'NetworkError',
-    'Load failed',
-    
-    // User actions
-    'ResizeObserver loop limit exceeded',
-    'Non-Error promise rejection captured',
-    
-    // Third party
-    /^Script error\.?$/,
-  ],
-  
-  // Deny URLs (third party scripts)
-  denyUrls: [
-    // Chrome extensions
-    /extensions\//i,
-    /^chrome:\/\//i,
-    /^chrome-extension:\/\//i,
-    
-    // Firefox extensions
-    /^resource:\/\//i,
-    /^moz-extension:\/\//i,
-    
-    // Safari extensions
-    /^safari-web-extension:\/\//i,
-    
-    // Third party
-    /googletagmanager\.com/i,
-    /google-analytics\.com/i,
-  ],
-};
-
-// ===== Backend Sentry Configuration =====
-
-export const backendSentryConfig = {
-  dsn: process.env['SENTRY_DSN'] || '',
-  environment: process.env['NODE_ENV'] || 'development',
-  release: process.env['APP_VERSION'] || '1.0.0',
-  
-  // Performance monitoring
-  tracesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.5 : 1.0,
-  profilesSampleRate: process.env['NODE_ENV'] === 'production' ? 0.1 : 0,
-  
-  // Integrations (for @sentry/node)
-  integrations: [
-    'Http',
-    'Express',
-    'Postgres',
-  ],
-  
-  // Filter sensitive data
-  beforeSend: (event: Record<string, unknown>) => {
-    // Remove sensitive headers
-    if (event['request']) {
-      const request = event['request'] as Record<string, unknown>;
-      if (request['headers']) {
-        const headers = request['headers'] as Record<string, unknown>;
-        delete headers['authorization'];
-        delete headers['cookie'];
-        delete headers['x-api-key'];
-      }
-    }
-    return event;
-  },
-  
-  // Breadcrumb filtering
-  beforeBreadcrumb: (breadcrumb: Record<string, unknown>) => {
-    // Filter out health check requests
-    if (breadcrumb['category'] === 'http' && 
-        (breadcrumb['data'] as Record<string, unknown>)?.['url']?.toString().includes('/health')) {
-      return null;
-    }
-    return breadcrumb;
-  },
-  
-  // Ignore certain errors
-  ignoreErrors: [
-    'ECONNRESET',
-    'ECONNREFUSED',
-    'ETIMEDOUT',
-    'socket hang up',
-  ],
-  
-  // Server name (for multi-instance tracking)
-  serverName: process.env['HOSTNAME'] || 'hz-navigator-api',
-  
-  // Maximum breadcrumbs to capture
-  maxBreadcrumbs: 50,
-  
-  // Attach stack trace to messages
-  attachStacktrace: true,
-};
-
-// ===== Alert Rules =====
-
-export const sentryAlertRules = {
-  // High error rate alert
-  highErrorRate: {
-    name: 'High Error Rate',
-    conditions: {
-      interval: '1h',
-      comparisonType: 'percent',
-      value: 5,
-    },
-    filters: {
-      level: ['error', 'fatal'],
-    },
-    actions: ['slack', 'pagerduty'],
-  },
-  
-  // New error alert
-  newError: {
-    name: 'New Error Detected',
-    conditions: {
-      eventType: 'first_seen_event',
-    },
-    filters: {
-      level: ['error', 'fatal'],
-    },
-    actions: ['slack'],
-  },
-  
-  // Performance degradation alert
-  performanceDegradation: {
-    name: 'Performance Degradation',
-    conditions: {
-      metric: 'p95_latency',
-      threshold: 2000,
-    },
-    actions: ['slack'],
-  },
-};
-
-// ===== Tag Configuration =====
-
-export const sentryTags = {
-  // User context tags
-  user: ['id', 'email', 'role'],
-  
-  // Request context tags
-  request: ['method', 'url', 'ip'],
-  
-  // Custom tags
-  custom: [
-    'business_id',
-    'certification_id',
-    'action_type',
-    'component',
-    'feature',
-  ],
-};
-
-// ===== Example Usage =====
-/*
-
-// Frontend (React with Vite)
-import * as Sentry from '@sentry/react';
-
-Sentry.init({
-  ...frontendSentryConfig,
-  integrations: [
-    new Sentry.BrowserTracing({
-      routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-        useEffect,
-        useLocation,
-        useNavigationType,
-        createRoutesFromChildren,
-        matchRoutes,
-      ),
-    }),
-    new Sentry.Replay(),
-  ],
-});
-
-// Wrap root component
-const SentryApp = Sentry.withProfiler(App);
-
-// Backend (Express)
 import * as Sentry from '@sentry/node';
+import { ProfilingIntegration } from '@sentry/profiling-node';
+import { Express } from 'express';
 
-Sentry.init(backendSentryConfig);
+interface SentryConfig {
+  dsn: string;
+  environment: string;
+  release?: string;
+  sampleRate?: number;
+  tracesSampleRate?: number;
+  profilesSampleRate?: number;
+}
 
-// Request handler
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
+/**
+ * Initialize Sentry for the backend application
+ */
+export function initSentry(config: SentryConfig): void {
+  Sentry.init({
+    dsn: config.dsn,
+    environment: config.environment,
+    release: config.release || process.env.RELEASE_VERSION || 'unknown',
+    
+    // Error sampling
+    sampleRate: config.sampleRate ?? 1.0,
+    
+    // Performance monitoring
+    tracesSampleRate: config.tracesSampleRate ?? (config.environment === 'production' ? 0.1 : 1.0),
+    
+    // Profiling
+    profilesSampleRate: config.profilesSampleRate ?? (config.environment === 'production' ? 0.1 : 1.0),
+    
+    integrations: [
+      // Automatic instrumentation
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Sentry.Integrations.Express(),
+      new Sentry.Integrations.Postgres(),
+      new ProfilingIntegration(),
+    ],
+    
+    // Filter sensitive data
+    beforeSend(event) {
+      // Remove sensitive headers
+      if (event.request?.headers) {
+        delete event.request.headers['authorization'];
+        delete event.request.headers['cookie'];
+        delete event.request.headers['x-api-key'];
+      }
+      
+      // Remove sensitive data from request body
+      if (event.request?.data) {
+        const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'creditCard'];
+        try {
+          const data = typeof event.request.data === 'string' 
+            ? JSON.parse(event.request.data) 
+            : event.request.data;
+          
+          for (const field of sensitiveFields) {
+            if (data[field]) {
+              data[field] = '[FILTERED]';
+            }
+          }
+          
+          event.request.data = JSON.stringify(data);
+        } catch {
+          // If parsing fails, keep original data
+        }
+      }
+      
+      return event;
+    },
+    
+    // Ignore specific errors
+    ignoreErrors: [
+      // Ignore common non-actionable errors
+      'ResizeObserver loop limit exceeded',
+      'Non-Error promise rejection captured',
+      /^Network Error$/,
+      /^Request aborted$/,
+      /^timeout of \d+ms exceeded$/,
+    ],
+    
+    // Set custom tags
+    initialScope: {
+      tags: {
+        'service.name': 'hz-navigator-backend',
+        'service.version': process.env.npm_package_version || 'unknown',
+      },
+    },
+  });
+}
 
-// Error handler (after routes)
-app.use(Sentry.Handlers.errorHandler());
+/**
+ * Configure Sentry request handler for Express
+ */
+export function setupSentryRequestHandler(app: Express): void {
+  // RequestHandler creates a separate execution context
+  app.use(Sentry.Handlers.requestHandler({
+    // Include user info in error reports
+    user: ['id', 'email', 'role'],
+    // Include IP address
+    ip: true,
+    // Include request data
+    request: ['headers', 'method', 'url', 'query_string'],
+  }));
+  
+  // TracingHandler creates a trace for every incoming request
+  app.use(Sentry.Handlers.tracingHandler());
+}
 
-// Manual error capture
-Sentry.captureException(error, {
-  tags: { business_id: businessId },
-  extra: { context: 'compliance_check' },
-});
+/**
+ * Configure Sentry error handler for Express
+ * Must be added after all routes
+ */
+export function setupSentryErrorHandler(app: Express): void {
+  app.use(Sentry.Handlers.errorHandler({
+    shouldHandleError(error) {
+      // Only report server errors (5xx) and some client errors
+      if (error.status === undefined) return true;
+      return error.status >= 400 && error.status !== 404;
+    },
+  }));
+}
 
-*/
+/**
+ * Set user context for error tracking
+ */
+export function setSentryUser(user: { id: string; email: string; role?: string }): void {
+  Sentry.setUser({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
+}
 
-export default {
-  frontend: frontendSentryConfig,
-  backend: backendSentryConfig,
-  alerts: sentryAlertRules,
-  tags: sentryTags,
-};
+/**
+ * Clear user context (on logout)
+ */
+export function clearSentryUser(): void {
+  Sentry.setUser(null);
+}
 
+/**
+ * Add breadcrumb for tracking user actions
+ */
+export function addSentryBreadcrumb(
+  message: string,
+  category: string,
+  data?: Record<string, unknown>,
+  level: Sentry.SeverityLevel = 'info'
+): void {
+  Sentry.addBreadcrumb({
+    message,
+    category,
+    data,
+    level,
+    timestamp: Date.now() / 1000,
+  });
+}
+
+/**
+ * Capture custom exception with context
+ */
+export function captureException(
+  error: Error,
+  context?: {
+    tags?: Record<string, string>;
+    extra?: Record<string, unknown>;
+    user?: { id: string; email: string };
+  }
+): string {
+  return Sentry.captureException(error, {
+    tags: context?.tags,
+    extra: context?.extra,
+    user: context?.user,
+  });
+}
+
+/**
+ * Capture custom message
+ */
+export function captureMessage(
+  message: string,
+  level: Sentry.SeverityLevel = 'info',
+  context?: Record<string, unknown>
+): string {
+  return Sentry.captureMessage(message, {
+    level,
+    extra: context,
+  });
+}
+
+/**
+ * Start a performance transaction
+ */
+export function startTransaction(
+  name: string,
+  op: string
+): Sentry.Transaction {
+  return Sentry.startTransaction({ name, op });
+}
+
+/**
+ * Create a child span within a transaction
+ */
+export function createSpan(
+  transaction: Sentry.Transaction,
+  op: string,
+  description: string
+): Sentry.Span {
+  return transaction.startChild({ op, description });
+}
+
+/**
+ * Flush pending events before shutdown
+ */
+export async function flushSentry(timeout: number = 2000): Promise<boolean> {
+  return Sentry.close(timeout);
+}
+
+// Export Sentry for direct access if needed
+export { Sentry };

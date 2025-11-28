@@ -1,0 +1,266 @@
+{
+  "widgets": [
+    {
+      "height": 6,
+      "width": 12,
+      "y": 0,
+      "x": 0,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${ALB_ARN}", { "stat": "Sum", "period": 60 }],
+          [".", "HTTPCode_Target_2XX_Count", ".", ".", { "stat": "Sum", "period": 60 }],
+          [".", "HTTPCode_Target_4XX_Count", ".", ".", { "stat": "Sum", "period": 60, "color": "#ff7f0e" }],
+          [".", "HTTPCode_Target_5XX_Count", ".", ".", { "stat": "Sum", "period": 60, "color": "#d62728" }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "ALB Request Metrics",
+        "period": 60
+      }
+    },
+    {
+      "height": 6,
+      "width": 12,
+      "y": 0,
+      "x": 12,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${ALB_ARN}", { "stat": "Average", "period": 60 }],
+          ["...", { "stat": "p95", "period": 60 }],
+          ["...", { "stat": "p99", "period": 60 }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "ALB Response Time",
+        "period": 60,
+        "yAxis": {
+          "left": {
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "height": 6,
+      "width": 8,
+      "y": 6,
+      "x": 0,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ECS", "CPUUtilization", "ServiceName", "${ECS_SERVICE}", "ClusterName", "${ECS_CLUSTER}", { "stat": "Average", "period": 60 }],
+          [".", "MemoryUtilization", ".", ".", ".", ".", { "stat": "Average", "period": 60 }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "ECS Service Utilization",
+        "period": 60,
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "height": 6,
+      "width": 8,
+      "y": 6,
+      "x": 8,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ECS", "RunningTaskCount", "ServiceName", "${ECS_SERVICE}", "ClusterName", "${ECS_CLUSTER}", { "stat": "Average", "period": 60 }],
+          [".", "DesiredTaskCount", ".", ".", ".", ".", { "stat": "Average", "period": 60 }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "ECS Task Count",
+        "period": 60
+      }
+    },
+    {
+      "height": 6,
+      "width": 8,
+      "y": 6,
+      "x": 16,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ApplicationELB", "HealthyHostCount", "TargetGroup", "${TARGET_GROUP_ARN}", "LoadBalancer", "${ALB_ARN}", { "stat": "Average", "period": 60, "color": "#2ca02c" }],
+          [".", "UnHealthyHostCount", ".", ".", ".", ".", { "stat": "Average", "period": 60, "color": "#d62728" }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "Target Health",
+        "period": 60
+      }
+    },
+    {
+      "height": 6,
+      "width": 12,
+      "y": 12,
+      "x": 0,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "${RDS_INSTANCE}", { "stat": "Average", "period": 60 }],
+          [".", "FreeableMemory", ".", ".", { "stat": "Average", "period": 60, "yAxis": "right" }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "RDS CPU & Memory",
+        "period": 60
+      }
+    },
+    {
+      "height": 6,
+      "width": 12,
+      "y": 12,
+      "x": 12,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "${RDS_INSTANCE}", { "stat": "Average", "period": 60 }],
+          [".", "ReadIOPS", ".", ".", { "stat": "Average", "period": 60, "yAxis": "right" }],
+          [".", "WriteIOPS", ".", ".", { "stat": "Average", "period": 60, "yAxis": "right" }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "RDS Connections & IOPS",
+        "period": 60
+      }
+    },
+    {
+      "height": 6,
+      "width": 12,
+      "y": 18,
+      "x": 0,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ElastiCache", "CPUUtilization", "CacheClusterId", "${REDIS_CLUSTER}-001", { "stat": "Average", "period": 60 }],
+          [".", "DatabaseMemoryUsagePercentage", ".", ".", { "stat": "Average", "period": 60 }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "Redis CPU & Memory",
+        "period": 60,
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "height": 6,
+      "width": 12,
+      "y": 18,
+      "x": 12,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ElastiCache", "CurrConnections", "CacheClusterId", "${REDIS_CLUSTER}-001", { "stat": "Average", "period": 60 }],
+          [".", "CacheHits", ".", ".", { "stat": "Sum", "period": 60, "yAxis": "right" }],
+          [".", "CacheMisses", ".", ".", { "stat": "Sum", "period": 60, "yAxis": "right" }]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "${AWS_REGION}",
+        "title": "Redis Connections & Cache",
+        "period": 60
+      }
+    },
+    {
+      "height": 6,
+      "width": 24,
+      "y": 24,
+      "x": 0,
+      "type": "log",
+      "properties": {
+        "query": "SOURCE '/ecs/hz-navigator-production/backend' | fields @timestamp, @message\n| filter @message like /error|Error|ERROR/\n| sort @timestamp desc\n| limit 100",
+        "region": "${AWS_REGION}",
+        "title": "Recent Errors",
+        "view": "table"
+      }
+    },
+    {
+      "height": 3,
+      "width": 6,
+      "y": 30,
+      "x": 0,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["HZNavigator/production", "RequestCount", { "stat": "Sum", "period": 3600 }]
+        ],
+        "view": "singleValue",
+        "region": "${AWS_REGION}",
+        "title": "Requests (Last Hour)",
+        "period": 3600
+      }
+    },
+    {
+      "height": 3,
+      "width": 6,
+      "y": 30,
+      "x": 6,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["HZNavigator/production", "ErrorRate", { "stat": "Average", "period": 3600 }]
+        ],
+        "view": "singleValue",
+        "region": "${AWS_REGION}",
+        "title": "Error Rate",
+        "period": 3600
+      }
+    },
+    {
+      "height": 3,
+      "width": 6,
+      "y": 30,
+      "x": 12,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["HZNavigator/production", "ResponseTimeP95", { "stat": "Average", "period": 3600 }]
+        ],
+        "view": "singleValue",
+        "region": "${AWS_REGION}",
+        "title": "P95 Latency (ms)",
+        "period": 3600
+      }
+    },
+    {
+      "height": 3,
+      "width": 6,
+      "y": 30,
+      "x": 18,
+      "type": "metric",
+      "properties": {
+        "metrics": [
+          ["AWS/ECS", "RunningTaskCount", "ServiceName", "${ECS_SERVICE}", "ClusterName", "${ECS_CLUSTER}", { "stat": "Average", "period": 60 }]
+        ],
+        "view": "singleValue",
+        "region": "${AWS_REGION}",
+        "title": "Running Tasks",
+        "period": 60
+      }
+    }
+  ]
+}
+

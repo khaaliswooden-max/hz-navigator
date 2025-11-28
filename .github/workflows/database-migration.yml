@@ -1,0 +1,216 @@
+# =============================================================================
+# HZ Navigator - Database Migration Pipeline
+# =============================================================================
+# Manages database migrations across environments
+# Supports migrations, rollbacks, and status checks
+# =============================================================================
+
+name: Database Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      action:
+        description: 'Migration action'
+        required: true
+        type: choice
+        options:
+          - up
+          - down
+          - status
+          - redo
+      count:
+        description: 'Number of migrations (for up/down)'
+        required: false
+        default: '1'
+        type: string
+      dry_run:
+        description: 'Dry run (show SQL without executing)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: us-east-1
+  NODE_VERSION: '20'
+
+jobs:
+  # ===========================================================================
+  # Migration Job
+  # ===========================================================================
+  migrate:
+    name: Run Migration
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ inputs.environment == 'production' && secrets.AWS_ACCESS_KEY_ID_PROD || secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ inputs.environment == 'production' && secrets.AWS_SECRET_ACCESS_KEY_PROD || secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get database credentials
+        id: db-creds
+        run: |
+          case "${{ inputs.environment }}" in
+            development)
+              SECRET_ID="${{ secrets.DEV_DB_SECRET_ARN }}"
+              ;;
+            staging)
+              SECRET_ID="${{ secrets.STAGING_DB_SECRET_ARN }}"
+              ;;
+            production)
+              SECRET_ID="${{ secrets.PRODUCTION_DB_SECRET_ARN }}"
+              ;;
+          esac
+          
+          DB_CREDENTIALS=$(aws secretsmanager get-secret-value --secret-id $SECRET_ID --query SecretString --output text)
+          
+          echo "::add-mask::$(echo $DB_CREDENTIALS | jq -r '.password')"
+          
+          DB_HOST=$(echo $DB_CREDENTIALS | jq -r '.host')
+          DB_PORT=$(echo $DB_CREDENTIALS | jq -r '.port')
+          DB_NAME=$(echo $DB_CREDENTIALS | jq -r '.dbname')
+          DB_USER=$(echo $DB_CREDENTIALS | jq -r '.username')
+          DB_PASS=$(echo $DB_CREDENTIALS | jq -r '.password')
+          
+          echo "database_url=postgresql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Check migration status
+        if: inputs.action == 'status'
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.database_url }}
+        run: |
+          echo "📊 Migration Status for ${{ inputs.environment }}"
+          npm run migrate:status
+
+      - name: Run migrations (up)
+        if: inputs.action == 'up'
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.database_url }}
+        run: |
+          echo "⬆️ Running ${{ inputs.count }} migration(s) UP on ${{ inputs.environment }}"
+          
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            echo "🔍 DRY RUN - Would execute:"
+            npm run migrate:up -- --dry-run --count ${{ inputs.count }} || npm run migrate:up
+          else
+            npm run migrate:up -- --count ${{ inputs.count }} || npm run migrate:up
+          fi
+
+      - name: Run migrations (down)
+        if: inputs.action == 'down'
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.database_url }}
+        run: |
+          echo "⬇️ Rolling back ${{ inputs.count }} migration(s) on ${{ inputs.environment }}"
+          
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            echo "🔍 DRY RUN - Would execute:"
+            npm run migrate:down -- --dry-run --count ${{ inputs.count }} || npm run migrate:down
+          else
+            npm run migrate:down -- --count ${{ inputs.count }} || npm run migrate:down
+          fi
+
+      - name: Redo last migration
+        if: inputs.action == 'redo'
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.database_url }}
+        run: |
+          echo "🔄 Redoing last migration on ${{ inputs.environment }}"
+          
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            echo "🔍 DRY RUN - Would execute: down + up"
+          else
+            npm run migrate:down -- --count 1 || npm run migrate:down
+            npm run migrate:up -- --count 1 || npm run migrate:up
+          fi
+
+      - name: Verify migration
+        if: inputs.action != 'status' && !inputs.dry_run
+        working-directory: backend
+        env:
+          DATABASE_URL: ${{ steps.db-creds.outputs.database_url }}
+        run: |
+          echo "✅ Verifying migration status after ${{ inputs.action }}"
+          npm run migrate:status
+
+      - name: Create migration record
+        if: inputs.action != 'status' && !inputs.dry_run
+        run: |
+          echo "Migration executed:"
+          echo "  Environment: ${{ inputs.environment }}"
+          echo "  Action: ${{ inputs.action }}"
+          echo "  Count: ${{ inputs.count }}"
+          echo "  Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          echo "  Actor: ${{ github.actor }}"
+
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "🚨 Database migration failed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Database Migration Failed*\n\n*Environment:* ${{ inputs.environment }}\n*Action:* ${{ inputs.action }}\n*Triggered by:* ${{ github.actor }}\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify on success
+        if: success() && !inputs.dry_run && inputs.action != 'status'
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "✅ Database migration completed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Database Migration Completed*\n\n*Environment:* ${{ inputs.environment }}\n*Action:* ${{ inputs.action }}\n*Count:* ${{ inputs.count }}\n*Triggered by:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+

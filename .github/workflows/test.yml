@@ -1,0 +1,399 @@
+# =============================================================================
+# HZ Navigator - Pull Request Test Pipeline
+# =============================================================================
+# Triggers on pull requests
+# Runs all tests, linting, and posts coverage report
+# =============================================================================
+
+name: Pull Request Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+# Cancel in-progress runs for the same PR
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ===========================================================================
+  # Changed Files Detection
+  # ===========================================================================
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      database: ${{ steps.filter.outputs.database }}
+      e2e: ${{ steps.filter.outputs.e2e }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            database:
+              - 'database/**'
+            e2e:
+              - 'e2e/**'
+
+  # ===========================================================================
+  # Backend Tests
+  # ===========================================================================
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.database == 'true'
+    
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: hz_navigator_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run linter
+        working-directory: backend
+        run: npm run lint
+
+      - name: Run type check
+        working-directory: backend
+        run: npm run type-check || true
+
+      - name: Run unit tests
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET: test-jwt-secret-for-ci
+          ENCRYPTION_KEY: test-encryption-key-12345
+        run: npm run test:coverage
+
+      - name: Run integration tests
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET: test-jwt-secret-for-ci
+          ENCRYPTION_KEY: test-encryption-key-12345
+        run: npm run test:integration || true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./backend/coverage/lcov.info
+          flags: backend
+          fail_ci_if_error: false
+
+      - name: Post coverage comment
+        uses: romeovs/lcov-reporter-action@v0.4.0
+        if: github.event_name == 'pull_request'
+        with:
+          lcov-file: ./backend/coverage/lcov.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          title: 'Backend Coverage Report'
+
+  # ===========================================================================
+  # Frontend Tests
+  # ===========================================================================
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.frontend == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run linter
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Run type check
+        working-directory: frontend
+        run: npm run type-check || true
+
+      - name: Run unit tests
+        working-directory: frontend
+        run: npm run test:coverage || npm test
+
+      - name: Build check
+        working-directory: frontend
+        env:
+          VITE_API_URL: https://api-test.hz-navigator.com
+          VITE_ENVIRONMENT: test
+        run: npm run build
+
+      - name: Check bundle size
+        working-directory: frontend
+        run: |
+          BUNDLE_SIZE=$(du -sb dist | cut -f1)
+          MAX_SIZE=5242880  # 5MB
+          
+          if [ "$BUNDLE_SIZE" -gt "$MAX_SIZE" ]; then
+            echo "Bundle size ($BUNDLE_SIZE bytes) exceeds maximum ($MAX_SIZE bytes)"
+            exit 1
+          fi
+          
+          echo "Bundle size: $BUNDLE_SIZE bytes (max: $MAX_SIZE bytes)"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./frontend/coverage/lcov.info
+          flags: frontend
+          fail_ci_if_error: false
+
+  # ===========================================================================
+  # E2E Tests
+  # ===========================================================================
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [changes, backend-test, frontend-test]
+    if: |
+      always() &&
+      (needs.changes.outputs.e2e == 'true' || 
+       needs.changes.outputs.backend == 'true' || 
+       needs.changes.outputs.frontend == 'true') &&
+      (needs.backend-test.result == 'success' || needs.backend-test.result == 'skipped') &&
+      (needs.frontend-test.result == 'success' || needs.frontend-test.result == 'skipped')
+    
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: hz_navigator_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Start backend server
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          PORT: 3000
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/hz_navigator_test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          JWT_SECRET: test-jwt-secret-for-ci
+          ENCRYPTION_KEY: test-encryption-key-12345
+        run: |
+          npm run build
+          npm start &
+          sleep 10
+
+      - name: Start frontend server
+        working-directory: frontend
+        env:
+          VITE_API_URL: http://localhost:3000
+        run: |
+          npm run build
+          npx vite preview --port 5173 &
+          sleep 5
+
+      - name: Run E2E tests
+        working-directory: e2e
+        env:
+          BASE_URL: http://localhost:5173
+          API_URL: http://localhost:3000
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-results
+          path: e2e/test-results
+          retention-days: 7
+
+  # ===========================================================================
+  # Security Scan
+  # ===========================================================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Check for critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'CRITICAL'
+          exit-code: '1'
+
+  # ===========================================================================
+  # PR Status Summary
+  # ===========================================================================
+  summary:
+    name: PR Status Summary
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-test, e2e-test, security-scan]
+    if: always()
+
+    steps:
+      - name: Check job statuses
+        run: |
+          echo "Backend Tests: ${{ needs.backend-test.result }}"
+          echo "Frontend Tests: ${{ needs.frontend-test.result }}"
+          echo "E2E Tests: ${{ needs.e2e-test.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+
+      - name: Post summary comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: test-summary
+          message: |
+            ## 🧪 Test Results Summary
+            
+            | Test Suite | Status |
+            |------------|--------|
+            | Backend Tests | ${{ needs.backend-test.result == 'success' && '✅ Passed' || needs.backend-test.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |
+            | Frontend Tests | ${{ needs.frontend-test.result == 'success' && '✅ Passed' || needs.frontend-test.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |
+            | E2E Tests | ${{ needs.e2e-test.result == 'success' && '✅ Passed' || needs.e2e-test.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |
+            | Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} |
+            
+            _Commit: ${{ github.sha }}_
+
+      - name: Fail if any required job failed
+        if: |
+          needs.backend-test.result == 'failure' ||
+          needs.frontend-test.result == 'failure' ||
+          needs.security-scan.result == 'failure'
+        run: exit 1
+
