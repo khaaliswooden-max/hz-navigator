@@ -7,73 +7,8 @@ import type { ContractFilters, CreateContractData, UpdateContractData } from '..
 const router = Router();
 
 /**
- * @swagger
- * /api/contracts:
- *   get:
- *     summary: Get contracts with filters
- *     description: Returns a paginated list of contracts with comprehensive filtering options.
- *     tags: [Contracts]
- *     parameters:
- *       - $ref: '#/components/parameters/AgencyIdHeader'
- *       - name: fiscalYear
- *         in: query
- *         schema:
- *           type: integer
- *           example: 2024
- *       - name: fiscalQuarter
- *         in: query
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 4
- *       - name: status
- *         in: query
- *         schema:
- *           type: string
- *           enum: [active, completed, terminated, pending, cancelled]
- *       - name: contractType
- *         in: query
- *         schema:
- *           type: string
- *           enum: [hubzone_set_aside, hubzone_sole_source, price_preference, full_open, small_business, other]
- *       - name: isHubzoneContractor
- *         in: query
- *         schema:
- *           type: boolean
- *       - name: contractorUei
- *         in: query
- *         schema:
- *           type: string
- *       - name: minValue
- *         in: query
- *         schema:
- *           type: number
- *       - name: maxValue
- *         in: query
- *         schema:
- *           type: number
- *       - name: search
- *         in: query
- *         schema:
- *           type: string
- *       - $ref: '#/components/parameters/PageParam'
- *       - $ref: '#/components/parameters/LimitParam'
- *     responses:
- *       200:
- *         description: List of contracts
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Contract'
- *                 pagination:
- *                   $ref: '#/components/schemas/Pagination'
+ * Get contracts with filters
+ * GET /api/contracts
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -119,33 +54,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 /**
- * @swagger
- * /api/contracts/{id}:
- *   get:
- *     summary: Get contract by ID
- *     description: Returns detailed information about a specific contract.
- *     tags: [Contracts]
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Contract details
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Contract'
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ * Get single contract
+ * GET /api/contracts/:id
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -172,34 +82,8 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 /**
- * @swagger
- * /api/contracts:
- *   post:
- *     summary: Create a new contract
- *     description: Creates a new contract record for tracking HUBZone goal progress.
- *     tags: [Contracts]
- *     parameters:
- *       - $ref: '#/components/parameters/AgencyIdHeader'
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateContractRequest'
- *     responses:
- *       201:
- *         description: Contract created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/Contract'
- *       400:
- *         $ref: '#/components/responses/ValidationError'
+ * Create new contract
+ * POST /api/contracts
  */
 router.post('/', async (req: Request, res: Response) => {
   try {
@@ -385,34 +269,8 @@ router.post('/goals/:fiscalYear', async (req: Request, res: Response) => {
 });
 
 /**
- * @swagger
- * /api/contracts/progress/{fiscalYear}:
- *   get:
- *     summary: Get HUBZone goal progress
- *     description: Returns the current progress toward HUBZone contracting goals for a fiscal year.
- *     tags: [Contracts]
- *     parameters:
- *       - $ref: '#/components/parameters/AgencyIdHeader'
- *       - name: fiscalYear
- *         in: path
- *         required: true
- *         schema:
- *           type: integer
- *           example: 2024
- *     responses:
- *       200:
- *         description: Goal progress data
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   $ref: '#/components/schemas/GoalProgress'
- *       400:
- *         description: Agency ID required
+ * Get goal progress
+ * GET /api/contracts/progress/:fiscalYear
  */
 router.get('/progress/:fiscalYear', async (req: Request, res: Response) => {
   try {

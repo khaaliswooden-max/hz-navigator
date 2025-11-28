@@ -126,87 +126,8 @@ async function checkAccountLocked(email: string): Promise<{
 // ===== Routes =====
 
 /**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Authenticate user and obtain JWT token
- *     description: |
- *       Validates user credentials and returns a JWT token for authenticated API access.
- *       
- *       **Rate Limiting:** 5 requests per minute
- *       
- *       **Account Lockout:** After 5 failed attempts, the account is locked for 15 minutes.
- *     tags: [Authentication]
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/LoginRequest'
- *           examples:
- *             validCredentials:
- *               summary: Valid user credentials
- *               value:
- *                 email: user@example.com
- *                 password: SecureP@ss123
- *     responses:
- *       200:
- *         description: Login successful
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
- *             example:
- *               success: true
- *               data:
- *                 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
- *                 user:
- *                   id: 123e4567-e89b-12d3-a456-426614174000
- *                   email: user@example.com
- *                   firstName: John
- *                   lastName: Doe
- *                   role: user
- *       400:
- *         description: Validation error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       401:
- *         description: Invalid credentials or account disabled
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             examples:
- *               invalidCredentials:
- *                 summary: Invalid email or password
- *                 value:
- *                   success: false
- *                   error:
- *                     message: Invalid email or password
- *                     code: INVALID_CREDENTIALS
- *               accountDisabled:
- *                 summary: Account is disabled
- *                 value:
- *                   success: false
- *                   error:
- *                     message: Account is disabled
- *                     code: ACCOUNT_DISABLED
- *       423:
- *         description: Account temporarily locked
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               error:
- *                 message: Account temporarily locked. Try again in 15 minutes.
- *                 code: ACCOUNT_LOCKED
- *       429:
- *         $ref: '#/components/responses/RateLimitError'
+ * POST /api/auth/login
+ * Authenticate user and return JWT token
  */
 router.post(
   '/login',
@@ -338,54 +259,8 @@ router.post(
 );
 
 /**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Register a new user account
- *     description: |
- *       Creates a new user account and returns a JWT token.
- *       
- *       **Password Requirements:**
- *       - Minimum 8 characters
- *       - At least one uppercase letter
- *       - At least one lowercase letter
- *       - At least one number
- *       - At least one special character
- *     tags: [Authentication]
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/RegisterRequest'
- *           example:
- *             email: newuser@example.com
- *             password: SecureP@ss123
- *             firstName: John
- *             lastName: Doe
- *     responses:
- *       201:
- *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
- *       400:
- *         $ref: '#/components/responses/ValidationError'
- *       409:
- *         description: Email already registered
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               error:
- *                 message: Email already registered
- *                 code: EMAIL_EXISTS
- *       429:
- *         $ref: '#/components/responses/RateLimitError'
+ * POST /api/auth/register
+ * Register a new user
  */
 router.post(
   '/register',
@@ -472,35 +347,8 @@ router.post(
 );
 
 /**
- * @swagger
- * /api/auth/forgot-password:
- *   post:
- *     summary: Request password reset
- *     description: |
- *       Sends a password reset link to the user's email if the account exists.
- *       Always returns success to prevent email enumeration.
- *       
- *       **Rate Limiting:** 3 requests per hour
- *     tags: [Authentication]
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ForgotPasswordRequest'
- *     responses:
- *       200:
- *         description: Request processed (always returns success for security)
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: If an account with that email exists, a reset link has been sent.
- *       400:
- *         $ref: '#/components/responses/ValidationError'
- *       429:
- *         $ref: '#/components/responses/RateLimitError'
+ * POST /api/auth/forgot-password
+ * Request password reset
  */
 router.post(
   '/forgot-password',
@@ -557,40 +405,8 @@ router.post(
 );
 
 /**
- * @swagger
- * /api/auth/reset-password:
- *   post:
- *     summary: Reset password using token
- *     description: Resets the user's password using the token received via email.
- *     tags: [Authentication]
- *     security: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ResetPasswordRequest'
- *     responses:
- *       200:
- *         description: Password reset successful
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: Password has been reset successfully
- *       400:
- *         description: Invalid or expired token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               error:
- *                 message: Invalid or expired reset token
- *                 code: INVALID_TOKEN
- *       429:
- *         $ref: '#/components/responses/RateLimitError'
+ * POST /api/auth/reset-password
+ * Reset password with token
  */
 router.post(
   '/reset-password',
@@ -629,24 +445,8 @@ router.post(
 );
 
 /**
- * @swagger
- * /api/auth/logout:
- *   post:
- *     summary: Logout current user
- *     description: Invalidates the current session. The token should be discarded by the client.
- *     tags: [Authentication]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Logout successful
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: Logged out successfully
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
+ * POST /api/auth/logout
+ * Logout user (invalidate token)
  */
 router.post(
   '/logout',
@@ -672,31 +472,8 @@ router.post(
 );
 
 /**
- * @swagger
- * /api/auth/me:
- *   get:
- *     summary: Get current user profile
- *     description: Returns the profile information for the authenticated user.
- *     tags: [Authentication]
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: User profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- *       404:
- *         $ref: '#/components/responses/NotFoundError'
+ * GET /api/auth/me
+ * Get current user profile
  */
 router.get(
   '/me',
@@ -749,43 +526,8 @@ router.get(
 );
 
 /**
- * @swagger
- * /api/auth/password:
- *   put:
- *     summary: Change user password
- *     description: |
- *       Changes the authenticated user's password.
- *       Requires the current password for verification.
- *     tags: [Authentication]
- *     security:
- *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ChangePasswordRequest'
- *     responses:
- *       200:
- *         description: Password changed successfully
- *         content:
- *           application/json:
- *             example:
- *               success: true
- *               message: Password changed successfully
- *       400:
- *         $ref: '#/components/responses/ValidationError'
- *       401:
- *         description: Current password is incorrect
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *             example:
- *               success: false
- *               error:
- *                 message: Current password is incorrect
- *                 code: INVALID_PASSWORD
+ * PUT /api/auth/password
+ * Change password (requires current password)
  */
 router.put(
   '/password',
