@@ -30,6 +30,18 @@ import { TractDetail } from './pages/Map';
 // Agency Pages
 import { ContractorVerification, Goals, Contracts, Reports, Analytics } from './pages/Agency';
 
+// Admin Pages
+import {
+  AdminDashboard,
+  UserManagement,
+  BusinessManagement,
+  SystemConfig,
+  AdminAnalytics,
+  SystemJobs,
+  AuditLogs,
+  AdminSecurity,
+} from './pages/Admin';
+
 // Auth Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -50,38 +62,6 @@ function Documents() {
 
 
 
-function Users() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">User Management</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">User management coming soon...</p>
-      </div>
-    </div>
-  );
-}
-
-function AuditLog() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Audit Log</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Audit log coming soon...</p>
-      </div>
-    </div>
-  );
-}
-
-function AdminConsole() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-display font-bold text-gray-900">Admin Console</h1>
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-        <p className="text-gray-500">Admin console coming soon...</p>
-      </div>
-    </div>
-  );
-}
 
 function Profile() {
   return (
@@ -161,9 +141,21 @@ function App() {
           <Route path="agency/analytics" element={<Analytics />} />
           <Route path="reports" element={<ComplianceReports />} />
           <Route path="compliance/reports" element={<ComplianceReports />} />
-          <Route path="users" element={<Users />} />
-          <Route path="audit-log" element={<AuditLog />} />
-          <Route path="admin" element={<AdminConsole />} />
+          
+          {/* Admin Panel Routes */}
+          <Route path="admin" element={<AdminDashboard />} />
+          <Route path="admin/users" element={<UserManagement />} />
+          <Route path="admin/businesses" element={<BusinessManagement />} />
+          <Route path="admin/config" element={<SystemConfig />} />
+          <Route path="admin/analytics" element={<AdminAnalytics />} />
+          <Route path="admin/jobs" element={<SystemJobs />} />
+          <Route path="admin/audit-logs" element={<AuditLogs />} />
+          <Route path="admin/security" element={<AdminSecurity />} />
+          
+          {/* Legacy routes - redirect to new admin panel */}
+          <Route path="users" element={<UserManagement />} />
+          <Route path="audit-log" element={<AuditLogs />} />
+          
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
           <Route path="notifications" element={<NotificationCenter />} />

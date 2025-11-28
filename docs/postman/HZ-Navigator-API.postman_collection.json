@@ -1,0 +1,1434 @@
+{
+  "info": {
+    "_postman_id": "hz-navigator-api-collection",
+    "name": "HZ Navigator API",
+    "description": "Comprehensive API collection for HZ Navigator - HUBZone Certification Management Platform.\n\n## Getting Started\n\n1. Import this collection and the environment file\n2. Set up your environment variables\n3. Run the \"Login\" request to get an authentication token\n4. The pre-request scripts will automatically add the token to subsequent requests\n\n## Authentication\n\nMost endpoints require JWT authentication. The collection includes pre-request scripts that automatically add the token from environment variables.\n\n## Rate Limits\n\n- Authentication: 5 requests/minute\n- Standard API: 100 requests/minute\n- File uploads: 10 requests/minute\n- Admin endpoints: 30 requests/minute",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Pre-request script to refresh token if needed",
+          "const tokenExpiry = pm.environment.get('token_expiry');",
+          "const currentTime = Date.now();",
+          "",
+          "if (tokenExpiry && currentTime > parseInt(tokenExpiry)) {",
+          "    console.log('Token expired, please login again');",
+          "    pm.environment.unset('access_token');",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response time is less than 2000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});",
+          "",
+          "pm.test('Content-Type is JSON', function () {",
+          "    if (pm.response.code !== 204) {",
+          "        pm.response.to.have.header('Content-Type', /application\\/json/);",
+          "    }",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "User authentication and account management endpoints",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('token');",
+                  "    pm.expect(jsonData.data).to.have.property('user');",
+                  "});",
+                  "",
+                  "// Save token to environment",
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.environment.set('access_token', jsonData.data.token);",
+                  "    pm.environment.set('user_id', jsonData.data.user.id);",
+                  "    pm.environment.set('user_email', jsonData.data.user.email);",
+                  "    pm.environment.set('user_role', jsonData.data.user.role);",
+                  "    // Set token expiry (24 hours from now)",
+                  "    pm.environment.set('token_expiry', Date.now() + 24 * 60 * 60 * 1000);",
+                  "    console.log('Token saved to environment');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{user_email}}\",\n    \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticate user and obtain JWT token.\n\n**Rate Limit:** 5 requests per minute"
+          },
+          "response": [
+            {
+              "name": "Successful Login",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"SecureP@ss123\"\n}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"success\": true,\n    \"data\": {\n        \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n        \"user\": {\n            \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n            \"email\": \"user@example.com\",\n            \"firstName\": \"John\",\n            \"lastName\": \"Doe\",\n            \"role\": \"user\"\n        }\n    }\n}"
+            },
+            {
+              "name": "Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"wrongpassword\"\n}"
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "body": "{\n    \"success\": false,\n    \"error\": {\n        \"message\": \"Invalid email or password\",\n        \"code\": \"INVALID_CREDENTIALS\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has token and user', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('token');",
+                  "    pm.expect(jsonData.data).to.have.property('user');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"SecureP@ss123\",\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account.\n\n**Password Requirements:**\n- Minimum 8 characters\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least one special character"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Get the current authenticated user's profile."
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"currentPassword\": \"{{user_password}}\",\n    \"newPassword\": \"NewSecureP@ss456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "password"]
+            },
+            "description": "Change the authenticated user's password."
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "description": "Request a password reset email."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logout the current user and invalidate the token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "description": "System health check endpoints",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 503', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 503]);",
+                  "});",
+                  "",
+                  "pm.test('Response has status field', function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check API health status. No authentication required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "HUBZones",
+      "description": "HUBZone lookup and verification endpoints",
+      "item": [
+        {
+          "name": "List HUBZones",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hubzones?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hubzones"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get a paginated list of HUBZone areas."
+          }
+        },
+        {
+          "name": "Get HUBZone by ID",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hubzones/{{hubzone_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hubzones", "{{hubzone_id}}"]
+            },
+            "description": "Get details of a specific HUBZone area."
+          }
+        },
+        {
+          "name": "Check Location in HUBZone",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"latitude\": 38.9072,\n    \"longitude\": -77.0369\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/hubzones/check",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hubzones", "check"]
+            },
+            "description": "Check if given coordinates are within a HUBZone area."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Map",
+      "description": "Geographic data and vector tile endpoints",
+      "item": [
+        {
+          "name": "Radius Search",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"latitude\": 38.9072,\n    \"longitude\": -77.0369,\n    \"radius_miles\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/hubzone/radius-search",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "hubzone", "radius-search"]
+            },
+            "description": "Search for HUBZones within a radius of coordinates."
+          }
+        },
+        {
+          "name": "Get Tract Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/hubzone/tract/11001000100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "hubzone", "tract", "11001000100"]
+            },
+            "description": "Get details of a specific Census tract by GEOID."
+          }
+        },
+        {
+          "name": "Get Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/hubzone/statistics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "hubzone", "statistics"]
+            },
+            "description": "Get aggregate statistics about HUBZone designations."
+          }
+        },
+        {
+          "name": "Get States List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/hubzone/states",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "hubzone", "states"]
+            },
+            "description": "Get list of states with HUBZone designations."
+          }
+        },
+        {
+          "name": "Get Bounds",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/hubzone/bounds",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "hubzone", "bounds"]
+            },
+            "description": "Get bounding box for all HUBZone data."
+          }
+        },
+        {
+          "name": "Export Data",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"state\": \"DC\",\n    \"format\": \"geojson\",\n    \"status_filter\": [\"active\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/hubzone/export",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "hubzone", "export"]
+            },
+            "description": "Export HUBZone data in GeoJSON or CSV format."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Compliance",
+      "description": "Business compliance monitoring endpoints",
+      "item": [
+        {
+          "name": "Get Current Compliance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/compliance/current",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "compliance", "current"]
+            },
+            "description": "Get current compliance status for a business."
+          }
+        },
+        {
+          "name": "Get Compliance History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/compliance/history?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "compliance", "history"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            },
+            "description": "Get compliance history for a business."
+          }
+        },
+        {
+          "name": "Create Compliance Snapshot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"notes\": \"Manual compliance check\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/compliance/snapshot",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "compliance", "snapshot"]
+            },
+            "description": "Create a manual compliance snapshot."
+          }
+        },
+        {
+          "name": "Get Compliance Trend",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/compliance/trend?days=30",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "compliance", "trend"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            },
+            "description": "Get compliance trend analysis."
+          }
+        },
+        {
+          "name": "Generate Compliance Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/compliance/report?period=monthly&format=json",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "compliance", "report"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "monthly"
+                },
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            },
+            "description": "Generate compliance report in various formats."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alerts",
+      "description": "Compliance alerts and notifications",
+      "item": [
+        {
+          "name": "Get Business Alerts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/alerts?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "alerts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "severity",
+                  "value": "high,critical",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "active",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get alerts for a specific business."
+          }
+        },
+        {
+          "name": "Generate Alerts",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/businesses/{{business_id}}/alerts/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "businesses", "{{business_id}}", "alerts", "generate"]
+            },
+            "description": "Generate new alerts based on compliance status."
+          }
+        },
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/alerts/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "alerts", "dashboard"]
+            },
+            "description": "Get alerts dashboard summary."
+          }
+        },
+        {
+          "name": "Get Alert by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/alerts/{{alert_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "alerts", "{{alert_id}}"]
+            },
+            "description": "Get specific alert details."
+          }
+        },
+        {
+          "name": "Acknowledge Alert",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/alerts/{{alert_id}}/acknowledge",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "alerts", "{{alert_id}}", "acknowledge"]
+            },
+            "description": "Acknowledge an alert."
+          }
+        },
+        {
+          "name": "Dismiss Alert",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/alerts/{{alert_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "alerts", "{{alert_id}}"]
+            },
+            "description": "Dismiss an alert."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contracts",
+      "description": "Contract management and goal tracking",
+      "item": [
+        {
+          "name": "List Contracts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contracts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "fiscalYear",
+                  "value": "2024",
+                  "disabled": true
+                },
+                {
+                  "key": "isHubzoneContractor",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get contracts with filters."
+          }
+        },
+        {
+          "name": "Create Contract",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"contractNumber\": \"GS-35F-0001N\",\n    \"title\": \"IT Support Services\",\n    \"description\": \"Annual IT support contract\",\n    \"contractorName\": \"ACME IT Services\",\n    \"contractorUei\": \"ABC123DEF456\",\n    \"isHubzoneContractor\": true,\n    \"awardDate\": \"2024-01-15\",\n    \"awardValue\": 500000,\n    \"contractType\": \"hubzone_set_aside\",\n    \"awardType\": \"firm_fixed_price\",\n    \"naicsCodes\": [\n        {\n            \"code\": \"541511\",\n            \"title\": \"Custom Computer Programming Services\",\n            \"isPrimary\": true\n        }\n    ],\n    \"periodOfPerformanceStart\": \"2024-01-15\",\n    \"periodOfPerformanceEnd\": \"2025-01-14\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contracts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contracts"]
+            },
+            "description": "Create a new contract."
+          }
+        },
+        {
+          "name": "Get Contract",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/{{contract_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contracts", "{{contract_id}}"]
+            },
+            "description": "Get contract by ID."
+          }
+        },
+        {
+          "name": "Get Goal Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/progress/2024",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contracts", "progress", "2024"]
+            },
+            "description": "Get HUBZone goal progress for fiscal year."
+          }
+        },
+        {
+          "name": "Get Contract Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/summary/2024",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contracts", "summary", "2024"]
+            },
+            "description": "Get contract summary for fiscal year."
+          }
+        },
+        {
+          "name": "Get Top Contractors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/top-contractors/2024?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "contracts", "top-contractors", "2024"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get top HUBZone contractors for fiscal year."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "description": "Document upload and management",
+      "item": [
+        {
+          "name": "Initialize Upload",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.documentId) {",
+                  "    pm.environment.set('document_id', jsonData.data.documentId);",
+                  "    pm.environment.set('upload_url', jsonData.data.uploadUrl);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"originalFilename\": \"certification.pdf\",\n    \"fileSize\": 1048576,\n    \"category\": \"certification\",\n    \"businessId\": \"{{business_id}}\",\n    \"description\": \"HUBZone certification document\",\n    \"tags\": [\"certification\", \"2024\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/init-upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "init-upload"]
+            },
+            "description": "Initialize document upload and get pre-signed S3 URL."
+          }
+        },
+        {
+          "name": "Confirm Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"s3VersionId\": \"version-id-from-s3\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/{{document_id}}/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "{{document_id}}", "confirm"]
+            },
+            "description": "Confirm document upload completion."
+          }
+        },
+        {
+          "name": "List Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "category",
+                  "value": "certification",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get user's documents with filters."
+          }
+        },
+        {
+          "name": "Get Document",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents/{{document_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "{{document_id}}"]
+            },
+            "description": "Get document by ID."
+          }
+        },
+        {
+          "name": "Get Download URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents/{{document_id}}/download",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "{{document_id}}", "download"]
+            },
+            "description": "Get signed download URL for document."
+          }
+        },
+        {
+          "name": "Search Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents/search?q=certification",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "certification"
+                }
+              ]
+            },
+            "description": "Search documents by filename and OCR content."
+          }
+        },
+        {
+          "name": "Get Document Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents/user/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "user", "stats"]
+            },
+            "description": "Get document statistics for user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agency",
+      "description": "Agency contractor verification",
+      "item": [
+        {
+          "name": "Search Contractors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/agency/contractors/search?legalName=ACME",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agency", "contractors", "search"],
+              "query": [
+                {
+                  "key": "legalName",
+                  "value": "ACME"
+                },
+                {
+                  "key": "ueiNumber",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "cageCode",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Search for contractors."
+          }
+        },
+        {
+          "name": "Verify Contractor",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agency/verify/ABC123DEF456",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agency", "verify", "ABC123DEF456"]
+            },
+            "description": "Verify a contractor by UEI number."
+          }
+        },
+        {
+          "name": "Bulk Verify Contractors",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ueiNumbers\": [\"ABC123DEF456\", \"XYZ789GHI012\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/agency/verify/bulk",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agency", "verify", "bulk"]
+            },
+            "description": "Bulk verify contractors (max 500)."
+          }
+        },
+        {
+          "name": "Get Verification History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Agency-Id",
+                "value": "{{agency_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/agency/verifications/history?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agency", "verifications", "history"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get verification history."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "description": "Analytics and reporting endpoints",
+      "item": [
+        {
+          "name": "Get Agency Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/metrics/{{agency_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "metrics", "{{agency_id}}"]
+            },
+            "description": "Get agency metrics summary."
+          }
+        },
+        {
+          "name": "Get Analytics Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/dashboard/{{agency_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "dashboard", "{{agency_id}}"]
+            },
+            "description": "Get full analytics dashboard data."
+          }
+        },
+        {
+          "name": "Get Contractor Directory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/contractors?page=1&limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "contractors"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Get contractor directory with filters."
+          }
+        },
+        {
+          "name": "Generate Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"reportType\": \"hubzone_goal_achievement\",\n    \"agencyId\": \"{{agency_id}}\",\n    \"format\": \"pdf\",\n    \"includeCharts\": true,\n    \"includeSummary\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/analytics/reports/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "reports", "generate"]
+            },
+            "description": "Generate a report."
+          }
+        },
+        {
+          "name": "Get Report Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/analytics/reports/types",
+              "host": ["{{base_url}}"],
+              "path": ["api", "analytics", "reports", "types"]
+            },
+            "description": "Get available report types."
+          }
+        }
+      ]
+    },
+    {
+      "name": "OCR",
+      "description": "Document OCR processing",
+      "item": [
+        {
+          "name": "Process Document",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"async\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ocr/process/{{document_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "process", "{{document_id}}"]
+            },
+            "description": "Process document with OCR."
+          }
+        },
+        {
+          "name": "Get OCR Result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/result/{{document_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "result", "{{document_id}}"]
+            },
+            "description": "Get OCR result for document."
+          }
+        },
+        {
+          "name": "Approve Extraction",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/approve/{{document_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "approve", "{{document_id}}"]
+            },
+            "description": "Approve extracted data."
+          }
+        },
+        {
+          "name": "Get Auto-Populate Suggestions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/auto-populate/{{document_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "auto-populate", "{{document_id}}"]
+            },
+            "description": "Get auto-populate suggestions from OCR."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "Administrative operations (requires admin role)",
+      "item": [
+        {
+          "name": "Trigger Map Update",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"dry_run\": true,\n    \"skip_notifications\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/hubzone/update-map",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "hubzone", "update-map"]
+            },
+            "description": "Trigger manual HUBZone map update (admin only)."
+          }
+        },
+        {
+          "name": "Get Update Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/hubzone/update-status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "hubzone", "update-status"]
+            },
+            "description": "Get HUBZone map update job status (admin only)."
+          }
+        },
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/jobs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "jobs"]
+            },
+            "description": "List all scheduled jobs (admin only)."
+          }
+        },
+        {
+          "name": "Get System Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/system/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "system", "health"]
+            },
+            "description": "Get system health including job status (admin only)."
+          }
+        },
+        {
+          "name": "Get Import History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/hubzone/import-history?page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "admin", "hubzone", "import-history"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get HUBZone map import history (admin only)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Metrics",
+      "description": "System metrics and monitoring (admin only)",
+      "item": [
+        {
+          "name": "Get Metrics Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/metrics/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "metrics", "health"]
+            },
+            "description": "Get health status with metrics."
+          }
+        },
+        {
+          "name": "Get Detailed Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/metrics/detailed",
+              "host": ["{{base_url}}"],
+              "path": ["api", "metrics", "detailed"]
+            },
+            "description": "Get comprehensive monitoring data (admin only)."
+          }
+        },
+        {
+          "name": "Get System Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/metrics/system",
+              "host": ["{{base_url}}"],
+              "path": ["api", "metrics", "system"]
+            },
+            "description": "Get system metrics (admin only)."
+          }
+        },
+        {
+          "name": "Get Endpoint Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/metrics/endpoints",
+              "host": ["{{base_url}}"],
+              "path": ["api", "metrics", "endpoints"]
+            },
+            "description": "Get per-endpoint metrics (admin only)."
+          }
+        },
+        {
+          "name": "Clear Cache",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/metrics/cache/clear",
+              "host": ["{{base_url}}"],
+              "path": ["api", "metrics", "cache", "clear"]
+            },
+            "description": "Clear cache (admin only)."
+          }
+        }
+      ]
+    }
+  ]
+}
+

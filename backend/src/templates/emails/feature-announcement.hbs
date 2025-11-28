@@ -1,0 +1,51 @@
+<div class="alert-box alert-info">
+  <strong>🎉 New Feature Announcement</strong>
+</div>
+
+<h1>{{updateTitle}}</h1>
+
+<p>Hi {{recipientName}},</p>
+
+<p>We're excited to announce a new feature that will help you manage your HUBZone certifications more effectively!</p>
+
+<p>{{updateDescription}}</p>
+
+{{#if features.length}}
+<h2>Key Highlights</h2>
+
+{{#each features}}
+<div class="card" style="margin-bottom: 15px;">
+  <div style="display: flex; align-items: flex-start; gap: 12px;">
+    <div style="background-color: #dbeafe; color: #1d4ed8; padding: 8px; border-radius: 8px; font-size: 20px;">
+      ✨
+    </div>
+    <div>
+      <h3 style="margin: 0 0 8px; color: #111827; font-size: 16px;">{{title}}</h3>
+      <p style="margin: 0; font-size: 14px; color: #4b5563;">{{description}}</p>
+    </div>
+  </div>
+</div>
+{{/each}}
+{{/if}}
+
+{{#if ctaUrl}}
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{ctaUrl}}" class="btn btn-success">
+    {{#if ctaText}}{{ctaText}}{{else}}Try It Now{{/if}}
+  </a>
+</p>
+{{/if}}
+
+<hr class="divider">
+
+<h2>We Value Your Feedback</h2>
+<p style="font-size: 14px; color: #4b5563;">
+  We're always looking to improve HZ Navigator. If you have any suggestions or feedback about this feature, 
+  please don't hesitate to reach out.
+</p>
+
+<p style="font-size: 14px; color: #6b7280;">
+  Questions or feedback? Contact us at 
+  <a href="mailto:{{supportEmail}}" style="color: #0073c7;">{{supportEmail}}</a>
+</p>
+

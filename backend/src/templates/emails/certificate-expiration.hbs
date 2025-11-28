@@ -1,0 +1,61 @@
+{{#if (lte daysUntilExpiration 30)}}
+<div class="alert-box alert-danger">
+  <strong>🚨 URGENT: Your HUBZone Certification is Expiring Soon!</strong>
+</div>
+{{else}}
+<div class="alert-box alert-warning">
+  <strong>⏰ HUBZone Certification Expiration Notice</strong>
+</div>
+{{/if}}
+
+<h1>{{certificateType}} Expiration Notice</h1>
+
+<p>Hi {{recipientName}},</p>
+
+<p>This is a reminder that the HUBZone certification for <strong>{{businessName}}</strong> is approaching its expiration date.</p>
+
+<div class="card" style="text-align: center;">
+  <p style="font-size: 48px; margin: 0; line-height: 1;">
+    {{#if (lte daysUntilExpiration 7)}}
+    <span style="color: #ef4444;">{{daysUntilExpiration}}</span>
+    {{else if (lte daysUntilExpiration 30)}}
+    <span style="color: #f59e0b;">{{daysUntilExpiration}}</span>
+    {{else}}
+    <span style="color: #10b981;">{{daysUntilExpiration}}</span>
+    {{/if}}
+  </p>
+  <p style="font-size: 16px; color: #6b7280; margin: 5px 0 0;">days until expiration</p>
+  <p style="font-size: 14px; color: #9ca3af; margin: 10px 0 0;">
+    Expires on: {{formatDate expirationDate}}
+  </p>
+</div>
+
+<h2>Why Renewal Matters</h2>
+<ul style="padding-left: 20px; color: #4b5563;">
+  <li>Maintain your HUBZone set-aside contract eligibility</li>
+  <li>Continue receiving price evaluation preferences</li>
+  <li>Keep your HUBZone status for subcontracting opportunities</li>
+  <li>Avoid gaps in certification that may affect ongoing contracts</li>
+</ul>
+
+<h2>How to Renew</h2>
+<ol style="padding-left: 20px; color: #4b5563;">
+  <li>Log in to your HZ Navigator dashboard</li>
+  <li>Review and update your business information</li>
+  <li>Verify employee residency documentation</li>
+  <li>Submit your recertification application</li>
+</ol>
+
+<p style="text-align: center; margin: 30px 0;">
+  <a href="{{renewalUrl}}" class="btn {{#if (lte daysUntilExpiration 30)}}btn-danger{{else}}btn-warning{{/if}}">
+    Start Renewal Process
+  </a>
+</p>
+
+<hr class="divider">
+
+<p style="font-size: 14px; color: #6b7280;">
+  Need assistance with your renewal? Our support team is ready to help. Contact us at 
+  <a href="mailto:{{supportEmail}}" style="color: #0073c7;">{{supportEmail}}</a>
+</p>
+
