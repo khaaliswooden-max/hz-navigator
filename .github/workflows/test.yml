@@ -138,7 +138,7 @@ jobs:
           JWT_SECRET: test-jwt-secret
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: backend-test-results
@@ -335,7 +335,7 @@ jobs:
           API_URL: http://localhost:3000
 
       - name: Upload E2E test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: e2e-test-results
