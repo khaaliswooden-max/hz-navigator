@@ -83,15 +83,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 
-            
-            
-            backend/package-lock.json
 
       - name: Install dependencies
         working-directory: backend
-        run: npm ci
+        run: npm install
 
       - name: Run linter
         working-directory: backend
@@ -214,7 +209,7 @@ jobs:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
         run: |
           cd backend
-          npm ci --production=false
+          npm install
           npm run migrate:up || echo "No migrations to run"
 
       - name: Download task definition
@@ -308,7 +303,7 @@ jobs:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
         run: |
           cd backend
-          npm ci --production=false
+          npm install
           npm run migrate:up || echo "No migrations to run"
 
       - name: Download task definition
