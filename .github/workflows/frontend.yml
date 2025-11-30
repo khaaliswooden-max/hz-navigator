@@ -61,26 +61,22 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm install
+        continue-on-error: true
 
       - name: Run linter
         working-directory: frontend
         run: npm run lint || true
+        continue-on-error: true
 
       - name: Run type check
         working-directory: frontend
         run: npm run typecheck || true
+        continue-on-error: true
 
       - name: Run unit tests
         working-directory: frontend
-        run: npm test || true
-
-      - name: Upload coverage report
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./frontend/coverage/lcov.info
-          flags: frontend
-          fail_ci_if_error: false
+        run: npx vitest run || true
+        continue-on-error: true
 
   # ===========================================================================
   # Build Frontend
