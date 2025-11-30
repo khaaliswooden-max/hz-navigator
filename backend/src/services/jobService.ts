@@ -1042,11 +1042,11 @@ export class JobService {
       hires,
       avgMatchScore: Math.round(parseFloat(matchScoreResult.rows[0]?.avg_score || '0')),
       conversionRate: views > 0 ? Math.round((applications / views) * 100) : 0,
-      viewsPerDay: viewsPerDayResult.rows.map((r: { date: string; count: string }) => ({
+      viewsPerDay: viewsPerDayResult.rows.map((r: any) => ({
         date: r.date,
         count: parseInt(r.count, 10),
       })),
-      applicationsPerDay: appsPerDayResult.rows.map((r: { date: string; count: string }) => ({
+      applicationsPerDay: appsPerDayResult.rows.map((r: any) => ({
         date: r.date,
         count: parseInt(r.count, 10),
       })),

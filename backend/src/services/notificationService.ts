@@ -130,12 +130,12 @@ export class NotificationService {
     };
 
     // Store in database
-    await db.run(
+    await db.query(
       `INSERT INTO notifications (
         id, user_id, type, category, priority, title, message,
         read, dismissed, action_url, action_label, metadata,
         created_at, expires_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
       [
         notification.id,
         notification.userId,
@@ -144,8 +144,8 @@ export class NotificationService {
         notification.priority,
         notification.title,
         notification.message,
-        notification.read ? 1 : 0,
-        notification.dismissed ? 1 : 0,
+        notification.read,
+        notification.dismissed,
         notification.actionUrl || null,
         notification.actionLabel || null,
         notification.metadata ? JSON.stringify(notification.metadata) : null,
@@ -196,65 +196,68 @@ export class NotificationService {
     const { page = 1, limit = 20, unreadOnly = false, filters } = options;
     const offset = (page - 1) * limit;
 
-    let whereClause = 'WHERE user_id = ? AND dismissed = 0';
-    const params: (string | number)[] = [userId];
+    let whereClause = 'WHERE user_id = $1 AND dismissed = false';
+    const params: (string | number | boolean)[] = [userId];
 
     if (unreadOnly) {
-      whereClause += ' AND read = 0';
+      whereClause += ' AND read = false';
     }
 
     if (filters?.type?.length) {
-      whereClause += ` AND type IN (${filters.type.map(() => '?').join(',')})`;
+      const placeholders = filters.type.map((_, i) => `$${params.length + i + 1}`).join(',');
+      whereClause += ` AND type IN (${placeholders})`;
       params.push(...filters.type);
     }
 
     if (filters?.category?.length) {
-      whereClause += ` AND category IN (${filters.category.map(() => '?').join(',')})`;
+      const placeholders = filters.category.map((_, i) => `$${params.length + i + 1}`).join(',');
+      whereClause += ` AND category IN (${placeholders})`;
       params.push(...filters.category);
     }
 
     if (filters?.priority?.length) {
-      whereClause += ` AND priority IN (${filters.priority.map(() => '?').join(',')})`;
+      const placeholders = filters.priority.map((_, i) => `$${params.length + i + 1}`).join(',');
+      whereClause += ` AND priority IN (${placeholders})`;
       params.push(...filters.priority);
     }
 
     if (filters?.read !== undefined) {
-      whereClause += ' AND read = ?';
-      params.push(filters.read ? 1 : 0);
+      whereClause += ` AND read = $${params.length + 1}`;
+      params.push(filters.read);
     }
 
     if (filters?.startDate) {
-      whereClause += ' AND created_at >= ?';
+      whereClause += ` AND created_at >= $${params.length + 1}`;
       params.push(filters.startDate.toISOString());
     }
 
     if (filters?.endDate) {
-      whereClause += ' AND created_at <= ?';
+      whereClause += ` AND created_at <= $${params.length + 1}`;
       params.push(filters.endDate.toISOString());
     }
 
     // Exclude expired notifications
-    whereClause += ' AND (expires_at IS NULL OR expires_at > ?)';
+    whereClause += ` AND (expires_at IS NULL OR expires_at > $${params.length + 1})`;
     params.push(new Date().toISOString());
 
     // Get total count
-    const countResult = await db.get<{ count: number }>(
+    const countResult = await db.query<{ count: string }>(
       `SELECT COUNT(*) as count FROM notifications ${whereClause}`,
       params
     );
-    const total = countResult?.count || 0;
+    const total = parseInt(countResult.rows[0]?.count || '0', 10);
 
     // Get unread count
-    const unreadResult = await db.get<{ count: number }>(
+    const unreadResult = await db.query<{ count: string }>(
       `SELECT COUNT(*) as count FROM notifications 
-       WHERE user_id = ? AND dismissed = 0 AND read = 0 
-       AND (expires_at IS NULL OR expires_at > ?)`,
+       WHERE user_id = $1 AND dismissed = false AND read = false 
+       AND (expires_at IS NULL OR expires_at > $2)`,
       [userId, new Date().toISOString()]
     );
-    const unreadCount = unreadResult?.count || 0;
+    const unreadCount = parseInt(unreadResult.rows[0]?.count || '0', 10);
 
     // Get notifications
-    const rows = await db.all<Notification[]>(
+    const rows = await db.query<Notification>(
       `SELECT * FROM notifications ${whereClause}
        ORDER BY 
          CASE priority 
@@ -264,11 +267,11 @@ export class NotificationService {
            ELSE 4 
          END,
          created_at DESC
-       LIMIT ? OFFSET ?`,
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
       [...params, limit, offset]
     );
 
-    const notifications = rows.map(this.mapRowToNotification);
+    const notifications = rows.rows.map(this.mapRowToNotification);
 
     return {
       notifications,
@@ -284,25 +287,25 @@ export class NotificationService {
    * Get a single notification by ID
    */
   async getNotification(id: string, userId: string): Promise<Notification | null> {
-    const row = await db.get<Notification>(
-      'SELECT * FROM notifications WHERE id = ? AND user_id = ?',
+    const result = await db.query<Notification>(
+      'SELECT * FROM notifications WHERE id = $1 AND user_id = $2',
       [id, userId]
     );
 
-    return row ? this.mapRowToNotification(row) : null;
+    return result.rows[0] ? this.mapRowToNotification(result.rows[0]) : null;
   }
 
   /**
    * Get unread notification count for a user
    */
   async getUnreadCount(userId: string): Promise<number> {
-    const result = await db.get<{ count: number }>(
+    const result = await db.query<{ count: string }>(
       `SELECT COUNT(*) as count FROM notifications 
-       WHERE user_id = ? AND dismissed = 0 AND read = 0 
-       AND (expires_at IS NULL OR expires_at > ?)`,
+       WHERE user_id = $1 AND dismissed = false AND read = false 
+       AND (expires_at IS NULL OR expires_at > $2)`,
       [userId, new Date().toISOString()]
     );
-    return result?.count || 0;
+    return parseInt(result.rows[0]?.count || '0', 10);
   }
 
   /**
@@ -311,8 +314,8 @@ export class NotificationService {
   async markAsRead(id: string, userId: string): Promise<Notification | null> {
     const now = new Date();
 
-    await db.run(
-      'UPDATE notifications SET read = 1, read_at = ? WHERE id = ? AND user_id = ?',
+    await db.query(
+      'UPDATE notifications SET read = true, read_at = $1 WHERE id = $2 AND user_id = $3',
       [now.toISOString(), id, userId]
     );
 
@@ -325,16 +328,16 @@ export class NotificationService {
   async markMultipleAsRead(ids: string[], userId: string): Promise<number> {
     if (ids.length === 0) return 0;
 
-    const placeholders = ids.map(() => '?').join(',');
+    const placeholders = ids.map((_, i) => `$${i + 2}`).join(',');
     const now = new Date().toISOString();
 
-    const result = await db.run(
-      `UPDATE notifications SET read = 1, read_at = ? 
-       WHERE id IN (${placeholders}) AND user_id = ?`,
+    const result = await db.query(
+      `UPDATE notifications SET read = true, read_at = $1 
+       WHERE id IN (${placeholders}) AND user_id = $${ids.length + 2}`,
       [now, ...ids, userId]
     );
 
-    return result.changes || 0;
+    return result.rowCount || 0;
   }
 
   /**
@@ -343,20 +346,20 @@ export class NotificationService {
   async markAllAsRead(userId: string): Promise<number> {
     const now = new Date().toISOString();
 
-    const result = await db.run(
-      'UPDATE notifications SET read = 1, read_at = ? WHERE user_id = ? AND read = 0',
+    const result = await db.query(
+      'UPDATE notifications SET read = true, read_at = $1 WHERE user_id = $2 AND read = false',
       [now, userId]
     );
 
-    return result.changes || 0;
+    return result.rowCount || 0;
   }
 
   /**
    * Dismiss a notification (soft delete)
    */
   async dismissNotification(id: string, userId: string): Promise<void> {
-    await db.run(
-      'UPDATE notifications SET dismissed = 1 WHERE id = ? AND user_id = ?',
+    await db.query(
+      'UPDATE notifications SET dismissed = true WHERE id = $1 AND user_id = $2',
       [id, userId]
     );
   }
@@ -365,8 +368,8 @@ export class NotificationService {
    * Delete a notification permanently
    */
   async deleteNotification(id: string, userId: string): Promise<void> {
-    await db.run(
-      'DELETE FROM notifications WHERE id = ? AND user_id = ?',
+    await db.query(
+      'DELETE FROM notifications WHERE id = $1 AND user_id = $2',
       [id, userId]
     );
   }
@@ -377,50 +380,50 @@ export class NotificationService {
   async deleteMultiple(ids: string[], userId: string): Promise<number> {
     if (ids.length === 0) return 0;
 
-    const placeholders = ids.map(() => '?').join(',');
-    const result = await db.run(
-      `DELETE FROM notifications WHERE id IN (${placeholders}) AND user_id = ?`,
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(',');
+    const result = await db.query(
+      `DELETE FROM notifications WHERE id IN (${placeholders}) AND user_id = $${ids.length + 1}`,
       [...ids, userId]
     );
 
-    return result.changes || 0;
+    return result.rowCount || 0;
   }
 
   /**
    * Clear all read notifications for a user
    */
   async clearReadNotifications(userId: string): Promise<number> {
-    const result = await db.run(
-      'DELETE FROM notifications WHERE user_id = ? AND read = 1',
+    const result = await db.query(
+      'DELETE FROM notifications WHERE user_id = $1 AND read = true',
       [userId]
     );
 
-    return result.changes || 0;
+    return result.rowCount || 0;
   }
 
   /**
    * Clean up expired notifications
    */
   async cleanupExpired(): Promise<number> {
-    const result = await db.run(
-      'DELETE FROM notifications WHERE expires_at IS NOT NULL AND expires_at < ?',
+    const result = await db.query(
+      'DELETE FROM notifications WHERE expires_at IS NOT NULL AND expires_at < $1',
       [new Date().toISOString()]
     );
 
-    return result.changes || 0;
+    return result.rowCount || 0;
   }
 
   /**
    * Get notification preferences for a user
    */
   async getPreferences(userId: string): Promise<NotificationPreferences> {
-    const row = await db.get<{ preferences: string }>(
-      'SELECT preferences FROM notification_preferences WHERE user_id = ?',
+    const result = await db.query<{ preferences: string }>(
+      'SELECT preferences FROM notification_preferences WHERE user_id = $1',
       [userId]
     );
 
-    if (row) {
-      return JSON.parse(row.preferences);
+    if (result.rows[0]) {
+      return JSON.parse(result.rows[0].preferences);
     }
 
     // Return default preferences
@@ -437,9 +440,12 @@ export class NotificationService {
     const existing = await this.getPreferences(userId);
     const updated = { ...existing, ...preferences, userId };
 
-    await db.run(
-      `INSERT OR REPLACE INTO notification_preferences (user_id, preferences, updated_at)
-       VALUES (?, ?, ?)`,
+    // Use INSERT ... ON CONFLICT for Postgres
+    await db.query(
+      `INSERT INTO notification_preferences (user_id, preferences, updated_at)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET preferences = $2, updated_at = $3`,
       [userId, JSON.stringify(updated), new Date().toISOString()]
     );
 
@@ -534,23 +540,23 @@ export class NotificationService {
   /**
    * Map database row to Notification object
    */
-  private mapRowToNotification(row: Record<string, unknown>): Notification {
+  private mapRowToNotification(row: any): Notification {
     return {
-      id: row.id as string,
-      userId: row.user_id as string,
+      id: row.id,
+      userId: row.user_id,
       type: row.type as NotificationType,
       category: row.category as NotificationCategory,
       priority: row.priority as NotificationPriority,
-      title: row.title as string,
-      message: row.message as string,
-      read: Boolean(row.read),
-      dismissed: Boolean(row.dismissed),
-      actionUrl: row.action_url as string | undefined,
-      actionLabel: row.action_label as string | undefined,
-      metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
-      createdAt: new Date(row.created_at as string),
-      readAt: row.read_at ? new Date(row.read_at as string) : undefined,
-      expiresAt: row.expires_at ? new Date(row.expires_at as string) : undefined,
+      title: row.title,
+      message: row.message,
+      read: row.read,
+      dismissed: row.dismissed,
+      actionUrl: row.action_url || undefined,
+      actionLabel: row.action_label || undefined,
+      metadata: row.metadata ? (typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata) : undefined,
+      createdAt: new Date(row.created_at),
+      readAt: row.read_at ? new Date(row.read_at) : undefined,
+      expiresAt: row.expires_at ? new Date(row.expires_at) : undefined,
     };
   }
 
@@ -643,8 +649,8 @@ export class NotificationService {
     }
   ): Promise<number> {
     // Get all active user IDs
-    const users = await db.all<{ id: string }[]>('SELECT id FROM users WHERE active = 1');
-    const userIds = users.map(u => u.id);
+    const result = await db.query<{ id: string }>('SELECT id FROM users WHERE status = \'active\'', []);
+    const userIds = result.rows.map(u => u.id);
 
     return this.createBulkNotifications(userIds, {
       type: 'system_announcement',
@@ -662,4 +668,3 @@ export class NotificationService {
 export const notificationService = new NotificationService();
 
 export default NotificationService;
-

@@ -1,0 +1,81 @@
+﻿src/index.ts(56,12): error TS2304: Cannot find name 'Application'.
+src/index.ts(97,28): error TS2345: Argument of type '(req: Request) => string' is not assignable to parameter of type 'TokenCallbackFn<IncomingMessage, ServerResponse<IncomingMessage>>'.
+  Types of parameters 'req' and 'req' are incompatible.
+    Type 'IncomingMessage' is missing the following properties from type 'Request': cache, credentials, destination, integrity, and 15 more.
+src/index.ts(138,57): error TS2552: Cannot find name 'NextFunction'. Did you mean 'Function'?
+src/index.ts(142,59): error TS2345: Argument of type 'Request' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+  Type 'Request' is missing the following properties from type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>': get, header, accepts, acceptsCharsets, and 94 more.
+src/index.ts(149,11): error TS2304: Cannot find name 'validateEnvironment'.
+src/index.ts(181,9): error TS2304: Cannot find name 'schedulerService'.
+src/index.ts(185,9): error TS2304: Cannot find name 'mapUpdateJobManager'.
+src/index.ts(189,9): error TS2304: Cannot find name 'documentProcessingJobManager'.
+src/index.ts(205,3): error TS2304: Cannot find name 'schedulerService'.
+src/index.ts(206,3): error TS2304: Cannot find name 'mapUpdateJobManager'.
+src/index.ts(207,3): error TS2304: Cannot find name 'documentProcessingJobManager'.
+src/jobs/documentProcessingJob.ts(256,61): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(257,35): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(282,61): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(283,35): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(483,11): error TS2322: Type 'W9Data | LicenseData | CertificateData' is not assignable to type 'Record<string, unknown>'.
+  Type 'W9Data' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'W9Data'.
+src/jobs/mapUpdateJob.ts(64,14): error TS2323: Cannot redeclare exported variable 'MapUpdateJobManager'.
+src/jobs/mapUpdateJob.ts(306,33): error TS2345: Argument of type 'JobExecution' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'JobExecution'.
+src/jobs/mapUpdateJob.ts(567,10): error TS2323: Cannot redeclare exported variable 'MapUpdateJobManager'.
+src/jobs/mapUpdateJob.ts(567,10): error TS2484: Export declaration conflicts with exported declaration of 'MapUpdateJobManager'.
+src/middleware/auth.ts(72,14): error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | JsonWebKeyInput | PrivateKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | JsonWebKeyInput | PrivateKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+src/services/agencyService.ts(547,11): error TS2322: Type 'string | Address' is not assignable to type 'string'.
+  Type 'Address' is not assignable to type 'string'.
+src/services/agencyService.ts(548,49): error TS2551: Property 'inHubzone' does not exist on type 'PrincipalOfficeStatus'. Did you mean 'isInHubzone'?
+src/services/agencyService.ts(555,46): error TS2339: Property 'isCitizenOwned' does not exist on type 'OwnershipStatus'.
+src/services/alertService.ts(323,36): error TS2345: Argument of type 'ComplianceAlert' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ComplianceAlert'.
+src/services/analyticsService.ts(636,7): error TS2322: Type '{ type: "hubzone_goal_achievement"; metrics: AgencyMetrics; monthlyProgress: { month: string; targetPercentage: number; actualPercentage: number; contractsAwarded: number; contractValue: number; }[]; quarterlyComparison: never[]; yearOverYearComparison: never[]; recommendations: string[]; } | ... 4 more ... | { ...; }' is not assignable to type 'ReportData'.
+  Type '{ type: never; }' is not assignable to type 'ReportData'.
+    Type '{ type: never; }' is missing the following properties from type 'GeographicDistributionReportData': distribution, heatmapData, insights
+src/services/complianceHistoryService.ts(90,32): error TS2345: Argument of type 'ComplianceSnapshot' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ComplianceSnapshot'.
+src/services/contractService.ts(89,32): error TS2345: Argument of type 'Contract' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Contract'.
+src/services/contractService.ts(140,32): error TS2345: Argument of type 'Contract' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Contract'.
+src/services/contractService.ts(295,28): error TS2345: Argument of type 'FiscalYearGoal' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'FiscalYearGoal'.
+src/services/hubzoneMapLoader.ts(65,14): error TS2323: Cannot redeclare exported variable 'HUBZoneMapLoaderService'.
+src/services/hubzoneMapLoader.ts(1356,10): error TS2323: Cannot redeclare exported variable 'HUBZoneMapLoaderService'.
+src/services/hubzoneMapLoader.ts(1356,10): error TS2484: Export declaration conflicts with exported declaration of 'HUBZoneMapLoaderService'.
+src/services/jobService.ts(1045,47): error TS2345: Argument of type '(r: { date: string; count: string; }) => { date: string; count: number; }' is not assignable to parameter of type '(value: QueryResultRow, index: number, array: QueryResultRow[]) => { date: string; count: number; }'.
+  Types of parameters 'r' and 'value' are incompatible.
+    Type 'QueryResultRow' is missing the following properties from type '{ date: string; count: string; }': date, count
+src/services/jobService.ts(1049,53): error TS2345: Argument of type '(r: { date: string; count: string; }) => { date: string; count: number; }' is not assignable to parameter of type '(value: QueryResultRow, index: number, array: QueryResultRow[]) => { date: string; count: number; }'.
+  Types of parameters 'r' and 'value' are incompatible.
+    Type 'QueryResultRow' is missing the following properties from type '{ date: string; count: string; }': date, count
+src/services/notificationService.ts(133,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(241,34): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(248,35): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(257,27): error TS2339: Property 'all' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(287,26): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(299,29): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(314,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(331,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(346,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(358,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(368,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(381,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(393,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(405,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(417,26): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(440,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(646,28): error TS2339: Property 'all' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(647,31): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/services/professionalService.ts(3,20): error TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+src/services/professionalService.ts(4,25): error TS2307: Cannot find module 'pdfkit' or its corresponding type declarations.
+src/services/professionalService.ts(414,23): error TS7006: Parameter 'chunk' implicitly has an 'any' type.
+src/types/index.ts(9,1): error TS2308: Module './compliance.js' has already exported a member named 'ChartDataPoint'. Consider explicitly re-exporting to resolve the ambiguity.

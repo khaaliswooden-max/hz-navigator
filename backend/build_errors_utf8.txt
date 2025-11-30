@@ -1,0 +1,940 @@
+﻿src/index.ts(13,1): error TS6133: 'dotenv' is declared but its value is never read.
+src/index.ts(56,12): error TS2304: Cannot find name 'Application'.
+src/index.ts(97,28): error TS2345: Argument of type '(req: Request) => string' is not assignable to parameter of type 'TokenCallbackFn<IncomingMessage, ServerResponse<IncomingMessage>>'.
+  Types of parameters 'req' and 'req' are incompatible.
+    Type 'IncomingMessage' is missing the following properties from type 'Request': cache, credentials, destination, integrity, and 15 more.
+src/index.ts(138,57): error TS2552: Cannot find name 'NextFunction'. Did you mean 'Function'?
+src/index.ts(142,59): error TS2345: Argument of type 'Request' is not assignable to parameter of type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+  Type 'Request' is missing the following properties from type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>': get, header, accepts, acceptsCharsets, and 94 more.
+src/index.ts(149,11): error TS2304: Cannot find name 'validateEnvironment'.
+src/index.ts(181,9): error TS2304: Cannot find name 'schedulerService'.
+src/index.ts(185,9): error TS2304: Cannot find name 'mapUpdateJobManager'.
+src/index.ts(189,9): error TS2304: Cannot find name 'documentProcessingJobManager'.
+src/index.ts(205,3): error TS2304: Cannot find name 'schedulerService'.
+src/index.ts(206,3): error TS2304: Cannot find name 'mapUpdateJobManager'.
+src/index.ts(207,3): error TS2304: Cannot find name 'documentProcessingJobManager'.
+src/jobs/documentProcessingJob.ts(1,25): error TS2307: Cannot find module 'cron' or its corresponding type declarations.
+src/jobs/documentProcessingJob.ts(5,1): error TS6133: 'Document' is declared but its value is never read.
+src/jobs/documentProcessingJob.ts(256,61): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(257,35): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(282,61): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(283,35): error TS2551: Property 'sendNotification' does not exist on type 'NotificationService'. Did you mean 'getNotification'?
+src/jobs/documentProcessingJob.ts(357,5): error TS6133: 'businessId' is declared but its value is never read.
+src/jobs/documentProcessingJob.ts(397,5): error TS6133: 'employeeId' is declared but its value is never read.
+src/jobs/documentProcessingJob.ts(483,11): error TS2322: Type 'W9Data | LicenseData | CertificateData' is not assignable to type 'Record<string, unknown>'.
+  Type 'W9Data' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'W9Data'.
+src/jobs/mapUpdateJob.ts(17,25): error TS2307: Cannot find module 'cron' or its corresponding type declarations.
+src/jobs/mapUpdateJob.ts(21,1): error TS6133: 'alertService' is declared but its value is never read.
+src/jobs/mapUpdateJob.ts(64,14): error TS2323: Cannot redeclare exported variable 'MapUpdateJobManager'.
+src/jobs/mapUpdateJob.ts(265,7): error TS2322: Type '{ code: string; message: string; geoid: string | undefined; }[]' is not assignable to type '{ code: string; message: string; geoid?: string; }[]'.
+  Type '{ code: string; message: string; geoid: string | undefined; }' is not assignable to type '{ code: string; message: string; geoid?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'geoid' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/jobs/mapUpdateJob.ts(270,7): error TS2322: Type '{ code: string; message: string; geoid: string | undefined; }[]' is not assignable to type '{ code: string; message: string; geoid?: string; }[]'.
+  Type '{ code: string; message: string; geoid: string | undefined; }' is not assignable to type '{ code: string; message: string; geoid?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'geoid' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/jobs/mapUpdateJob.ts(306,33): error TS2345: Argument of type 'JobExecution' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'JobExecution'.
+src/jobs/mapUpdateJob.ts(567,10): error TS2323: Cannot redeclare exported variable 'MapUpdateJobManager'.
+src/jobs/mapUpdateJob.ts(567,10): error TS2484: Export declaration conflicts with exported declaration of 'MapUpdateJobManager'.
+src/middleware/auditMiddleware.ts(151,20): error TS4111: Property 'requestBody' comes from an index signature, so it must be accessed with ['requestBody'].
+src/middleware/auditMiddleware.ts(159,20): error TS4111: Property 'responseBody' comes from an index signature, so it must be accessed with ['responseBody'].
+src/middleware/auditMiddleware.ts(166,32): error TS2379: Argument of type '{ userId: string | undefined; action: Parameters<typeof auditService.log>[0]["action"]; entityType: "api"; description: string; metadata: Record<string, unknown>; ipAddress: string; ... 5 more ...; severity: "low" | ... 1 more ... | "high"; }' is not assignable to parameter of type 'AuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/middleware/auditMiddleware.ts(203,30): error TS2379: Argument of type '{ userId: string | undefined; action: AuditAction; entityType: AuditEntityType; entityId: string | undefined; description: string; metadata: { params: ParamsDictionary; query: unknown; }; ... 5 more ...; severity: "high"; }' is not assignable to parameter of type 'AuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/middleware/auditMiddleware.ts(239,9): error TS2379: Argument of type '{ userId: string | undefined; email: any; success: boolean; reason: string | undefined; }' is not assignable to parameter of type '{ userId?: string; email?: string; success?: boolean; reason?: string; metadata?: Record<string, unknown>; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/middleware/auth.ts(72,14): error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Secret | Buffer<ArrayBufferLike> | JsonWebKeyInput | PrivateKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Secret | Buffer<ArrayBufferLike> | JsonWebKeyInput | PrivateKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+src/middleware/errorHandler.ts(40,5): error TS2375: Type '{ message: string; code: string | undefined; details: unknown; }' is not assignable to type '{ message: string; code?: string; details?: unknown; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'code' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/middleware/errorHandler.ts(63,3): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/middleware/performanceMonitor.ts(138,9): error TS6133: 'startTimestamp' is declared but its value is never read.
+src/middleware/sanitize.ts(8,23): error TS7016: Could not find a declaration file for module 'jsdom'. 'C:/Users/Admin/hz-navigator/node_modules/jsdom/lib/api.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/jsdom` if it exists or add a new declaration (.d.ts) file containing `declare module 'jsdom';`
+src/middleware/sanitize.ts(9,29): error TS2307: Cannot find module 'dompurify' or its corresponding type declarations.
+src/middleware/sanitize.ts(16,56): error TS2304: Cannot find name 'Window'.
+src/middleware/sanitize.ts(257,67): error TS4111: Property 'default' comes from an index signature, so it must be accessed with ['default'].
+src/middleware/sanitize.ts(258,23): error TS18048: 'maxSize' is possibly 'undefined'.
+src/middleware/sanitize.ts(261,37): error TS18048: 'maxSize' is possibly 'undefined'.
+src/routes/admin.ts(107,9): error TS2375: Type '{ dryRun: boolean; skipNotifications: boolean; states: string[] | undefined; }' is not assignable to type '{ dryRun?: boolean; skipNotifications?: boolean; states?: string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'states' are incompatible.
+    Type 'string[] | undefined' is not assignable to type 'string[]'.
+      Type 'undefined' is not assignable to type 'string[]'.
+src/routes/agency.ts(23,59): error TS2379: Argument of type '{ legalName: string | undefined; ueiNumber: string | undefined; cageCode: string | undefined; }' is not assignable to parameter of type 'ContractorSearchParams' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'legalName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/agency.ts(146,75): error TS2379: Argument of type '{ agencyId: string; businessId: string | undefined; ueiNumber: string | undefined; status: "valid" | "expired" | "non_compliant" | "pending" | "not_found" | undefined; riskLevel: "low" | "medium" | "high" | "critical" | undefined; startDate: Date | undefined; endDate: Date | undefined; page: number | undefined; limi...' is not assignable to parameter of type 'VerificationFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'businessId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/agency.ts(188,7): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/alerts.ts(36,9): error TS2412: Type 'AlertStatus | AlertStatus[] | undefined' is not assignable to type 'AlertStatus | AlertStatus[]' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'AlertStatus | AlertStatus[]'.
+src/routes/alerts.ts(41,9): error TS2412: Type 'AlertSeverity | AlertSeverity[] | undefined' is not assignable to type 'AlertSeverity | AlertSeverity[]' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'AlertSeverity | AlertSeverity[]'.
+src/routes/alerts.ts(46,9): error TS2412: Type 'AlertType | AlertType[] | undefined' is not assignable to type 'AlertType | AlertType[]' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'AlertType | AlertType[]'.
+src/routes/analytics.ts(25,17): error TS4111: Property 'startDate' comes from an index signature, so it must be accessed with ['startDate'].
+src/routes/analytics.ts(26,17): error TS4111: Property 'endDate' comes from an index signature, so it must be accessed with ['endDate'].
+src/routes/analytics.ts(29,61): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/analytics.ts(48,17): error TS4111: Property 'startDate' comes from an index signature, so it must be accessed with ['startDate'].
+src/routes/analytics.ts(49,17): error TS4111: Property 'endDate' comes from an index signature, so it must be accessed with ['endDate'].
+src/routes/analytics.ts(52,68): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/analytics.ts(70,25): error TS4111: Property 'search' comes from an index signature, so it must be accessed with ['search'].
+src/routes/analytics.ts(71,24): error TS4111: Property 'state' comes from an index signature, so it must be accessed with ['state'].
+src/routes/analytics.ts(72,28): error TS4111: Property 'naicsCode' comes from an index signature, so it must be accessed with ['naicsCode'].
+src/routes/analytics.ts(73,38): error TS4111: Property 'certificationStatus' comes from an index signature, so it must be accessed with ['certificationStatus'].
+src/routes/analytics.ts(74,28): error TS4111: Property 'riskLevel' comes from an index signature, so it must be accessed with ['riskLevel'].
+src/routes/analytics.ts(75,23): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
+src/routes/analytics.ts(75,49): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
+src/routes/analytics.ts(76,24): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/analytics.ts(76,51): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/analytics.ts(77,25): error TS4111: Property 'sortBy' comes from an index signature, so it must be accessed with ['sortBy'].
+src/routes/analytics.ts(78,28): error TS4111: Property 'sortOrder' comes from an index signature, so it must be accessed with ['sortOrder'].
+src/routes/analytics.ts(107,32): error TS4111: Property 'agencyId' comes from an index signature, so it must be accessed with ['agencyId'].
+src/routes/analytics.ts(108,31): error TS4111: Property 'format' comes from an index signature, so it must be accessed with ['format'].
+src/routes/analytics.ts(132,17): error TS4111: Property 'startDate' comes from an index signature, so it must be accessed with ['startDate'].
+src/routes/analytics.ts(133,17): error TS4111: Property 'endDate' comes from an index signature, so it must be accessed with ['endDate'].
+src/routes/analytics.ts(136,61): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/analytics.ts(155,17): error TS4111: Property 'startDate' comes from an index signature, so it must be accessed with ['startDate'].
+src/routes/analytics.ts(156,17): error TS4111: Property 'endDate' comes from an index signature, so it must be accessed with ['endDate'].
+src/routes/analytics.ts(159,75): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/auth.ts(103,35): error TS2532: Object is possibly 'undefined'.
+src/routes/auth.ts(314,22): error TS2532: Object is possibly 'undefined'.
+src/routes/auth.ts(387,24): error TS2532: Object is possibly 'undefined'.
+src/routes/auth.ts(389,15): error TS6133: 'tokenHash' is declared but its value is never read.
+src/routes/auth.ts(430,13): error TS6198: All destructured elements are unused.
+src/routes/auth.ts(457,54): error TS2379: Argument of type '{ userId: string | undefined; email: string | undefined; success: true; }' is not assignable to parameter of type '{ userId?: string; email?: string; success?: boolean; reason?: string; metadata?: Record<string, unknown>; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/auth.ts(586,61): error TS2532: Object is possibly 'undefined'.
+src/routes/auth.ts(606,63): error TS2379: Argument of type '{ userId: string | undefined; email: string | undefined; success: true; }' is not assignable to parameter of type '{ userId?: string; email?: string; success?: boolean; reason?: string; metadata?: Record<string, unknown>; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/compliance.ts(102,9): error TS2379: Argument of type '{ triggerType: "manual"; triggeredBy: string | undefined; notes: string | undefined; }' is not assignable to parameter of type 'Partial<SnapshotMetadata>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'triggeredBy' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/compliance.ts(172,9): error TS2379: Argument of type '{ startDate: Date | undefined; endDate: Date | undefined; generatedBy: string | undefined; format: "pdf" | "json" | "html"; }' is not assignable to parameter of type '{ startDate?: Date; endDate?: Date; generatedBy?: string; format?: "pdf" | "json" | "html"; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'startDate' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+src/routes/compliance.ts(217,10): error TS6133: 'req' is declared but its value is never read.
+src/routes/compliance.ts(268,10): error TS6133: 'req' is declared but its value is never read.
+src/routes/contracts.ts(15,11): error TS2375: Type '{ agencyId: string | undefined; fiscalYear: number | undefined; fiscalQuarter: number | undefined; status: ContractFilters["status"]; contractType: ContractFilters["contractType"]; ... 10 more ...; sortOrder: ContractFilters["sortOrder"]; }' is not assignable to type 'ContractFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agencyId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(62,56): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(62,67): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/contracts.ts(151,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(151,70): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/contracts.ts(179,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(179,69): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/contracts.ts(208,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(208,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/contracts.ts(239,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(239,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/contracts.ts(278,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(278,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/contracts.ts(309,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(309,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/contracts.ts(340,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(340,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/contracts.ts(372,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(372,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/contracts.ts(402,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(402,69): error TS4111: Property 'contractNumber' comes from an index signature, so it must be accessed with ['contractNumber'].
+src/routes/contracts.ts(424,33): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/contracts.ts(424,44): error TS4111: Property 'fiscalYear' comes from an index signature, so it must be accessed with ['fiscalYear'].
+src/routes/documents.ts(106,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(106,69): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(127,87): error TS4111: Property 'userId' comes from an index signature, so it must be accessed with ['userId'].
+src/routes/documents.ts(129,11): error TS2375: Type '{ userId: string; businessId: string | undefined; category: DocumentCategory | undefined; status: DocumentFilters["status"]; fileType: AllowedFileType | undefined; tags: string[] | undefined; ... 6 more ...; sortOrder: DocumentFilters["sortOrder"]; }' is not assignable to type 'DocumentFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'businessId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(131,29): error TS4111: Property 'businessId' comes from an index signature, so it must be accessed with ['businessId'].
+src/routes/documents.ts(132,27): error TS4111: Property 'category' comes from an index signature, so it must be accessed with ['category'].
+src/routes/documents.ts(133,25): error TS4111: Property 'status' comes from an index signature, so it must be accessed with ['status'].
+src/routes/documents.ts(134,27): error TS4111: Property 'fileType' comes from an index signature, so it must be accessed with ['fileType'].
+src/routes/documents.ts(135,23): error TS4111: Property 'tags' comes from an index signature, so it must be accessed with ['tags'].
+src/routes/documents.ts(135,41): error TS4111: Property 'tags' comes from an index signature, so it must be accessed with ['tags'].
+src/routes/documents.ts(136,32): error TS4111: Property 'uploadedAfter' comes from an index signature, so it must be accessed with ['uploadedAfter'].
+src/routes/documents.ts(136,67): error TS4111: Property 'uploadedAfter' comes from an index signature, so it must be accessed with ['uploadedAfter'].
+src/routes/documents.ts(137,33): error TS4111: Property 'uploadedBefore' comes from an index signature, so it must be accessed with ['uploadedBefore'].
+src/routes/documents.ts(137,69): error TS4111: Property 'uploadedBefore' comes from an index signature, so it must be accessed with ['uploadedBefore'].
+src/routes/documents.ts(138,25): error TS4111: Property 'search' comes from an index signature, so it must be accessed with ['search'].
+src/routes/documents.ts(139,23): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
+src/routes/documents.ts(139,49): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
+src/routes/documents.ts(140,24): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/documents.ts(140,51): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/documents.ts(141,25): error TS4111: Property 'sortBy' comes from an index signature, so it must be accessed with ['sortBy'].
+src/routes/documents.ts(142,28): error TS4111: Property 'sortOrder' comes from an index signature, so it must be accessed with ['sortOrder'].
+src/routes/documents.ts(172,56): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(172,67): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(201,60): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(201,71): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(222,64): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(222,75): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(243,29): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/documents.ts(243,56): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/documents.ts(244,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(244,69): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(273,59): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(273,70): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(301,58): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(301,69): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(329,87): error TS4111: Property 'userId' comes from an index signature, so it must be accessed with ['userId'].
+src/routes/documents.ts(330,33): error TS4111: Property 'category' comes from an index signature, so it must be accessed with ['category'].
+src/routes/documents.ts(360,87): error TS4111: Property 'userId' comes from an index signature, so it must be accessed with ['userId'].
+src/routes/documents.ts(414,87): error TS4111: Property 'userId' comes from an index signature, so it must be accessed with ['userId'].
+src/routes/documents.ts(415,29): error TS4111: Property 'q' comes from an index signature, so it must be accessed with ['q'].
+src/routes/documents.ts(424,11): error TS2375: Type '{ userId: string; search: string; category: DocumentCategory | undefined; fileType: AllowedFileType | undefined; page: number; limit: number; }' is not assignable to type 'DocumentFilters' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'category' are incompatible.
+    Type 'DocumentCategory | undefined' is not assignable to type 'DocumentCategory'.
+      Type 'undefined' is not assignable to type 'DocumentCategory'.
+src/routes/documents.ts(427,27): error TS4111: Property 'category' comes from an index signature, so it must be accessed with ['category'].
+src/routes/documents.ts(428,27): error TS4111: Property 'fileType' comes from an index signature, so it must be accessed with ['fileType'].
+src/routes/documents.ts(429,23): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
+src/routes/documents.ts(429,49): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
+src/routes/documents.ts(430,24): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/documents.ts(430,51): error TS4111: Property 'limit' comes from an index signature, so it must be accessed with ['limit'].
+src/routes/documents.ts(464,7): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(464,18): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/documents.ts(598,87): error TS4111: Property 'userId' comes from an index signature, so it must be accessed with ['userId'].
+src/routes/documents.ts(599,28): error TS4111: Property 'days' comes from an index signature, so it must be accessed with ['days'].
+src/routes/documents.ts(599,54): error TS4111: Property 'days' comes from an index signature, so it must be accessed with ['days'].
+src/routes/documents.ts(629,60): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/documents.ts(629,71): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/routes/hubzones.ts(19,51): error TS2379: Argument of type '{ page: number; limit: number; search: string | undefined; }' is not assignable to parameter of type 'FindAllOptions' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'search' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/map.ts(310,13): error TS2375: Type '{ state: string | undefined; county: string | undefined; format: "csv" | "geojson"; zoneTypes: HubzoneType[]; statusFilter: HubzoneStatus[]; }' is not assignable to type 'ExportInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'state' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(20,56): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(39,50): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(52,53): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(73,50): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(73,61): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/routes/ocr.ts(119,7): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(119,18): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/routes/ocr.ts(152,40): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(152,51): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/routes/ocr.ts(190,39): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(190,50): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/routes/ocr.ts(211,56): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(211,67): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/routes/ocr.ts(241,56): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(241,67): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/routes/ocr.ts(271,73): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/ocr.ts(271,84): error TS4111: Property 'documentId' comes from an index signature, so it must be accessed with ['documentId'].
+src/scripts/cleanup-audit-logs.ts(25,29): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/scripts/cleanup-audit-logs.ts(45,36): error TS2532: Object is possibly 'undefined'.
+src/services/agencyService.ts(90,5): error TS2322: Type '{ id: string; legalName: string; dbaName: string | undefined; ueiNumber: string; cageCode: string | undefined; state: string; certificationStatus: string; }[]' is not assignable to type '{ id: string; legalName: string; dbaName?: string; ueiNumber: string; cageCode?: string; state: string; certificationStatus: string; }[]'.
+  Type '{ id: string; legalName: string; dbaName: string | undefined; ueiNumber: string; cageCode: string | undefined; state: string; certificationStatus: string; }' is not assignable to type '{ id: string; legalName: string; dbaName?: string; ueiNumber: string; cageCode?: string; state: string; certificationStatus: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'dbaName' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/services/agencyService.ts(146,46): error TS2379: Argument of type '{ agencyId: string; businessId: string; businessName: string; ueiNumber: string; verificationStatus: "not_found"; complianceScore: number; riskLevel: "critical"; verifiedBy: string | undefined; method: "single"; }' is not assignable to parameter of type '{ agencyId: string; businessId: string; businessName: string; ueiNumber: string; verificationStatus: VerificationStatus; complianceScore: number; riskLevel: RiskLevel; verifiedBy?: string; method: "single" | "bulk"; ipAddress?: string; userAgent?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'verifiedBy' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/agencyService.ts(164,58): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(168,7): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(169,7): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(177,11): error TS2375: Type '{ id: string; businessId: string; businessName: string; dbaName: string | undefined; ueiNumber: string; cageCode: string | undefined; certificationStatus: VerificationStatus; ... 8 more ...; verificationId: string; }' is not assignable to type 'ContractorVerification' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'dbaName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/agencyService.ts(178,11): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(179,19): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(180,21): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(181,16): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(182,18): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(183,17): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(185,26): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(186,23): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(198,44): error TS2379: Argument of type '{ agencyId: string; businessId: string; businessName: string; ueiNumber: string; verificationStatus: VerificationStatus; complianceScore: number; riskLevel: RiskLevel; verifiedBy: string | undefined; method: "single"; }' is not assignable to parameter of type '{ agencyId: string; businessId: string; businessName: string; ueiNumber: string; verificationStatus: VerificationStatus; complianceScore: number; riskLevel: RiskLevel; verifiedBy?: string; method: "single" | "bulk"; ipAddress?: string; userAgent?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'verifiedBy' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/agencyService.ts(200,21): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(201,23): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(202,20): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(407,7): error TS2322: Type '{ id: string; agencyId: string; agencyName: string | undefined; businessId: string; businessName: string; ueiNumber: string; verificationStatus: VerificationStatus; ... 6 more ...; userAgent: string | undefined; }[]' is not assignable to type 'VerificationHistoryRecord[]'.
+  Type '{ id: string; agencyId: string; agencyName: string | undefined; businessId: string; businessName: string; ueiNumber: string; verificationStatus: VerificationStatus; ... 6 more ...; userAgent: string | undefined; }' is not assignable to type 'VerificationHistoryRecord' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'agencyName' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/services/agencyService.ts(482,58): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(486,7): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(487,7): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(495,21): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(497,20): error TS4111: Property 'street1' comes from an index signature, so it must be accessed with ['street1'].
+src/services/agencyService.ts(497,38): error TS4111: Property 'street2' comes from an index signature, so it must be accessed with ['street2'].
+src/services/agencyService.ts(497,63): error TS4111: Property 'street2' comes from an index signature, so it must be accessed with ['street2'].
+src/services/agencyService.ts(497,88): error TS4111: Property 'city' comes from an index signature, so it must be accessed with ['city'].
+src/services/agencyService.ts(497,105): error TS4111: Property 'state' comes from an index signature, so it must be accessed with ['state'].
+src/services/agencyService.ts(497,122): error TS4111: Property 'zipCode' comes from an index signature, so it must be accessed with ['zipCode'].
+src/services/agencyService.ts(507,5): error TS2375: Type '{ reportId: string; generatedAt: Date; validUntil: Date; agencyName: string; agencyId: string; verifierName: string | undefined; businessName: string; dbaName: string | undefined; ... 11 more ...; verificationUrl: string; }' is not assignable to type 'VerificationReport' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'verifierName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/agencyService.ts(514,21): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(515,16): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(516,18): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(517,17): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(520,28): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(521,26): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(522,23): error TS18048: 'business' is possibly 'undefined'.
+src/services/agencyService.ts(547,11): error TS2322: Type 'string | Address' is not assignable to type 'string'.
+  Type 'Address' is not assignable to type 'string'.
+src/services/agencyService.ts(548,49): error TS2551: Property 'inHubzone' does not exist on type 'PrincipalOfficeStatus'. Did you mean 'isInHubzone'?
+src/services/agencyService.ts(555,46): error TS2339: Property 'isCitizenOwned' does not exist on type 'OwnershipStatus'.
+src/services/agencyService.ts(557,9): error TS2375: Type '{ isValid: boolean; daysUntilExpiration: number | undefined; requiresRecertification: boolean; }' is not assignable to type '{ isValid: boolean; daysUntilExpiration?: number; requiresRecertification: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'daysUntilExpiration' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+src/services/alertService.ts(106,9): error TS2375: Type '{ currentValue: number; threshold: number; previousValue: undefined; trend: TrendDirection; }' is not assignable to type 'AlertDetails' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'previousValue' are incompatible.
+    Type 'undefined' is not assignable to type 'number'.
+src/services/alertService.ts(150,9): error TS2375: Type '{ hubzoneName: string | undefined; }' is not assignable to type 'AlertDetails' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'hubzoneName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/alertService.ts(168,11): error TS2375: Type '{ daysRemaining: number; hubzoneName: string | undefined; gracePeriodEndDate: string | undefined; }' is not assignable to type 'AlertDetails' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'hubzoneName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/alertService.ts(323,36): error TS2345: Argument of type 'ComplianceAlert | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/alertService.ts(498,11): error TS2375: Type '{ recipientName: string; businessName: string; alertTitle: string; alertMessage: string; actionRequired: string; actionUrl: string | undefined; severity: AlertSeverity; details: AlertDetails; unsubscribeUrl: string; }' is not assignable to type 'EmailTemplateData' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'actionUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/alertService.ts(1076,29): error TS6133: 'userId' is declared but its value is never read.
+src/services/alertService.ts(1302,5): error TS2322: Type '{ userId: string; email: string; phone: string | undefined; name: string; }[]' is not assignable to type '{ userId: string; email: string; phone?: string; name: string; }[]'.
+  Type '{ userId: string; email: string; phone: string | undefined; name: string; }' is not assignable to type '{ userId: string; email: string; phone?: string; name: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'phone' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/services/alertService.ts(1314,5): error TS2375: Type '{ id: string; businessId: string; businessName: string; type: AlertType; severity: AlertSeverity; status: AlertStatus; title: string; message: string; details: any; actionRequired: string; ... 8 more ...; expiresAt: Date | null; }' is not assignable to type 'ComplianceAlert' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'actionUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/alertService.ts(1343,5): error TS2375: Type '{ userId: string; emailEnabled: boolean; smsEnabled: boolean; dashboardEnabled: boolean; pushEnabled: boolean; criticalAlerts: NotificationChannel[]; highAlerts: NotificationChannel[]; ... 4 more ...; emailDigest: "immediate" | "daily" | "weekly"; }' is not assignable to type 'NotificationPreferences' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'quietHoursStart' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/analyticsService.ts(491,11): error TS2322: Type '{ businessId: string; businessName: string; dbaName: string | undefined; ueiNumber: string; cageCode: string | undefined; state: string; city: string; address: string; naicsCodes: { code: string; title: string; isPrimary: boolean; }[]; ... 7 more ...; lastAwardDate: Date | undefined; }[]' is not assignable to type 'ContractorDirectoryEntry[]'.
+  Type '{ businessId: string; businessName: string; dbaName: string | undefined; ueiNumber: string; cageCode: string | undefined; state: string; city: string; address: string; naicsCodes: { code: string; title: string; isPrimary: boolean; }[]; ... 7 more ...; lastAwardDate: Date | undefined; }' is not assignable to type 'ContractorDirectoryEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'dbaName' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/services/analyticsService.ts(518,5): error TS6133: 'agencyId' is declared but its value is never read.
+src/services/analyticsService.ts(519,5): error TS6133: 'format' is declared but its value is never read.
+src/services/analyticsService.ts(636,7): error TS2322: Type '{ type: "hubzone_goal_achievement"; metrics: AgencyMetrics; monthlyProgress: { month: string; targetPercentage: number; actualPercentage: number; contractsAwarded: number; contractValue: number; }[]; quarterlyComparison: never[]; yearOverYearComparison: never[]; recommendations: string[]; } | ... 4 more ... | { ...; }' is not assignable to type 'ReportData'.
+  Type '{ type: never; }' is not assignable to type 'ReportData'.
+    Type '{ type: never; }' is missing the following properties from type 'GeographicDistributionReportData': distribution, heatmapData, insights
+src/services/auditService.ts(183,3): error TS2375: Type '{ userId: string | undefined; ipAddress: string; userAgent: string | undefined; requestId: string | undefined; requestMethod: string; requestPath: string; sessionId: string; }' is not assignable to type 'Partial<AuditLogEntry>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/auditService.ts(235,14): error TS2532: Object is possibly 'undefined'.
+src/services/auditService.ts(259,20): error TS2379: Argument of type '{ userId: string | undefined; action: AuditAction; entityType: "user"; entityId: string | undefined; description: string | undefined; metadata: { email: string | undefined; success: boolean | undefined; }; ... 11 more ...; timestamp?: Date; }' is not assignable to parameter of type 'AuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'userId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/auditService.ts(291,20): error TS2379: Argument of type '{ action: AuditAction; entityType: AuditEntityType; entityId: string; description: string | undefined; metadata: { accessedFields: string[] | undefined; }; ... 12 more ...; timestamp?: Date; }' is not assignable to parameter of type 'AuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/auditService.ts(319,20): error TS2379: Argument of type '{ action: AuditAction; entityType: AuditEntityType; entityId: string; description: string | undefined; oldValues: Record<string, unknown> | undefined; ... 12 more ...; timestamp?: Date; }' is not assignable to parameter of type 'AuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/auditService.ts(346,20): error TS2379: Argument of type '{ action: AuditAction; entityType: AuditEntityType; entityId: string | undefined; description: string; metadata: Record<string, unknown> | undefined; ... 12 more ...; timestamp?: Date; }' is not assignable to parameter of type 'AuditLogEntry' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'entityId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/auditService.ts(461,28): error TS2532: Object is possibly 'undefined'.
+src/services/auditService.ts(572,27): error TS2532: Object is possibly 'undefined'.
+src/services/cacheService.ts(185,25): error TS2532: Object is possibly 'undefined'.
+src/services/complianceHistoryService.ts(15,3): error TS6196: 'ChartDataPoint' is declared but never used.
+src/services/complianceHistoryService.ts(40,11): error TS2375: Type '{ triggerType: "scheduled" | "manual" | "event"; triggeredBy: string | undefined; employeeChanges: { hired: number; terminated: number; addressChanged: number; } | undefined; notes: string | undefined; }' is not assignable to type 'SnapshotMetadata' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'triggeredBy' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/complianceHistoryService.ts(90,32): error TS2345: Argument of type 'ComplianceSnapshot | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/complianceHistoryService.ts(197,58): error TS2532: Object is possibly 'undefined'.
+src/services/complianceHistoryService.ts(496,23): error TS2532: Object is possibly 'undefined'.
+src/services/complianceHistoryService.ts(645,19): error TS2379: Argument of type '{ type: "certification_expiring"; severity: "high" | "critical"; message: string; predictedDate: Date | undefined; }' is not assignable to parameter of type 'TrendAlert' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'predictedDate' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+src/services/complianceHistoryService.ts(804,5): error TS6133: 'trendAnalysis' is declared but its value is never read.
+src/services/complianceHistoryService.ts(955,28): error TS2379: Argument of type '{ priority: "medium" | "high"; category: string; title: string; description: string; impact: string; estimatedEffort: string; deadline: Date | undefined; }' is not assignable to parameter of type 'ReportRecommendation' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'deadline' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+src/services/complianceHistoryService.ts(969,28): error TS2379: Argument of type '{ priority: "high" | "critical"; category: string; title: string; description: string; impact: string; estimatedEffort: string; deadline: Date | undefined; }' is not assignable to parameter of type 'ReportRecommendation' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'deadline' are incompatible.
+    Type 'Date | undefined' is not assignable to type 'Date'.
+      Type 'undefined' is not assignable to type 'Date'.
+src/services/complianceMonitoring.ts(321,5): error TS6133: 'businessId' is declared but its value is never read.
+src/services/contractService.ts(89,32): error TS2345: Argument of type 'Contract | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/contractService.ts(140,32): error TS2345: Argument of type 'Contract | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/contractService.ts(151,32): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/contractService.ts(295,28): error TS2345: Argument of type 'FiscalYearGoal | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/contractService.ts(313,28): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/contractService.ts(395,5): error TS2375: Type '{ fiscalYear: number; agencyId: string; agencyName: string | undefined; goalPercentage: number; goalAmount: number; totalContractsAwarded: number; totalContractValue: number; hubzoneContractsAwarded: number; ... 8 more ...; monthlyProgress: MonthlyProgress[]; }' is not assignable to type 'GoalProgress' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'agencyName' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/contractService.ts(472,34): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/contractService.ts(490,9): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+src/services/contractService.ts(491,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/contractService.ts(514,41): error TS2532: Object is possibly 'undefined'.
+src/services/contractService.ts(742,42): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/contractService.ts(876,5): error TS2375: Type '{ id: string; agencyId: string; contractNumber: string; title: string; description: string | undefined; contractorName: string; contractorUei: string; contractorCageCode: string | undefined; ... 19 more ...; createdBy: string | undefined; }' is not assignable to type 'Contract' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'description' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/contractService.ts(914,5): error TS2375: Type '{ id: string; agencyId: string; fiscalYear: number; goalPercentage: number; totalContractingGoal: number; hubzoneGoalAmount: number; notes: string | undefined; createdAt: Date; updatedAt: Date; }' is not assignable to type 'FiscalYearGoal' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'notes' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/documentService.ts(22,3): error TS6133: 'MIME_TYPE_MAP' is declared but its value is never read.
+src/services/documentService.ts(135,48): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/documentService.ts(137,32): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/documentService.ts(211,48): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/documentService.ts(213,32): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/documentService.ts(228,32): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/documentService.ts(380,32): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/documentService.ts(473,5): error TS2322: Type '{ id: string; documentId: string; userId: string; action: "delete" | "view" | "download" | "update"; ipAddress: string | undefined; userAgent: string | undefined; accessedAt: Date; }[]' is not assignable to type 'DocumentAccessLog[]'.
+  Type '{ id: string; documentId: string; userId: string; action: DocumentAccessLog["action"]; ipAddress: string | undefined; userAgent: string | undefined; accessedAt: Date; }' is not assignable to type 'DocumentAccessLog' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'ipAddress' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/services/documentService.ts(735,5): error TS2375: Type '{ id: string; userId: string; businessId: string | undefined; category: DocumentCategory; filename: string; originalFilename: string; fileSize: number; fileType: AllowedFileType; mimeType: string; ... 10 more ...; deletedAt: Date | undefined; }' is not assignable to type 'Document' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'businessId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/documentService.ts(762,5): error TS2375: Type '{ id: string; documentId: string; versionNumber: number; s3Key: string; s3VersionId: string | undefined; fileSize: number; uploadedAt: Date; uploadedBy: string; changeNotes: string | undefined; }' is not assignable to type 'DocumentVersion' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 's3VersionId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/documentService.ts(1007,32): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/encryptionService.ts(19,7): error TS6133: 'TAG_LENGTH' is declared but its value is never read.
+src/services/encryptionService.ts(20,7): error TS6133: 'SALT_LENGTH' is declared but its value is never read.
+src/services/encryptionService.ts(221,27): error TS2532: Object is possibly 'undefined'.
+src/services/hubzoneMapLoader.ts(22,1): error TS6133: 'createHash' is declared but its value is never read.
+src/services/hubzoneMapLoader.ts(23,16): error TS6133: 'basename' is declared but its value is never read.
+src/services/hubzoneMapLoader.ts(23,26): error TS6133: 'dirname' is declared but its value is never read.
+src/services/hubzoneMapLoader.ts(32,3): error TS6196: 'TractProperties' is declared but never used.
+src/services/hubzoneMapLoader.ts(45,3): error TS6196: 'HUBZoneMapUpdate' is declared but never used.
+src/services/hubzoneMapLoader.ts(65,14): error TS2323: Cannot redeclare exported variable 'HUBZoneMapLoaderService'.
+src/services/hubzoneMapLoader.ts(216,23): error TS18048: 'state' is possibly 'undefined'.
+src/services/hubzoneMapLoader.ts(225,57): error TS18048: 'state' is possibly 'undefined'.
+src/services/hubzoneMapLoader.ts(229,61): error TS18048: 'state' is possibly 'undefined'.
+src/services/hubzoneMapLoader.ts(994,5): error TS6133: 'businessName' is declared but its value is never read.
+src/services/hubzoneMapLoader.ts(1356,10): error TS2323: Cannot redeclare exported variable 'HUBZoneMapLoaderService'.
+src/services/hubzoneMapLoader.ts(1356,10): error TS2484: Export declaration conflicts with exported declaration of 'HUBZoneMapLoaderService'.
+src/services/jobService.ts(179,11): error TS6133: 'hubzoneService' is declared but its value is never read.
+src/services/jobService.ts(214,9): error TS18048: 'business' is possibly 'undefined'.
+src/services/jobService.ts(214,18): error TS4111: Property 'legal_name' comes from an index signature, so it must be accessed with ['legal_name'].
+src/services/jobService.ts(215,9): error TS18048: 'business' is possibly 'undefined'.
+src/services/jobService.ts(215,18): error TS4111: Property 'logo_url' comes from an index signature, so it must be accessed with ['logo_url'].
+src/services/jobService.ts(234,29): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(311,29): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(401,28): error TS2532: Object is possibly 'undefined'.
+src/services/jobService.ts(401,48): error TS4111: Property 'count' comes from an index signature, so it must be accessed with ['count'].
+src/services/jobService.ts(454,29): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(469,29): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(481,29): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(533,12): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(533,25): error TS4111: Property 'first_name' comes from an index signature, so it must be accessed with ['first_name'].
+src/services/jobService.ts(533,39): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(533,52): error TS4111: Property 'last_name' comes from an index signature, so it must be accessed with ['last_name'].
+src/services/jobService.ts(534,9): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(534,22): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/services/jobService.ts(535,34): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(535,47): error TS4111: Property 'phone' comes from an index signature, so it must be accessed with ['phone'].
+src/services/jobService.ts(562,37): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(582,34): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(582,45): error TS4111: Property 'status_history' comes from an index signature, so it must be accessed with ['status_history'].
+src/services/jobService.ts(583,20): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(583,31): error TS4111: Property 'status_history' comes from an index signature, so it must be accessed with ['status_history'].
+src/services/jobService.ts(584,9): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(584,20): error TS4111: Property 'status_history' comes from an index signature, so it must be accessed with ['status_history'].
+src/services/jobService.ts(603,29): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(603,40): error TS4111: Property 'job_id' comes from an index signature, so it must be accessed with ['job_id'].
+src/services/jobService.ts(603,48): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(603,59): error TS4111: Property 'professional_id' comes from an index signature, so it must be accessed with ['professional_id'].
+src/services/jobService.ts(607,35): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(607,46): error TS4111: Property 'professional_id' comes from an index signature, so it must be accessed with ['professional_id'].
+src/services/jobService.ts(607,63): error TS18048: 'currentApp' is possibly 'undefined'.
+src/services/jobService.ts(607,74): error TS4111: Property 'job_id' comes from an index signature, so it must be accessed with ['job_id'].
+src/services/jobService.ts(609,37): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/jobService.ts(638,28): error TS2532: Object is possibly 'undefined'.
+src/services/jobService.ts(638,48): error TS4111: Property 'count' comes from an index signature, so it must be accessed with ['count'].
+src/services/jobService.ts(653,53): error TS4111: Property 'application_id' comes from an index signature, so it must be accessed with ['application_id'].
+src/services/jobService.ts(654,47): error TS4111: Property 'job_id' comes from an index signature, so it must be accessed with ['job_id'].
+src/services/jobService.ts(702,28): error TS2532: Object is possibly 'undefined'.
+src/services/jobService.ts(702,48): error TS4111: Property 'count' comes from an index signature, so it must be accessed with ['count'].
+src/services/jobService.ts(761,39): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(761,52): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(762,20): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(762,33): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(763,9): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(763,22): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(765,30): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(765,34): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(766,20): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(766,24): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(767,9): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(767,13): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(775,7): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(775,11): error TS4111: Property 'experience_years' comes from an index signature, so it must be accessed with ['experience_years'].
+src/services/jobService.ts(780,7): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(780,20): error TS4111: Property 'verification_status' comes from an index signature, so it must be accessed with ['verification_status'].
+src/services/jobService.ts(781,7): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(781,11): error TS4111: Property 'hubzone_resident_required' comes from an index signature, so it must be accessed with ['hubzone_resident_required'].
+src/services/jobService.ts(785,40): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(785,53): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/jobService.ts(786,20): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(786,33): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/jobService.ts(787,9): error TS18048: 'professional' is possibly 'undefined'.
+src/services/jobService.ts(787,22): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/jobService.ts(789,32): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(789,36): error TS4111: Property 'location' comes from an index signature, so it must be accessed with ['location'].
+src/services/jobService.ts(790,20): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(790,24): error TS4111: Property 'location' comes from an index signature, so it must be accessed with ['location'].
+src/services/jobService.ts(791,9): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(791,13): error TS4111: Property 'location' comes from an index signature, so it must be accessed with ['location'].
+src/services/jobService.ts(796,7): error TS18048: 'job' is possibly 'undefined'.
+src/services/jobService.ts(796,11): error TS4111: Property 'is_remote' comes from an index signature, so it must be accessed with ['is_remote'].
+src/services/jobService.ts(1034,28): error TS18048: 'counts' is possibly 'undefined'.
+src/services/jobService.ts(1034,35): error TS4111: Property 'views' comes from an index signature, so it must be accessed with ['views'].
+src/services/jobService.ts(1035,35): error TS18048: 'counts' is possibly 'undefined'.
+src/services/jobService.ts(1035,42): error TS4111: Property 'applications' comes from an index signature, so it must be accessed with ['applications'].
+src/services/jobService.ts(1036,28): error TS18048: 'counts' is possibly 'undefined'.
+src/services/jobService.ts(1036,35): error TS4111: Property 'hires' comes from an index signature, so it must be accessed with ['hires'].
+src/services/jobService.ts(1043,70): error TS4111: Property 'avg_score' comes from an index signature, so it must be accessed with ['avg_score'].
+src/services/jobService.ts(1045,47): error TS2345: Argument of type '(r: { date: string; count: string; }) => { date: string; count: number; }' is not assignable to parameter of type '(value: QueryResultRow, index: number, array: QueryResultRow[]) => { date: string; count: number; }'.
+  Types of parameters 'r' and 'value' are incompatible.
+    Type 'QueryResultRow' is missing the following properties from type '{ date: string; count: string; }': date, count
+src/services/jobService.ts(1049,53): error TS2345: Argument of type '(r: { date: string; count: string; }) => { date: string; count: number; }' is not assignable to parameter of type '(value: QueryResultRow, index: number, array: QueryResultRow[]) => { date: string; count: number; }'.
+  Types of parameters 'r' and 'value' are incompatible.
+    Type 'QueryResultRow' is missing the following properties from type '{ date: string; count: string; }': date, count
+src/services/jobService.ts(1075,5): error TS2375: Type '{ id: string; businessId: string; businessName: string; businessLogo: string | undefined; title: string; description: string; responsibilities: string | undefined; qualifications: string | undefined; ... 16 more ...; createdAt: string; }' is not assignable to type 'Job' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'businessLogo' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/jobService.ts(1076,15): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/jobService.ts(1077,23): error TS4111: Property 'business_id' comes from an index signature, so it must be accessed with ['business_id'].
+src/services/jobService.ts(1078,25): error TS4111: Property 'business_name' comes from an index signature, so it must be accessed with ['business_name'].
+src/services/jobService.ts(1079,25): error TS4111: Property 'business_logo' comes from an index signature, so it must be accessed with ['business_logo'].
+src/services/jobService.ts(1080,18): error TS4111: Property 'title' comes from an index signature, so it must be accessed with ['title'].
+src/services/jobService.ts(1081,24): error TS4111: Property 'description' comes from an index signature, so it must be accessed with ['description'].
+src/services/jobService.ts(1082,29): error TS4111: Property 'responsibilities' comes from an index signature, so it must be accessed with ['responsibilities'].
+src/services/jobService.ts(1083,27): error TS4111: Property 'qualifications' comes from an index signature, so it must be accessed with ['qualifications'].
+src/services/jobService.ts(1084,21): error TS4111: Property 'benefits' comes from an index signature, so it must be accessed with ['benefits'].
+src/services/jobService.ts(1085,36): error TS4111: Property 'hubzone_resident_required' comes from an index signature, so it must be accessed with ['hubzone_resident_required'].
+src/services/jobService.ts(1086,26): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(1086,63): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(1086,87): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/jobService.ts(1087,28): error TS4111: Property 'experience_years' comes from an index signature, so it must be accessed with ['experience_years'].
+src/services/jobService.ts(1088,30): error TS4111: Property 'education_required' comes from an index signature, so it must be accessed with ['education_required'].
+src/services/jobService.ts(1089,31): error TS4111: Property 'salary_range' comes from an index signature, so it must be accessed with ['salary_range'].
+src/services/jobService.ts(1090,26): error TS4111: Property 'salary_range' comes from an index signature, so it must be accessed with ['salary_range'].
+src/services/jobService.ts(1091,15): error TS4111: Property 'salary_range' comes from an index signature, so it must be accessed with ['salary_range'].
+src/services/jobService.ts(1092,27): error TS4111: Property 'employment_type' comes from an index signature, so it must be accessed with ['employment_type'].
+src/services/jobService.ts(1093,28): error TS4111: Property 'location' comes from an index signature, so it must be accessed with ['location'].
+src/services/jobService.ts(1094,26): error TS4111: Property 'location' comes from an index signature, so it must be accessed with ['location'].
+src/services/jobService.ts(1095,15): error TS4111: Property 'location' comes from an index signature, so it must be accessed with ['location'].
+src/services/jobService.ts(1096,21): error TS4111: Property 'is_remote' comes from an index signature, so it must be accessed with ['is_remote'].
+src/services/jobService.ts(1097,25): error TS4111: Property 'remote_policy' comes from an index signature, so it must be accessed with ['remote_policy'].
+src/services/jobService.ts(1098,19): error TS4111: Property 'status' comes from an index signature, so it must be accessed with ['status'].
+src/services/jobService.ts(1099,29): error TS4111: Property 'application_count' comes from an index signature, so it must be accessed with ['application_count'].
+src/services/jobService.ts(1100,22): error TS4111: Property 'view_count' comes from an index signature, so it must be accessed with ['view_count'].
+src/services/jobService.ts(1101,21): error TS4111: Property 'posted_at' comes from an index signature, so it must be accessed with ['posted_at'].
+src/services/jobService.ts(1102,22): error TS4111: Property 'expires_at' comes from an index signature, so it must be accessed with ['expires_at'].
+src/services/jobService.ts(1103,22): error TS4111: Property 'updated_at' comes from an index signature, so it must be accessed with ['updated_at'].
+src/services/jobService.ts(1104,22): error TS4111: Property 'created_at' comes from an index signature, so it must be accessed with ['created_at'].
+src/services/jobService.ts(1109,5): error TS2375: Type '{ id: string; jobId: string; professionalId: string; applicantName: string; applicantEmail: string; applicantPhone: string | undefined; coverLetter: string | undefined; resumeUrl: string | undefined; ... 9 more ...; updatedAt: string; }' is not assignable to type 'Application' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'applicantPhone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/jobService.ts(1110,15): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/jobService.ts(1111,18): error TS4111: Property 'job_id' comes from an index signature, so it must be accessed with ['job_id'].
+src/services/jobService.ts(1112,27): error TS4111: Property 'professional_id' comes from an index signature, so it must be accessed with ['professional_id'].
+src/services/jobService.ts(1113,26): error TS4111: Property 'applicant_name' comes from an index signature, so it must be accessed with ['applicant_name'].
+src/services/jobService.ts(1114,27): error TS4111: Property 'applicant_email' comes from an index signature, so it must be accessed with ['applicant_email'].
+src/services/jobService.ts(1115,27): error TS4111: Property 'applicant_phone' comes from an index signature, so it must be accessed with ['applicant_phone'].
+src/services/jobService.ts(1116,24): error TS4111: Property 'cover_letter' comes from an index signature, so it must be accessed with ['cover_letter'].
+src/services/jobService.ts(1117,22): error TS4111: Property 'resume_url' comes from an index signature, so it must be accessed with ['resume_url'].
+src/services/jobService.ts(1118,25): error TS4111: Property 'portfolio_url' comes from an index signature, so it must be accessed with ['portfolio_url'].
+src/services/jobService.ts(1119,19): error TS4111: Property 'status' comes from an index signature, so it must be accessed with ['status'].
+src/services/jobService.ts(1120,33): error TS4111: Property 'status_history' comes from an index signature, so it must be accessed with ['status_history'].
+src/services/jobService.ts(1121,26): error TS4111: Property 'status_history' comes from an index signature, so it must be accessed with ['status_history'].
+src/services/jobService.ts(1122,15): error TS4111: Property 'status_history' comes from an index signature, so it must be accessed with ['status_history'].
+src/services/jobService.ts(1123,23): error TS4111: Property 'match_score' comes from an index signature, so it must be accessed with ['match_score'].
+src/services/jobService.ts(1124,29): error TS4111: Property 'skills_match_score' comes from an index signature, so it must be accessed with ['skills_match_score'].
+src/services/jobService.ts(1125,28): error TS4111: Property 'experience_score' comes from an index signature, so it must be accessed with ['experience_score'].
+src/services/jobService.ts(1126,25): error TS4111: Property 'hubzone_score' comes from an index signature, so it must be accessed with ['hubzone_score'].
+src/services/jobService.ts(1127,26): error TS4111: Property 'location_score' comes from an index signature, so it must be accessed with ['location_score'].
+src/services/jobService.ts(1128,22): error TS4111: Property 'applied_at' comes from an index signature, so it must be accessed with ['applied_at'].
+src/services/jobService.ts(1129,22): error TS4111: Property 'updated_at' comes from an index signature, so it must be accessed with ['updated_at'].
+src/services/mapService.ts(743,16): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/monitoringService.ts(123,11): error TS6133: 'startTime' is declared but its value is never read.
+src/services/monitoringService.ts(224,5): error TS2375: Type '{ status: "healthy" | "degraded" | "unhealthy"; latency: number; message: string | undefined; }' is not assignable to type 'ComponentHealth' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'message' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/monitoringService.ts(345,23): error TS6133: 'type' is declared but its value is never read.
+src/services/notificationService.ts(115,11): error TS2375: Type '{ id: string; userId: string; type: NotificationType; category: NotificationCategory; priority: NotificationPriority; ... 8 more ...; expiresAt: Date | undefined; }' is not assignable to type 'Notification' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'actionUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/notificationService.ts(133,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(241,34): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(248,35): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(257,27): error TS2339: Property 'all' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(287,26): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(299,29): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(314,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(331,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(346,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(358,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(368,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(381,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(393,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(405,29): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(417,26): error TS2339: Property 'get' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(440,14): error TS2339: Property 'run' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(499,23): error TS18048: 'startHour' is possibly 'undefined'.
+src/services/notificationService.ts(499,40): error TS18048: 'startMin' is possibly 'undefined'.
+src/services/notificationService.ts(500,21): error TS18048: 'endHour' is possibly 'undefined'.
+src/services/notificationService.ts(500,36): error TS18048: 'endMin' is possibly 'undefined'.
+src/services/notificationService.ts(538,5): error TS2375: Type '{ id: string; userId: string; type: NotificationType; category: NotificationCategory; priority: NotificationPriority; title: string; message: string; read: boolean; dismissed: boolean; ... 5 more ...; expiresAt: Date | undefined; }' is not assignable to type 'Notification' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'actionUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/notificationService.ts(539,15): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/notificationService.ts(540,19): error TS4111: Property 'user_id' comes from an index signature, so it must be accessed with ['user_id'].
+src/services/notificationService.ts(541,17): error TS4111: Property 'type' comes from an index signature, so it must be accessed with ['type'].
+src/services/notificationService.ts(542,21): error TS4111: Property 'category' comes from an index signature, so it must be accessed with ['category'].
+src/services/notificationService.ts(543,21): error TS4111: Property 'priority' comes from an index signature, so it must be accessed with ['priority'].
+src/services/notificationService.ts(544,18): error TS4111: Property 'title' comes from an index signature, so it must be accessed with ['title'].
+src/services/notificationService.ts(545,20): error TS4111: Property 'message' comes from an index signature, so it must be accessed with ['message'].
+src/services/notificationService.ts(546,25): error TS4111: Property 'read' comes from an index signature, so it must be accessed with ['read'].
+src/services/notificationService.ts(547,30): error TS4111: Property 'dismissed' comes from an index signature, so it must be accessed with ['dismissed'].
+src/services/notificationService.ts(548,22): error TS4111: Property 'action_url' comes from an index signature, so it must be accessed with ['action_url'].
+src/services/notificationService.ts(549,24): error TS4111: Property 'action_label' comes from an index signature, so it must be accessed with ['action_label'].
+src/services/notificationService.ts(550,21): error TS4111: Property 'metadata' comes from an index signature, so it must be accessed with ['metadata'].
+src/services/notificationService.ts(550,47): error TS4111: Property 'metadata' comes from an index signature, so it must be accessed with ['metadata'].
+src/services/notificationService.ts(551,31): error TS4111: Property 'created_at' comes from an index signature, so it must be accessed with ['created_at'].
+src/services/notificationService.ts(552,19): error TS4111: Property 'read_at' comes from an index signature, so it must be accessed with ['read_at'].
+src/services/notificationService.ts(552,42): error TS4111: Property 'read_at' comes from an index signature, so it must be accessed with ['read_at'].
+src/services/notificationService.ts(553,22): error TS4111: Property 'expires_at' comes from an index signature, so it must be accessed with ['expires_at'].
+src/services/notificationService.ts(553,48): error TS4111: Property 'expires_at' comes from an index signature, so it must be accessed with ['expires_at'].
+src/services/notificationService.ts(580,36): error TS2379: Argument of type '{ userId: string; type: "compliance_alert"; category: "compliance"; priority: NotificationPriority | undefined; title: string; message: string; actionUrl: string; actionLabel: string; metadata: { ...; }; }' is not assignable to parameter of type 'CreateNotificationInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'priority' are incompatible.
+    Type 'NotificationPriority | undefined' is not assignable to type 'NotificationPriority'.
+      Type 'undefined' is not assignable to type 'NotificationPriority'.
+src/services/notificationService.ts(646,28): error TS2339: Property 'all' does not exist on type '{ query<T extends QueryResultRow = QueryResultRow>(text: string, params?: unknown[] | undefined): Promise<QueryResult<T>>; getClient(): Promise<PoolClient>; transaction<T>(callback: (client: PoolClient) => Promise<...>): Promise<...>; close(): Promise<...>; }'.
+src/services/notificationService.ts(647,31): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/services/notificationService.ts(649,50): error TS2379: Argument of type '{ type: "system_announcement"; category: "system"; priority: NotificationPriority; title: string; message: string; actionUrl: string | undefined; expiresAt: Date | undefined; }' is not assignable to parameter of type 'Omit<CreateNotificationInput, "userId">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'actionUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(3,1): error TS6133: 'crypto' is declared but its value is never read.
+src/services/ocrService.ts(178,7): error TS6133: 'TEXTRACT_CONFIG' is declared but its value is never read.
+src/services/ocrService.ts(229,13): error TS2375: Type '{ status: "completed" | "requires_review"; processedAt: string; processingTime: number; rawText: string; fields: ExtractedField[]; tables: ExtractedTable[]; documentType: "unknown" | ... 4 more ... | undefined; structuredData: W9Data | ... 2 more ... | undefined; overallConfidence: number; pageCount: number; }' is not assignable to type 'OCRResult' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'documentType' are incompatible.
+    Type '"unknown" | "contract" | "w9" | "license" | "certificate" | undefined' is not assignable to type '"unknown" | "contract" | "w9" | "license" | "certificate"'.
+      Type 'undefined' is not assignable to type '"unknown" | "contract" | "w9" | "license" | "certificate"'.
+src/services/ocrService.ts(318,38): error TS2532: Object is possibly 'undefined'.
+src/services/ocrService.ts(322,12): error TS2532: Object is possibly 'undefined'.
+src/services/ocrService.ts(471,5): error TS6133: 'documentBuffer' is declared but its value is never read.
+src/services/ocrService.ts(632,23): error TS2379: Argument of type '{ key: string; value: string; confidence: number; boundingBox: { left: number; top: number; width: number; height: number; } | undefined; pageNumber: number | undefined; }' is not assignable to parameter of type 'ExtractedField' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'boundingBox' are incompatible.
+    Type '{ left: number; top: number; width: number; height: number; } | undefined' is not assignable to type 'BoundingBox'.
+      Type 'undefined' is not assignable to type 'BoundingBox'.
+src/services/ocrService.ts(679,25): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(782,5): error TS6133: 'tables' is declared but its value is never read.
+src/services/ocrService.ts(800,53): error TS6133: 'rawText' is declared but its value is never read.
+src/services/ocrService.ts(805,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(810,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(815,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(826,7): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(827,7): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(828,7): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(832,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(842,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(847,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(857,58): error TS6133: 'rawText' is declared but its value is never read.
+src/services/ocrService.ts(867,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(872,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(876,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(880,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(884,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(892,9): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(893,9): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(901,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(906,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(911,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(912,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(913,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(916,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(920,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(925,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(930,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(940,62): error TS6133: 'rawText' is declared but its value is never read.
+src/services/ocrService.ts(944,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(948,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(952,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(956,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(960,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(964,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(968,5): error TS2412: Type 'string | undefined' is not assignable to type 'string' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(1006,7): error TS2375: Type '{ city: string; state: string; zip: string | undefined; }' is not assignable to type '{ city?: string; state?: string; zip?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'zip' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/ocrService.ts(1007,15): error TS2532: Object is possibly 'undefined'.
+src/services/ocrService.ts(1008,16): error TS2532: Object is possibly 'undefined'.
+src/services/ocrService.ts(1066,5): error TS2375: Type '{ id: string; userId: string; businessId: string | undefined; category: Document["category"]; filename: string; originalFilename: string; fileSize: number; fileType: Document["fileType"]; ... 11 more ...; deletedAt: Date | undefined; }' is not assignable to type 'Document' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'businessId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/professionalService.ts(3,20): error TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+src/services/professionalService.ts(4,25): error TS2307: Cannot find module 'pdfkit' or its corresponding type declarations.
+src/services/professionalService.ts(122,39): error TS4111: Property 'PLATFORM_URL' comes from an index signature, so it must be accessed with ['PLATFORM_URL'].
+src/services/professionalService.ts(155,38): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/professionalService.ts(187,38): error TS2345: Argument of type 'QueryResultRow | undefined' is not assignable to parameter of type 'Record<string, unknown>'.
+  Type 'undefined' is not assignable to type 'Record<string, unknown>'.
+src/services/professionalService.ts(259,36): error TS2532: Object is possibly 'undefined'.
+src/services/professionalService.ts(259,51): error TS4111: Property 'user_id' comes from an index signature, so it must be accessed with ['user_id'].
+src/services/professionalService.ts(277,37): error TS18048: 'professional' is possibly 'undefined'.
+src/services/professionalService.ts(277,50): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/professionalService.ts(278,20): error TS18048: 'professional' is possibly 'undefined'.
+src/services/professionalService.ts(278,33): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/professionalService.ts(279,9): error TS18048: 'professional' is possibly 'undefined'.
+src/services/professionalService.ts(279,22): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/professionalService.ts(295,27): error TS2532: Object is possibly 'undefined'.
+src/services/professionalService.ts(351,24): error TS2532: Object is possibly 'undefined'.
+src/services/professionalService.ts(351,43): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/professionalService.ts(398,37): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(398,42): error TS4111: Property 'address' comes from an index signature, so it must be accessed with ['address'].
+src/services/professionalService.ts(399,20): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(399,25): error TS4111: Property 'address' comes from an index signature, so it must be accessed with ['address'].
+src/services/professionalService.ts(400,9): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(400,14): error TS4111: Property 'address' comes from an index signature, so it must be accessed with ['address'].
+src/services/professionalService.ts(414,23): error TS7006: Parameter 'chunk' implicitly has an 'any' type.
+src/services/professionalService.ts(439,38): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(439,43): error TS4111: Property 'certificate_number' comes from an index signature, so it must be accessed with ['certificate_number'].
+src/services/professionalService.ts(451,18): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(451,23): error TS4111: Property 'first_name' comes from an index signature, so it must be accessed with ['first_name'].
+src/services/professionalService.ts(451,37): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(451,42): error TS4111: Property 'last_name' comes from an index signature, so it must be accessed with ['last_name'].
+src/services/professionalService.ts(484,32): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(484,37): error TS4111: Property 'hubzone_type' comes from an index signature, so it must be accessed with ['hubzone_type'].
+src/services/professionalService.ts(495,41): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(495,46): error TS4111: Property 'verification_date' comes from an index signature, so it must be accessed with ['verification_date'].
+src/services/professionalService.ts(501,39): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(501,44): error TS4111: Property 'expiration_date' comes from an index signature, so it must be accessed with ['expiration_date'].
+src/services/professionalService.ts(512,11): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(512,16): error TS4111: Property 'qr_code_data' comes from an index signature, so it must be accessed with ['qr_code_data'].
+src/services/professionalService.ts(513,42): error TS18048: 'data' is possibly 'undefined'.
+src/services/professionalService.ts(513,47): error TS4111: Property 'qr_code_data' comes from an index signature, so it must be accessed with ['qr_code_data'].
+src/services/professionalService.ts(622,28): error TS2532: Object is possibly 'undefined'.
+src/services/professionalService.ts(622,48): error TS4111: Property 'count' comes from an index signature, so it must be accessed with ['count'].
+src/services/professionalService.ts(675,36): error TS4111: Property 'expiration_date' comes from an index signature, so it must be accessed with ['expiration_date'].
+src/services/professionalService.ts(678,18): error TS4111: Property 'is_valid' comes from an index signature, so it must be accessed with ['is_valid'].
+src/services/professionalService.ts(680,17): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/professionalService.ts(681,29): error TS4111: Property 'professional_id' comes from an index signature, so it must be accessed with ['professional_id'].
+src/services/professionalService.ts(682,32): error TS4111: Property 'certificate_number' comes from an index signature, so it must be accessed with ['certificate_number'].
+src/services/professionalService.ts(683,31): error TS4111: Property 'verification_date' comes from an index signature, so it must be accessed with ['verification_date'].
+src/services/professionalService.ts(684,29): error TS4111: Property 'expiration_date' comes from an index signature, so it must be accessed with ['expiration_date'].
+src/services/professionalService.ts(685,29): error TS4111: Property 'address' comes from an index signature, so it must be accessed with ['address'].
+src/services/professionalService.ts(685,67): error TS4111: Property 'address' comes from an index signature, so it must be accessed with ['address'].
+src/services/professionalService.ts(685,82): error TS4111: Property 'address' comes from an index signature, so it must be accessed with ['address'].
+src/services/professionalService.ts(686,26): error TS4111: Property 'hubzone_type' comes from an index signature, so it must be accessed with ['hubzone_type'].
+src/services/professionalService.ts(687,25): error TS4111: Property 'qr_code_data' comes from an index signature, so it must be accessed with ['qr_code_data'].
+src/services/professionalService.ts(688,22): error TS4111: Property 'is_valid' comes from an index signature, so it must be accessed with ['is_valid'].
+src/services/professionalService.ts(691,24): error TS4111: Property 'first_name' comes from an index signature, so it must be accessed with ['first_name'].
+src/services/professionalService.ts(692,23): error TS4111: Property 'last_name' comes from an index signature, so it must be accessed with ['last_name'].
+src/services/professionalService.ts(720,39): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/professionalService.ts(721,24): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/professionalService.ts(722,13): error TS4111: Property 'current_address' comes from an index signature, so it must be accessed with ['current_address'].
+src/services/professionalService.ts(724,31): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/professionalService.ts(725,24): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/professionalService.ts(726,13): error TS4111: Property 'skills' comes from an index signature, so it must be accessed with ['skills'].
+src/services/professionalService.ts(728,39): error TS4111: Property 'certifications' comes from an index signature, so it must be accessed with ['certifications'].
+src/services/professionalService.ts(729,24): error TS4111: Property 'certifications' comes from an index signature, so it must be accessed with ['certifications'].
+src/services/professionalService.ts(730,13): error TS4111: Property 'certifications' comes from an index signature, so it must be accessed with ['certifications'].
+src/services/professionalService.ts(733,13): error TS4111: Property 'cert_id' comes from an index signature, so it must be accessed with ['cert_id'].
+src/services/professionalService.ts(734,38): error TS4111: Property 'cert_address' comes from an index signature, so it must be accessed with ['cert_address'].
+src/services/professionalService.ts(735,26): error TS4111: Property 'cert_address' comes from an index signature, so it must be accessed with ['cert_address'].
+src/services/professionalService.ts(736,15): error TS4111: Property 'cert_address' comes from an index signature, so it must be accessed with ['cert_address'].
+src/services/professionalService.ts(738,7): error TS2375: Type '{ id: string; professionalId: string; certificateNumber: string; verificationDate: string; expirationDate: string; address: any; hubzoneType: string; qrCodeData: string; isValid: boolean; pdfUrl: string | undefined; }' is not assignable to type 'VerificationCertificate' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'pdfUrl' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/professionalService.ts(739,17): error TS4111: Property 'cert_id' comes from an index signature, so it must be accessed with ['cert_id'].
+src/services/professionalService.ts(740,29): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/professionalService.ts(741,32): error TS4111: Property 'certificate_number' comes from an index signature, so it must be accessed with ['certificate_number'].
+src/services/professionalService.ts(742,31): error TS4111: Property 'cert_verification_date' comes from an index signature, so it must be accessed with ['cert_verification_date'].
+src/services/professionalService.ts(743,29): error TS4111: Property 'cert_expiration_date' comes from an index signature, so it must be accessed with ['cert_expiration_date'].
+src/services/professionalService.ts(745,26): error TS4111: Property 'cert_hubzone_type' comes from an index signature, so it must be accessed with ['cert_hubzone_type'].
+src/services/professionalService.ts(746,25): error TS4111: Property 'qr_code_data' comes from an index signature, so it must be accessed with ['qr_code_data'].
+src/services/professionalService.ts(747,22): error TS4111: Property 'cert_is_valid' comes from an index signature, so it must be accessed with ['cert_is_valid'].
+src/services/professionalService.ts(748,21): error TS4111: Property 'cert_pdf_url' comes from an index signature, so it must be accessed with ['cert_pdf_url'].
+src/services/professionalService.ts(752,5): error TS2375: Type '{ id: string; userId: string; firstName: string; lastName: string; email: string; phone: string | undefined; currentAddress: any; verificationStatus: Professional["verificationStatus"]; ... 13 more ...; updatedAt: string; }' is not assignable to type 'Professional' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phone' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/professionalService.ts(753,15): error TS4111: Property 'id' comes from an index signature, so it must be accessed with ['id'].
+src/services/professionalService.ts(754,19): error TS4111: Property 'user_id' comes from an index signature, so it must be accessed with ['user_id'].
+src/services/professionalService.ts(755,22): error TS4111: Property 'first_name' comes from an index signature, so it must be accessed with ['first_name'].
+src/services/professionalService.ts(756,21): error TS4111: Property 'last_name' comes from an index signature, so it must be accessed with ['last_name'].
+src/services/professionalService.ts(757,18): error TS4111: Property 'email' comes from an index signature, so it must be accessed with ['email'].
+src/services/professionalService.ts(758,18): error TS4111: Property 'phone' comes from an index signature, so it must be accessed with ['phone'].
+src/services/professionalService.ts(760,31): error TS4111: Property 'verification_status' comes from an index signature, so it must be accessed with ['verification_status'].
+src/services/professionalService.ts(761,24): error TS4111: Property 'hubzone_type' comes from an index signature, so it must be accessed with ['hubzone_type'].
+src/services/professionalService.ts(762,27): error TS4111: Property 'last_verified_at' comes from an index signature, so it must be accessed with ['last_verified_at'].
+src/services/professionalService.ts(763,32): error TS4111: Property 'next_verification_due' comes from an index signature, so it must be accessed with ['next_verification_due'].
+src/services/professionalService.ts(764,21): error TS4111: Property 'headline' comes from an index signature, so it must be accessed with ['headline'].
+src/services/professionalService.ts(765,20): error TS4111: Property 'summary' comes from an index signature, so it must be accessed with ['summary'].
+src/services/professionalService.ts(766,24): error TS4111: Property 'linkedin_url' comes from an index signature, so it must be accessed with ['linkedin_url'].
+src/services/professionalService.ts(767,22): error TS4111: Property 'resume_url' comes from an index signature, so it must be accessed with ['resume_url'].
+src/services/professionalService.ts(771,21): error TS4111: Property 'is_public' comes from an index signature, so it must be accessed with ['is_public'].
+src/services/professionalService.ts(772,29): error TS4111: Property 'profile_view_count' comes from an index signature, so it must be accessed with ['profile_view_count'].
+src/services/professionalService.ts(773,22): error TS4111: Property 'created_at' comes from an index signature, so it must be accessed with ['created_at'].
+src/services/professionalService.ts(774,22): error TS4111: Property 'updated_at' comes from an index signature, so it must be accessed with ['updated_at'].
+src/types/document.ts(253,29): error TS2532: Object is possibly 'undefined'.
+src/types/index.ts(9,1): error TS2308: Module './compliance.js' has already exported a member named 'ChartDataPoint'. Consider explicitly re-exporting to resolve the ambiguity.

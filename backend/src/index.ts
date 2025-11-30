@@ -11,7 +11,7 @@
  */
 
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
 
 // Security middleware
@@ -53,18 +53,10 @@ import ocrRoutes from './routes/ocr.js';
 // Performance monitoring
 import { performanceMonitor } from './middleware/performanceMonitor.js';
 import metricsRoutes from './routes/metrics.js';
-
-// Services
+import { validateEnvironment } from './config/index.js';
+import { schedulerService } from './services/schedulerService.js';
 import { mapUpdateJobManager } from './jobs/mapUpdateJob.js';
 import { documentProcessingJobManager } from './jobs/documentProcessingJob.js';
-import { schedulerService } from './services/schedulerService.js';
-import { validateEnvironment } from './config/secrets.js';
-import { monitoringService } from './services/monitoringService.js';
-
-import type { Application, Request, Response, NextFunction } from 'express';
-
-// Load environment variables
-dotenv.config();
 
 const app: Application = express();
 const PORT = process.env['APP_PORT'] ?? 3001;
@@ -213,16 +205,16 @@ async function startServer(): Promise<void> {
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
   console.info('SIGTERM received, shutting down gracefully...');
-  
+
   // Stop scheduled jobs
   schedulerService.stop();
   mapUpdateJobManager.stop();
   documentProcessingJobManager.stop();
-  
+
   // Close database connections
   const { db } = await import('./services/database.js');
   await db.close();
-  
+
   process.exit(0);
 });
 

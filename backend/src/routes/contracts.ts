@@ -13,23 +13,23 @@ const router = Router();
 router.get('/', async (req: Request, res: Response) => {
   try {
     const filters: ContractFilters = {
-      agencyId: req.query.agencyId as string | undefined,
-      fiscalYear: req.query.fiscalYear ? parseInt(req.query.fiscalYear as string, 10) : undefined,
-      fiscalQuarter: req.query.fiscalQuarter ? parseInt(req.query.fiscalQuarter as string, 10) : undefined,
-      status: req.query.status as ContractFilters['status'],
-      contractType: req.query.contractType as ContractFilters['contractType'],
-      isHubzoneContractor: req.query.isHubzoneContractor === 'true' ? true : 
-                           req.query.isHubzoneContractor === 'false' ? false : undefined,
-      contractorUei: req.query.contractorUei as string | undefined,
-      startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
-      endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
-      minValue: req.query.minValue ? parseFloat(req.query.minValue as string) : undefined,
-      maxValue: req.query.maxValue ? parseFloat(req.query.maxValue as string) : undefined,
-      search: req.query.search as string | undefined,
-      page: req.query.page ? parseInt(req.query.page as string, 10) : undefined,
-      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : undefined,
-      sortBy: req.query.sortBy as ContractFilters['sortBy'],
-      sortOrder: req.query.sortOrder as ContractFilters['sortOrder'],
+      agencyId: req.query['agencyId'] as string | undefined,
+      fiscalYear: req.query['fiscalYear'] ? parseInt(req.query['fiscalYear'] as string, 10) : undefined,
+      fiscalQuarter: req.query['fiscalQuarter'] ? parseInt(req.query['fiscalQuarter'] as string, 10) : undefined,
+      status: req.query['status'] as ContractFilters['status'],
+      contractType: req.query['contractType'] as ContractFilters['contractType'],
+      isHubzoneContractor: req.query['isHubzoneContractor'] === 'true' ? true :
+        req.query['isHubzoneContractor'] === 'false' ? false : undefined,
+      contractorUei: req.query['contractorUei'] as string | undefined,
+      startDate: req.query['startDate'] ? new Date(req.query['startDate'] as string) : undefined,
+      endDate: req.query['endDate'] ? new Date(req.query['endDate'] as string) : undefined,
+      minValue: req.query['minValue'] ? parseFloat(req.query['minValue'] as string) : undefined,
+      maxValue: req.query['maxValue'] ? parseFloat(req.query['maxValue'] as string) : undefined,
+      search: req.query['search'] as string | undefined,
+      page: req.query['page'] ? parseInt(req.query['page'] as string, 10) : undefined,
+      limit: req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : undefined,
+      sortBy: req.query['sortBy'] as ContractFilters['sortBy'],
+      sortOrder: req.query['sortOrder'] as ContractFilters['sortOrder'],
     };
 
     const { contracts, total } = await contractService.getAgencyContracts(filters);
@@ -204,7 +204,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
  */
 router.get('/goals/:fiscalYear', async (req: Request, res: Response) => {
   try {
-    const agencyId = req.headers['x-agency-id'] as string || req.query.agencyId as string;
+    const agencyId = req.headers['x-agency-id'] as string || req.query['agencyId'] as string;
     const fiscalYear = parseInt(req.params.fiscalYear, 10);
 
     if (!agencyId) {
@@ -274,7 +274,7 @@ router.post('/goals/:fiscalYear', async (req: Request, res: Response) => {
  */
 router.get('/progress/:fiscalYear', async (req: Request, res: Response) => {
   try {
-    const agencyId = req.headers['x-agency-id'] as string || req.query.agencyId as string;
+    const agencyId = req.headers['x-agency-id'] as string || req.query['agencyId'] as string;
     const fiscalYear = parseInt(req.params.fiscalYear, 10);
 
     if (!agencyId) {
@@ -305,7 +305,7 @@ router.get('/progress/:fiscalYear', async (req: Request, res: Response) => {
  */
 router.get('/summary/:fiscalYear', async (req: Request, res: Response) => {
   try {
-    const agencyId = req.headers['x-agency-id'] as string || req.query.agencyId as string;
+    const agencyId = req.headers['x-agency-id'] as string || req.query['agencyId'] as string;
     const fiscalYear = parseInt(req.params.fiscalYear, 10);
 
     if (!agencyId) {
@@ -336,9 +336,9 @@ router.get('/summary/:fiscalYear', async (req: Request, res: Response) => {
  */
 router.get('/top-contractors/:fiscalYear', async (req: Request, res: Response) => {
   try {
-    const agencyId = req.headers['x-agency-id'] as string || req.query.agencyId as string;
+    const agencyId = req.headers['x-agency-id'] as string || req.query['agencyId'] as string;
     const fiscalYear = parseInt(req.params.fiscalYear, 10);
-    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
+    const limit = req.query['limit'] ? parseInt(req.query['limit'] as string, 10) : 10;
 
     if (!agencyId) {
       return res.status(400).json({
@@ -368,7 +368,7 @@ router.get('/top-contractors/:fiscalYear', async (req: Request, res: Response) =
  */
 router.get('/report/:fiscalYear', async (req: Request, res: Response) => {
   try {
-    const agencyId = req.headers['x-agency-id'] as string || req.query.agencyId as string;
+    const agencyId = req.headers['x-agency-id'] as string || req.query['agencyId'] as string;
     const fiscalYear = parseInt(req.params.fiscalYear, 10);
 
     if (!agencyId) {
@@ -420,7 +420,7 @@ router.get('/validate/:contractNumber', async (req: Request, res: Response) => {
  */
 router.get('/export/fpds/:fiscalYear', async (req: Request, res: Response) => {
   try {
-    const agencyId = req.headers['x-agency-id'] as string || req.query.agencyId as string;
+    const agencyId = req.headers['x-agency-id'] as string || req.query['agencyId'] as string;
     const fiscalYear = parseInt(req.params.fiscalYear, 10);
 
     if (!agencyId) {

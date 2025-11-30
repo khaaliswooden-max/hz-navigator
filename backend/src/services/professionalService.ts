@@ -274,8 +274,8 @@ export class ProfessionalService {
     }
 
     const professional = professionalResult.rows[0];
-    const address: Address = typeof professional.current_address === 'string' 
-      ? JSON.parse(professional.current_address) 
+    const address: Address = typeof professional.current_address === 'string'
+      ? JSON.parse(professional.current_address)
       : professional.current_address;
 
     // Geocode the address to get coordinates
@@ -395,8 +395,8 @@ export class ProfessionalService {
     }
 
     const data = result.rows[0];
-    const address: Address = typeof data.address === 'string' 
-      ? JSON.parse(data.address) 
+    const address: Address = typeof data.address === 'string'
+      ? JSON.parse(data.address)
       : data.address;
 
     return new Promise((resolve, reject) => {
@@ -481,9 +481,9 @@ export class ProfessionalService {
       doc.fillColor('#065F46')
         .fontSize(12)
         .font('Helvetica-Bold')
-        .text(`HUBZone Type: ${data.hubzone_type}`, 180, badgeY + 10, { 
-          width: 252, 
-          align: 'center' 
+        .text(`HUBZone Type: ${data.hubzone_type}`, 180, badgeY + 10, {
+          width: 252,
+          align: 'center'
         });
 
       // Dates
@@ -536,16 +536,16 @@ export class ProfessionalService {
       doc.text(
         'To verify this certificate, visit hz-navigator.sba.gov/verify or scan the QR code above.',
         50,
-          footerY + 40,
+        footerY + 40,
         { align: 'center', width: 512 }
       );
 
       doc.fontSize(9)
         .fillColor('#9CA3AF')
         .text(
-          `Generated on ${new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
+          `Generated on ${new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
@@ -605,8 +605,8 @@ export class ProfessionalService {
       params.push(filters.skills);
     }
 
-    const whereClause = whereConditions.length > 0 
-      ? `WHERE ${whereConditions.join(' AND ')}` 
+    const whereClause = whereConditions.length > 0
+      ? `WHERE ${whereConditions.join(' AND ')}`
       : '';
 
     let orderBy = 'p.updated_at DESC';
@@ -663,12 +663,15 @@ export class ProfessionalService {
     `;
 
     const result = await db.query(query, [certificateNumber]);
-    
+
     if (result.rows.length === 0) {
       return { valid: false };
     }
 
     const row = result.rows[0];
+    if (!row) {
+      return { valid: false };
+    }
     const isExpired = new Date(row.expiration_date) < new Date();
 
     return {
@@ -685,8 +688,8 @@ export class ProfessionalService {
         isValid: row.is_valid && !isExpired,
       },
       professional: {
-        firstName: row.first_name,
-        lastName: row.last_name,
+        firstName: row.first_name as string,
+        lastName: row.last_name as string,
       },
     };
   }
@@ -697,12 +700,12 @@ export class ProfessionalService {
     // In production, use a real geocoding service (Google Maps, Census Bureau, etc.)
     // For now, return mock coordinates based on ZIP code prefix
     const zipPrefix = address.zipCode.substring(0, 3);
-    
+
     // Mock coordinates for DC area (20xxx ZIP codes)
     if (zipPrefix.startsWith('20')) {
       return { latitude: 38.9072, longitude: -77.0369 };
     }
-    
+
     // Default coordinates (center of US)
     return { latitude: 39.8283, longitude: -98.5795 };
   }

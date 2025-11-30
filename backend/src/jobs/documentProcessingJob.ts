@@ -10,8 +10,8 @@ import type { OCRResult } from '../services/ocrService.js';
  */
 const JOB_CONFIG = {
   // Run every minute in development, every 5 minutes in production
-  cronPattern: process.env['NODE_ENV'] === 'production' 
-    ? '*/5 * * * *' 
+  cronPattern: process.env['NODE_ENV'] === 'production'
+    ? '*/5 * * * *'
     : '*/1 * * * *',
   batchSize: 5, // Process 5 documents per run
   retryAttempts: 3,
@@ -253,8 +253,21 @@ export class DocumentProcessingJobManager {
       };
 
       // Use notification service if available
-      if (notificationService && typeof notificationService.sendNotification === 'function') {
-        await notificationService.sendNotification(notificationData);
+      if (notificationService) {
+        await notificationService.createNotification({
+          userId: item.userId,
+          type: 'document_update', // 'document_processed' is not in NotificationType union, using 'document_update'
+          category: 'system',
+          priority: 'medium',
+          title: this.getNotificationTitle(result),
+          message: this.getNotificationMessage(result),
+          metadata: {
+            documentId: item.documentId,
+            status: result.status,
+            confidence: result.overallConfidence,
+            documentType: result.documentType,
+          },
+        });
       } else {
         console.info('[DocumentProcessingJob] Notification:', notificationData);
       }
@@ -314,13 +327,13 @@ export class DocumentProcessingJobManager {
     switch (result.status) {
       case 'completed':
         return `Your ${docType} has been processed with ${result.overallConfidence}% confidence. ` +
-               `Data has been extracted and is ready for use.`;
+          `Data has been extracted and is ready for use.`;
       case 'requires_review':
         return `Your ${docType} has been processed but requires manual review. ` +
-               `Please verify the extracted information.`;
+          `Please verify the extracted information.`;
       case 'failed':
         return `We couldn't process your ${docType}. ` +
-               `Please ensure the document is clear and try uploading again.`;
+          `Please ensure the document is clear and try uploading again.`;
       default:
         return `Your ${docType} is being processed.`;
     }

@@ -18,6 +18,7 @@ import { mapService } from '../services/mapService.js';
 
 import type { Request, Response, NextFunction } from 'express';
 import type { HubzoneType, HubzoneStatus } from '../types/hubzone.js';
+import type { ExportInput } from '../types/map.js';
 
 const router = Router();
 
@@ -305,13 +306,16 @@ router.post(
       const { state, county, format, zone_types, status_filter } = parseResult.data;
 
       // Export data
-      const result = await mapService.exportData({
+
+      const exportInput: ExportInput = {
         state,
         county,
         format,
         zoneTypes: zone_types as HubzoneType[],
         statusFilter: status_filter as HubzoneStatus[],
-      });
+      };
+
+      const result = await mapService.exportData(exportInput);
 
       // Set response headers
       res.set({
