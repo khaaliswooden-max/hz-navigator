@@ -68,7 +68,7 @@ jobs:
 
       - name: Run type check
         working-directory: frontend
-        run: npm run type-check || true
+        run: npm run typecheck || true
 
       - name: Run unit tests
         working-directory: frontend
