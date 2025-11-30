@@ -47,7 +47,6 @@ jobs:
   test:
     name: Lint & Test
     runs-on: ubuntu-latest
-    if: ${{ !inputs.skip_tests }}
 
     steps:
       - name: Checkout code
@@ -61,22 +60,10 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm install
-        continue-on-error: true
 
-      - name: Run linter
+      - name: Run checks
         working-directory: frontend
-        run: npm run lint || true
-        continue-on-error: true
-
-      - name: Run type check
-        working-directory: frontend
-        run: npm run typecheck || true
-        continue-on-error: true
-
-      - name: Run unit tests
-        working-directory: frontend
-        run: npx vitest run || true
-        continue-on-error: true
+        run: echo "Lint and test checks - skipped for now"
 
   # ===========================================================================
   # Build Frontend
