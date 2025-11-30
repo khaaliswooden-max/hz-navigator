@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * HUBZone Map Loader CLI
  *
@@ -170,9 +171,9 @@ function createProgressCallback(verbose: boolean): (progress: DownloadProgress) 
 
     process.stdout.write(
       `\r${progressBar} | ${progress.statesCompleted}/${progress.totalStates} states` +
-        (progress.bytesDownloaded > 0
-          ? ` | ${formatBytes(progress.bytesDownloaded)}`
-          : '')
+      (progress.bytesDownloaded > 0
+        ? ` | ${formatBytes(progress.bytesDownloaded)}`
+        : '')
     );
   };
 }

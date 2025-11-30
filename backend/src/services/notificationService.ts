@@ -111,7 +111,7 @@ export class NotificationService {
    */
   async createNotification(input: CreateNotificationInput): Promise<Notification> {
     const id = `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     const notification: Notification = {
       id,
       userId: input.userId,
@@ -310,7 +310,7 @@ export class NotificationService {
    */
   async markAsRead(id: string, userId: string): Promise<Notification | null> {
     const now = new Date();
-    
+
     await db.run(
       'UPDATE notifications SET read = 1, read_at = ? WHERE id = ? AND user_id = ?',
       [now.toISOString(), id, userId]
@@ -512,7 +512,7 @@ export class NotificationService {
    */
   private async sendEmailNotification(notification: Notification): Promise<void> {
     // TODO: Integrate with email service (SendGrid, SES, etc.)
-    console.log(`[Email] Would send notification to user ${notification.userId}:`, notification.title);
+    console.info(`[Email] Would send notification to user ${notification.userId}:`, notification.title);
   }
 
   /**
@@ -520,7 +520,7 @@ export class NotificationService {
    */
   private async sendPushNotification(notification: Notification): Promise<void> {
     // TODO: Integrate with push service (FCM, OneSignal, etc.)
-    console.log(`[Push] Would send notification to user ${notification.userId}:`, notification.title);
+    console.info(`[Push] Would send notification to user ${notification.userId}:`, notification.title);
   }
 
   /**
@@ -528,7 +528,7 @@ export class NotificationService {
    */
   private async sendSmsNotification(notification: Notification): Promise<void> {
     // TODO: Integrate with SMS service (Twilio, etc.)
-    console.log(`[SMS] Would send notification to user ${notification.userId}:`, notification.title);
+    console.info(`[SMS] Would send notification to user ${notification.userId}:`, notification.title);
   }
 
   /**

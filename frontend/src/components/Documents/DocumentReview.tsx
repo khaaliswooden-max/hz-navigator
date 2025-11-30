@@ -130,7 +130,7 @@ export function DocumentReview({
         maxAttempts: 60,
         intervalMs: 2000,
         onProgress: (attempt, status) => {
-          console.log(`OCR Progress: Attempt ${attempt}, Status: ${status}`);
+          // Progress callback
         },
       });
 
@@ -187,7 +187,7 @@ export function DocumentReview({
       if (Object.keys(editedData).length > 0) {
         await updateExtractedData(document.id, editedData);
       }
-      
+
       await approveExtraction(document.id);
       onComplete?.(true, editedData);
     } catch (err) {
@@ -223,7 +223,7 @@ export function DocumentReview({
   const handleAutoPopulate = async () => {
     try {
       const suggestion = await getAutoPopulateSuggestion(document.id);
-      
+
       if (suggestion.canPopulate !== 'none') {
         onAutoPopulate?.(suggestion.canPopulate, suggestion.fields);
       }
@@ -536,7 +536,7 @@ function StatusBadge({ status }: { status: OCRStatus }) {
  */
 function ConfidenceBadge({ confidence }: { confidence: number }) {
   const level = getConfidenceLevel(confidence);
-  
+
   return (
     <div className={clsx(
       'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium',
@@ -574,11 +574,11 @@ function StructuredDataEditor({
   onChange: (key: string, value: string) => void;
 }) {
   // Get appropriate labels based on document type
-  const labels = documentType === 'w9' 
-    ? W9_FIELD_LABELS 
+  const labels = documentType === 'w9'
+    ? W9_FIELD_LABELS
     : documentType === 'license'
-    ? LICENSE_FIELD_LABELS
-    : {};
+      ? LICENSE_FIELD_LABELS
+      : {};
 
   // Create field confidence map
   const confidenceMap = new Map<string, number>();
@@ -596,17 +596,17 @@ function StructuredDataEditor({
   // Render fields in groups
   const fieldGroups = documentType === 'w9'
     ? [
-        { title: 'Business Information', keys: ['businessName', 'businessType', 'ein'] },
-        { title: 'Address', keys: ['address', 'city', 'state', 'zipCode'] },
-        { title: 'Tax Information', keys: ['exemptPayeeCode', 'fatcaExemptionCode', 'accountNumbers'] },
-      ]
+      { title: 'Business Information', keys: ['businessName', 'businessType', 'ein'] },
+      { title: 'Address', keys: ['address', 'city', 'state', 'zipCode'] },
+      { title: 'Tax Information', keys: ['exemptPayeeCode', 'fatcaExemptionCode', 'accountNumbers'] },
+    ]
     : documentType === 'license'
-    ? [
+      ? [
         { title: 'Personal Information', keys: ['firstName', 'lastName', 'middleName', 'dateOfBirth'] },
         { title: 'Document Details', keys: ['idNumber', 'issueDate', 'expirationDate', 'licenseClass'] },
         { title: 'Address', keys: ['address', 'city', 'state', 'zipCode'] },
       ]
-    : [{ title: 'Extracted Fields', keys: Object.keys(data) }];
+      : [{ title: 'Extracted Fields', keys: Object.keys(data) }];
 
   return (
     <div className="space-y-6">

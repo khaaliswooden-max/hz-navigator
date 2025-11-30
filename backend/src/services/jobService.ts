@@ -952,7 +952,7 @@ export class JobService {
   private calculateDistanceMiles(addr1: Address, addr2: Address): number {
     // Simplified distance calculation based on same city/state
     if (addr1.city?.toLowerCase() === addr2.city?.toLowerCase() &&
-        addr1.state?.toLowerCase() === addr2.state?.toLowerCase()) {
+      addr1.state?.toLowerCase() === addr2.state?.toLowerCase()) {
       return 5; // Same city
     }
 
@@ -1057,7 +1057,7 @@ export class JobService {
 
   private async notifyNewApplication(jobId: string, professionalId: string): Promise<void> {
     // Would integrate with notification service
-    console.log(`New application for job ${jobId} from professional ${professionalId}`);
+    console.info(`New application for job ${jobId} from professional ${professionalId}`);
   }
 
   private async notifyStatusChange(
@@ -1066,7 +1066,7 @@ export class JobService {
     status: ApplicationStatus
   ): Promise<void> {
     // Would integrate with notification service
-    console.log(`Application status changed to ${status} for professional ${professionalId} on job ${jobId}`);
+    console.info(`Application status changed to ${status} for professional ${professionalId} on job ${jobId}`);
   }
 
   // ============ HELPER METHODS ============
