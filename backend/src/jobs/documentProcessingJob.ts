@@ -292,8 +292,19 @@ export class DocumentProcessingJobManager {
         },
       };
 
-      if (notificationService && typeof notificationService.sendNotification === 'function') {
-        await notificationService.sendNotification(notificationData);
+      if (notificationService) {
+        await notificationService.createNotification({
+          userId: item.userId,
+          type: 'document_update',
+          category: 'system',
+          priority: 'high',
+          title: 'Document Processing Failed',
+          message: `We couldn't process your document. Please try uploading again or contact support.`,
+          metadata: {
+            documentId: item.documentId,
+            error,
+          },
+        });
       } else {
         console.info('[DocumentProcessingJob] Failure notification:', notificationData);
       }
@@ -493,7 +504,7 @@ export class AutoPopulateService {
           documentType: ocrResult.documentType ?? 'unknown',
           canPopulate: 'none',
           confidence: ocrResult.overallConfidence,
-          fields: ocrResult.structuredData ?? {},
+          fields: (ocrResult.structuredData as Record<string, unknown>) ?? {},
         };
     }
   }

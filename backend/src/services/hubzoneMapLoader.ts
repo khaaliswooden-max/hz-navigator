@@ -1353,5 +1353,5 @@ export class HUBZoneMapLoaderService {
 export const hubzoneMapLoaderService = new HUBZoneMapLoaderService();
 
 // Export class for custom configuration
-export { HUBZoneMapLoaderService };
+
 

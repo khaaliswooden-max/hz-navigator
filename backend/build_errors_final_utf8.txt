@@ -1,0 +1,30 @@
+﻿src/jobs/mapUpdateJob.ts(64,14): error TS2323: Cannot redeclare exported variable 'MapUpdateJobManager'.
+src/jobs/mapUpdateJob.ts(306,33): error TS2345: Argument of type 'JobExecution' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'JobExecution'.
+src/jobs/mapUpdateJob.ts(567,10): error TS2323: Cannot redeclare exported variable 'MapUpdateJobManager'.
+src/jobs/mapUpdateJob.ts(567,10): error TS2484: Export declaration conflicts with exported declaration of 'MapUpdateJobManager'.
+src/middleware/auth.ts(72,14): error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | JsonWebKeyInput | PrivateKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | JsonWebKeyInput | PrivateKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+src/services/agencyService.ts(547,11): error TS2322: Type 'string | Address' is not assignable to type 'string'.
+  Type 'Address' is not assignable to type 'string'.
+src/services/agencyService.ts(548,49): error TS2551: Property 'inHubzone' does not exist on type 'PrincipalOfficeStatus'. Did you mean 'isInHubzone'?
+src/services/agencyService.ts(555,46): error TS2339: Property 'isCitizenOwned' does not exist on type 'OwnershipStatus'.
+src/services/alertService.ts(323,36): error TS2345: Argument of type 'ComplianceAlert' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ComplianceAlert'.
+src/services/analyticsService.ts(636,7): error TS2322: Type '{ type: "hubzone_goal_achievement"; metrics: AgencyMetrics; monthlyProgress: { month: string; targetPercentage: number; actualPercentage: number; contractsAwarded: number; contractValue: number; }[]; quarterlyComparison: never[]; yearOverYearComparison: never[]; recommendations: string[]; } | ... 4 more ... | { ...; }' is not assignable to type 'ReportData'.
+  Type '{ type: never; }' is not assignable to type 'ReportData'.
+    Type '{ type: never; }' is missing the following properties from type 'GeographicDistributionReportData': distribution, heatmapData, insights
+src/services/complianceHistoryService.ts(90,32): error TS2345: Argument of type 'ComplianceSnapshot' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ComplianceSnapshot'.
+src/services/contractService.ts(89,32): error TS2345: Argument of type 'Contract' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Contract'.
+src/services/contractService.ts(140,32): error TS2345: Argument of type 'Contract' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'Contract'.
+src/services/contractService.ts(295,28): error TS2345: Argument of type 'FiscalYearGoal' is not assignable to parameter of type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'FiscalYearGoal'.
+src/types/index.ts(9,1): error TS2308: Module './compliance.js' has already exported a member named 'ChartDataPoint'. Consider explicitly re-exporting to resolve the ambiguity.
