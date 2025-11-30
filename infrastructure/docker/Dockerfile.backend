@@ -15,7 +15,7 @@ WORKDIR /app
 COPY backend/package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder
@@ -28,7 +28,7 @@ WORKDIR /app
 COPY backend/package*.json ./
 
 # Install all dependencies (including dev for build)
-RUN npm ci && npm cache clean --force
+RUN npm install && npm cache clean --force
 
 # Copy source code
 COPY backend/src ./src
