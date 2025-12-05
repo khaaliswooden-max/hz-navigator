@@ -291,8 +291,8 @@ export class AlertService {
       LIMIT 1
     `;
 
-    const result = await db.query<ComplianceAlert>(query, [businessId, type, severity]);
-    return result.rows[0] ?? null;
+    const result = await db.query<Record<string, unknown>>(query, [businessId, type, severity]);
+    return result.rows[0] ? this.mapAlertRow(result.rows[0]) : null;
   }
 
   /**
@@ -308,7 +308,7 @@ export class AlertService {
       RETURNING *
     `;
 
-    const result = await db.query<ComplianceAlert>(query, [
+    const result = await db.query<Record<string, unknown>>(query, [
       input.businessId,
       input.type,
       input.severity,
@@ -320,7 +320,7 @@ export class AlertService {
       input.expiresAt ?? null,
     ]);
 
-    const alert = this.mapAlertRow(result.rows[0]);
+    const alert = this.mapAlertRow(result.rows[0]!);
 
     // Trigger notifications for new alert
     await this.queueNotifications(alert);

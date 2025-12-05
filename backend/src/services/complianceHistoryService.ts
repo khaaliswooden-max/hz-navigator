@@ -69,7 +69,7 @@ export class ComplianceHistoryService {
       RETURNING *
     `;
 
-    const result = await db.query<ComplianceSnapshot>(query, [
+    const result = await db.query<Record<string, unknown>>(query, [
       businessId,
       compliance.residency.totalEmployees,
       compliance.residency.hubzoneResidents,
@@ -87,7 +87,7 @@ export class ComplianceHistoryService {
       JSON.stringify(snapshotMetadata),
     ]);
 
-    return this.mapSnapshotRow(result.rows[0]);
+    return this.mapSnapshotRow(result.rows[0]!);
   }
 
   /**

@@ -535,6 +535,15 @@ export class AgencyService {
     try {
       const compliance = await complianceMonitoringService.calculateCompliance(businessId);
       
+      // Format address as string
+      const formatAddress = (addr: { street1: string; street2?: string; city: string; state: string; zipCode: string } | null): string => {
+        if (!addr) return '';
+        const parts = [addr.street1];
+        if (addr.street2) parts.push(addr.street2);
+        parts.push(`${addr.city}, ${addr.state} ${addr.zipCode}`);
+        return parts.join(', ');
+      };
+      
       return {
         employeeResidency: {
           percentage: compliance.residency.percentage,
@@ -544,15 +553,15 @@ export class AgencyService {
         },
         principalOffice: {
           isCompliant: compliance.principalOffice.isCompliant,
-          address: compliance.principalOffice.address ?? '',
-          inHubzone: compliance.principalOffice.inHubzone,
+          address: formatAddress(compliance.principalOffice.address),
+          inHubzone: compliance.principalOffice.isInHubzone,
           isRedesignated: compliance.principalOffice.isRedesignated,
           gracePeriodDaysRemaining: compliance.principalOffice.gracePeriodDaysRemaining ?? undefined,
         },
         ownership: {
           isCompliant: compliance.ownership.isCompliant,
           percentage: compliance.ownership.ownershipPercentage,
-          citizenOwned: compliance.ownership.isCitizenOwned,
+          citizenOwned: compliance.ownership.isCompliant, // Ownership compliance implies citizen ownership requirement met
         },
         certification: {
           isValid: !compliance.certification.isExpired,

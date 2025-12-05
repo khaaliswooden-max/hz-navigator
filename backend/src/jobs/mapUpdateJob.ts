@@ -295,7 +295,7 @@ export class MapUpdateJobManager {
       RETURNING *
     `;
 
-    const result = await db.query<JobExecution>(query, [
+    const result = await db.query<Record<string, unknown>>(query, [
       MAP_UPDATE_JOB.id,
       MAP_UPDATE_JOB.name,
       triggerType,
@@ -562,7 +562,4 @@ async function executeMapUpdate(): Promise<JobResult> {
 // Export singleton instance with default admin emails from environment
 const adminEmails = process.env['ADMIN_EMAILS']?.split(',').map((e) => e.trim()) ?? [];
 export const mapUpdateJobManager = new MapUpdateJobManager(adminEmails);
-
-// Export class for custom configuration
-export { MapUpdateJobManager };
 

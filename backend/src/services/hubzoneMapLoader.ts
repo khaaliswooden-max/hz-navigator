@@ -1018,7 +1018,7 @@ export class HUBZoneMapLoaderService {
           'Review your eligibility for HUBZone certification if you are not already certified.';
         break;
 
-      case 'hubzone_redesignated':
+      case 'hubzone_redesignated': {
         const daysRemaining = gracePeriodEndDate
           ? Math.ceil((gracePeriodEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
           : 0;
@@ -1027,6 +1027,7 @@ export class HUBZoneMapLoaderService {
         severity = daysRemaining <= 180 ? 'high' : 'medium';
         actionRequired = `Plan for potential relocation before the grace period ends on ${gracePeriodEndDate?.toLocaleDateString() ?? 'unknown date'}.`;
         break;
+      }
 
       default:
         return;

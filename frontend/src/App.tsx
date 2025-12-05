@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import { MainLayout } from './components/Layout';
+import { MainLayout } from './components/Layout/index';
 import { ErrorBoundary, ToastContainer } from './components/Common';
 import { ToastProvider } from './context/ToastContext';
 import { NotificationCenter } from './components/Notifications';

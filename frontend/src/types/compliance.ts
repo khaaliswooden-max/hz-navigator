@@ -2,6 +2,8 @@
  * Compliance Types
  */
 
+export type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+
 export type ComplianceStatus = 'compliant' | 'non_compliant' | 'pending' | 'expired';
 
 export interface ComplianceCheck {

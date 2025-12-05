@@ -2,14 +2,79 @@
 export * from './business';
 export * from './employee';
 export * from './ownership';
-export * from './professional';
-export * from './job';
-export * from './agency';
+// Professional types - rename addressSchema to avoid conflict with business
+export type {
+  VerificationStatus as ProfessionalVerificationStatus,
+  SkillCategory,
+  Skill,
+  Certification as ProfessionalCertification,
+  VerificationCertificate,
+  Professional,
+  ProfessionalListItem,
+  ProfessionalFilters,
+  ResidencyVerificationRequest,
+  ResidencyVerificationResult,
+  ProfessionalFormData,
+  ApiResponse as ProfessionalApiResponse,
+  PaginatedResponse as ProfessionalPaginatedResponse,
+} from './professional';
+export {
+  AVAILABLE_SKILLS,
+  COMMON_CERTIFICATIONS,
+  addressSchema as professionalAddressSchema,
+  skillSchema,
+  certificationSchema as professionalCertificationSchema,
+  professionalFormSchema,
+} from './professional';
+// Job types - use addressSchema from business, not from job
+export type {
+  EmploymentType,
+  JobStatus,
+  ApplicationStatus,
+  SalaryRange,
+  RequiredSkill,
+  Job,
+  JobListItem,
+  JobFilters,
+  JobApplication,
+  ApplicationFormData as JobApplicationFormData,
+  MatchScoreBreakdown,
+  JobFormDataValidated as JobFormData,
+  ApplicationFormDataValidated,
+  ApiResponse as JobApiResponse,
+  PaginatedResponse as JobPaginatedResponse,
+} from './job';
+export {
+  EMPLOYMENT_TYPE_OPTIONS,
+  REMOTE_POLICY_OPTIONS,
+  APPLICATION_STATUS_STYLES,
+  salaryRangeSchema,
+  requiredSkillSchema,
+  addressSchema,
+  jobFormSchema,
+  applicationFormSchema,
+} from './job';
+// Agency types - export with care for conflicts
+export type {
+  VerificationStatus,
+  RiskLevel,
+  ContractorSearchResult,
+  ComplianceBreakdown,
+  ContractorVerification,
+  BulkVerificationItem,
+  BulkVerificationSummary,
+  BulkVerificationResult,
+  VerificationHistoryRecord,
+  VerificationReport,
+  ContractorSearchParams,
+  VerificationHistoryFilters,
+} from './agency';
 export * from './analytics';
 export * from './contract';
 export * from './notification';
 export * from './document';
 export * from './ocr';
+export * from './compliance';
 
 /**
  * HUBZone entity

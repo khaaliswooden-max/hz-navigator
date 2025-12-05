@@ -9,6 +9,7 @@ import type {
   ContractorDirectoryFilters,
   ReportConfig,
   GeneratedReport,
+  ReportData,
   AnalyticsDashboard,
   DateRange,
   StateContractorCount,
@@ -602,7 +603,7 @@ export class AnalyticsService {
     };
 
     // Generate report data based on type
-    let data;
+    let data: ReportData;
     switch (config.reportType) {
       case 'hubzone_goal_achievement':
         data = await this.generateGoalAchievementReport(config);
@@ -620,7 +621,7 @@ export class AnalyticsService {
         data = await this.generateGeographicReport(config);
         break;
       default:
-        data = { type: config.reportType };
+        throw new Error(`Unsupported report type: ${config.reportType}`);
     }
 
     return {

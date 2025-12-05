@@ -11,6 +11,10 @@
  */
 
 import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
 import express, { Application, Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
 
@@ -141,9 +145,10 @@ app.use('/api/ocr', apiRateLimiter, ocrRoutes);
 // ===== Error Handling =====
 app.use(notFoundHandler);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  // Log errors to audit log
-  const { auditService } = require('./services/auditService.js');
-  auditService.logApiError(req, err, 500).catch(console.error);
+  // Log errors to audit log (using dynamic import to avoid circular deps)
+  import('./services/auditService.js').then(({ auditService }) => {
+    auditService.logApiError(req, err, 500).catch(console.error);
+  });
   errorHandler(err as Parameters<typeof errorHandler>[0], req, res, next);
 });
 

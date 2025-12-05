@@ -255,7 +255,7 @@ const HUBZoneMap = forwardRef<HUBZoneMapRef, HUBZoneMapProps>(function HUBZoneMa
     zoom: zoom,
   });
   const [layers, setLayers] = useState<LayerConfig[]>(LAYER_CONFIGS);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [_selectedZone, setSelectedZone] = useState<HUBZoneFeatureProperties | null>(null);
   const [error, setError] = useState<string | null>(null);
 

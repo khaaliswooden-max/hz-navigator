@@ -57,12 +57,13 @@ function parseArgs(args: string[]): CLIOptions {
       case '--no-notify':
         options.noNotify = true;
         break;
-      case '--state':
+      case '--state': {
         const stateArg = args[++i];
         if (stateArg) {
           options.states = stateArg.split(',').map((s) => s.trim());
         }
         break;
+      }
       case '--cache-dir':
         options.cacheDir = args[++i] ?? null;
         break;

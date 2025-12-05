@@ -36,7 +36,7 @@ function MapExplorer() {
   const [selectedZone, setSelectedZone] = useState<HUBZoneFeatureProperties | null>(null);
   const [searchResult, setSearchResult] = useState<AddressSearchResult | null>(null);
   const [radiusResults, setRadiusResults] = useState<RadiusSearchResult[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [_isRadiusSearching, setIsRadiusSearching] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showCopiedToast, setShowCopiedToast] = useState(false);

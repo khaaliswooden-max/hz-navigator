@@ -42,7 +42,8 @@ export function DebouncedInput({
   const [value, setValue] = useState(props.defaultValue?.toString() || '');
   const [isTyping, setIsTyping] = useState(false);
   const debouncedValue = useDebounce(value, delay);
-  const inputId = id || useRef(`input-${Math.random().toString(36).slice(2)}`).current;
+  const generatedId = useRef(`input-${Math.random().toString(36).slice(2)}`);
+  const inputId = id || generatedId.current;
 
   // Call the debounced change handler
   useEffect(() => {

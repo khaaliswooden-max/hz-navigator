@@ -6,7 +6,36 @@ export * from './hubzoneMapLoader.js';
 export * from './map.js';
 export * from './job.js';
 export * from './agency.js';
-export * from './analytics.js';
+// Export analytics types, but rename ChartDataPoint to avoid conflict with compliance.js
+export type {
+  ReportType,
+  ExportFormat,
+  DateRange,
+  AgencyMetrics,
+  ContractorStats,
+  StateContractorCount,
+  NaicsContractorCount,
+  CertificationStatusCount,
+  RiskLevelCount,
+  TopContractorStat,
+  GeographicDistribution,
+  StateDistribution,
+  RegionDistribution,
+  ConcentrationArea,
+  ContractorDirectoryEntry,
+  ContractorDirectoryFilters,
+  ReportConfig,
+  GeneratedReport,
+  ReportData,
+  GoalAchievementReportData,
+  ContractorDirectoryReportData,
+  VerificationHistoryReportData,
+  ContractAwardsReportData,
+  GeographicDistributionReportData,
+  ChartDataPoint as AnalyticsChartDataPoint,
+  TimeSeriesData,
+  AnalyticsDashboard,
+} from './analytics.js';
 export * from './contract.js';
 export * from './document.js';
 

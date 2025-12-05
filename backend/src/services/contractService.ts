@@ -57,7 +57,7 @@ export class ContractService {
       RETURNING *
     `;
     
-    const result = await db.query<Contract>(query, [
+    const result = await db.query<Record<string, unknown>>(query, [
       id,
       agencyId,
       data.contractNumber,
@@ -134,10 +134,10 @@ export class ContractService {
       RETURNING *
     `;
     
-    const result = await db.query<Contract>(query, values);
+    const result = await db.query<Record<string, unknown>>(query, values);
     
     if (result.rows.length === 0) return null;
-    return this.mapContractRow(result.rows[0]);
+    return this.mapContractRow(result.rows[0]!);
   }
 
   /**
@@ -282,7 +282,7 @@ export class ContractService {
       RETURNING *
     `;
     
-    const result = await db.query<FiscalYearGoal>(query, [
+    const result = await db.query<Record<string, unknown>>(query, [
       uuidv4(),
       agencyId,
       fiscalYear,
@@ -292,7 +292,7 @@ export class ContractService {
       notes,
     ]);
     
-    return this.mapGoalRow(result.rows[0]);
+    return this.mapGoalRow(result.rows[0]!);
   }
 
   /**

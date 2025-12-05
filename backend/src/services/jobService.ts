@@ -327,7 +327,7 @@ export class JobService {
     const limit = filters.limit || 20;
     const offset = (page - 1) * limit;
 
-    let whereConditions = ["status = 'published'"];
+    const whereConditions = ["status = 'published'"];
     const params: unknown[] = [];
     let paramIndex = 1;
 
@@ -620,7 +620,7 @@ export class JobService {
     const limit = filters?.limit || 10;
     const offset = (page - 1) * limit;
 
-    let whereConditions = ['a.professional_id = $1'];
+    const whereConditions = ['a.professional_id = $1'];
     const params: unknown[] = [professionalId];
     let paramIndex = 2;
 
@@ -676,7 +676,7 @@ export class JobService {
     const limit = filters?.limit || 12;
     const offset = (page - 1) * limit;
 
-    let whereConditions = ['job_id = $1'];
+    const whereConditions = ['job_id = $1'];
     const params: unknown[] = [jobId];
     let paramIndex = 2;
 

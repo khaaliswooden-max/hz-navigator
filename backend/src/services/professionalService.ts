@@ -567,7 +567,7 @@ export class ProfessionalService {
     const limit = filters.limit || 20;
     const offset = (page - 1) * limit;
 
-    let whereConditions = ['p.is_public = true'];
+    const whereConditions = ['p.is_public = true'];
     const params: unknown[] = [];
     let paramIndex = 1;
 

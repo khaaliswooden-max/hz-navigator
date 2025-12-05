@@ -183,13 +183,14 @@ export const encryptionService = {
           ? `(***) ***-${value.slice(-4)}`
           : '(***) ***-****';
 
-      case 'email':
+      case 'email': {
         // Show first char and domain: j***@example.com
         const [local, domain] = value.split('@');
         if (local && domain) {
           return `${local[0]}***@${domain}`;
         }
         return '***@***.***';
+      }
 
       case 'account':
         // Show last 4 digits: ****1234
