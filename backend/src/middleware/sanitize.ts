@@ -12,8 +12,9 @@ import { z } from 'zod';
 import type { Request, Response, NextFunction } from 'express';
 
 // Initialize DOMPurify with JSDOM
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window as unknown as Window);
+const jsdomWindow = new JSDOM('').window;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const DOMPurify = createDOMPurify(jsdomWindow as any);
 
 // Configure DOMPurify - strip all HTML tags by default
 const purifyConfig = {
